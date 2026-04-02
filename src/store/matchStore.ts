@@ -639,9 +639,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
       case 'attack_position': {
         // Where the setter played
+        const team = receivingTeamId === match.teamA.id ? match.teamA : match.teamB;
+        const rotation = receivingTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
+
         if (key === sc.attackSecondeMain) {
           // Seconde main: setter attacks
-          const team = receivingTeamId === match.teamA.id ? match.teamA : match.teamB;
           const setterNum = team.setterNumber;
           if (setterNum) {
             const setter = state.getPlayerByNumber(receivingTeamId, setterNum);
@@ -669,12 +671,26 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         };
         const pos = posMap[key];
         if (pos) {
+          // Auto-attribute attack to the player at this court position
+          // Rotation indices: [P1, P2, P3, P4, P5, P6] → indices [0,1,2,3,4,5]
+          const positionIndexMap: Record<string, number> = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
+          const rotIdx = positionIndexMap[pos];
+          const playerNum = rotation[rotIdx];
+          const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+
           set({
             inputState: {
               ...inputState,
-              phase: 'attack_player',
+              phase: 'attack_blockers',
               buffer: '',
-              pendingActions: [{ attackPosition: pos }],
+              pendingActions: [{
+                type: 'attack',
+                teamId: receivingTeamId,
+                playerNumber: playerNum,
+                playerId: player?.id,
+                attackPosition: pos,
+                timestamp: Date.now(),
+              }],
             },
           });
         }
