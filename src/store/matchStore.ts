@@ -40,15 +40,18 @@ function getPreviousPhase(current: InputPhase): InputPhase | null {
   return phaseOrder[idx - 1];
 }
 
-export type ViewType = 'home' | 'setup' | 'live' | 'dashboard' | 'settings' | 'teams';
+export type ViewType = 'home' | 'setup' | 'live' | 'dashboard' | 'settings' | 'teams' | 'matches';
 
 interface MatchStore {
   match: Match | null;
+  matchHistory: Match[];
   inputState: InputState;
   view: ViewType;
 
   setView: (view: ViewType) => void;
-  createMatch: (name: string, date: string, teamA: Team, teamB: Team) => void;
+  createMatch: (name: string, date: string, teamA: Team, teamB: Team, extras?: { location?: string; time?: string; statistician?: string }) => void;
+  loadMatch: (match: Match) => void;
+  saveMatchToHistory: () => void;
   startSet: (rotationA: number[], rotationB: number[], servingTeamId: string) => void;
 
   startPoint: () => void;
