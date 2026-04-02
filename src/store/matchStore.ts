@@ -563,7 +563,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             const qualityChar = parts[2];
             const qualityMap: Record<string, Quality> = {
               [sc.qualityExcellent]: '++', [sc.qualityGood]: '+', [sc.qualityNeutral]: '0',
-              [sc.qualityBad]: '-', [sc.qualityTerrible]: '--',
+              [sc.qualityBad]: '-', [sc.qualityOverpass]: '/', [sc.qualityTerrible]: '--',
             };
             if (qualityChar && qualityMap[qualityChar]) {
               const action: Action = {
