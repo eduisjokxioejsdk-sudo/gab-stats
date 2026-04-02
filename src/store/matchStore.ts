@@ -377,6 +377,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (!currentSet) return;
     const servingTeamId = state.getServingTeamId() || match.teamA.id;
     const receivingTeamId = servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
+    // rallyTeamId tracks who is currently attacking during a rally (alternates after each non-terminal attack)
+    const rallyTeamId = inputState.rallyTeamId || receivingTeamId;
     const sc = useShortcutsStore.getState().shortcuts;
 
     // Handle backspace
