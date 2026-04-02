@@ -31,7 +31,7 @@ function addActionToCurrentPoint(match: Match, currentSetIndex: number, currentS
 
 const phaseOrder: InputPhase[] = [
   'service_coord', 'service_type', 'service_quality', 'ace_receiver',
-  'reception', 'set_call', 'attack_position', 'attack_player', 'attack_blockers', 'attack_coord', 'attack_result',
+  'reception', 'set_call', 'attack_position', 'attack_blockers', 'attack_coord', 'attack_result',
 ];
 
 function getPreviousPhase(current: InputPhase): InputPhase | null {

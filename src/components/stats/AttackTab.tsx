@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { Action, Point, Team } from '@/types/volleyball';
+import type { Action, Point, Team, AttackResult } from '@/types/volleyball';
 import TrajectoryCourtMini from './TrajectoryCourtMini';
 import QualityTable, { buildQualityRows } from './QualityTable';
 
@@ -10,13 +10,32 @@ interface AttackTabProps {
   team?: Team;
 }
 
+const resultLabel: Record<AttackResult, string> = {
+  kill: '#', good: '+', touched: '-', bad: '!', blocked: '/', error: '=',
+};
+
+const resultColor = (r: AttackResult): string => {
+  switch (r) {
+    case 'kill': return 'hsl(145, 70%, 45%)';
+    case 'good': return 'hsl(210, 80%, 55%)';
+    case 'touched': return 'hsl(30, 80%, 55%)';
+    case 'bad': return 'hsl(30, 60%, 45%)';
+    case 'blocked': return 'hsl(0, 80%, 55%)';
+    case 'error': return 'hsl(0, 60%, 45%)';
+    default: return 'hsl(45, 80%, 55%)';
+  }
+};
+
 const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team }) => {
   const liberoNumbers = useMemo(() => team?.liberos.map(l => l.number) || [], [team]);
+  const setterNumber = team?.setterNumber;
 
-  // Include all attacks except liberos
+  // Exclude liberos and setter
   const attacks = useMemo(() =>
-    actions.filter(a => a.type === 'attack' && a.teamId === teamId && !liberoNumbers.includes(a.playerNumber || 0)),
-    [actions, teamId, liberoNumbers]
+    actions.filter(a => a.type === 'attack' && a.teamId === teamId
+      && !liberoNumbers.includes(a.playerNumber || 0)
+      && a.playerNumber !== setterNumber),
+    [actions, teamId, liberoNumbers, setterNumber]
   );
 
   const trajectories = useMemo(() => {
@@ -25,17 +44,13 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team 
       .map(a => ({
         start: a.startCoord!,
         end: a.endCoord!,
-        color: a.attackResult === 'kill'
-          ? 'hsl(145, 70%, 45%)'
-          : a.attackResult === 'error'
-            ? 'hsl(0, 80%, 55%)'
-            : 'hsl(45, 80%, 55%)',
+        color: resultColor(a.attackResult || 'good'),
         opacity: 0.65,
       }));
   }, [attacks]);
 
   const kills = attacks.filter(a => a.attackResult === 'kill').length;
-  const errors = attacks.filter(a => a.attackResult === 'error').length;
+  const errors = attacks.filter(a => a.attackResult === 'error' || a.attackResult === 'blocked').length;
   const total = attacks.length;
   const eff = total > 0 ? ((kills - errors) / total) * 100 : 0;
 
@@ -49,7 +64,9 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team 
     const mapped = attacks.map(a => ({
       playerNumber: a.playerNumber,
       quality: a.attackResult === 'kill' ? '++' as const
-        : a.attackResult === 'error' ? '--' as const
+        : (a.attackResult === 'error' || a.attackResult === 'blocked') ? '--' as const
+        : a.attackResult === 'good' ? '+' as const
+        : a.attackResult === 'bad' ? '-' as const
         : '0' as const,
     }));
     return buildQualityRows(mapped);
@@ -65,11 +82,11 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team 
           </div>
           <div>
             <p className="text-2xl font-mono font-black text-score-win">{kills}</p>
-            <p className="text-[10px] text-muted-foreground">Kills</p>
+            <p className="text-[10px] text-muted-foreground"># Kills</p>
           </div>
           <div>
             <p className="text-2xl font-mono font-black text-destructive">{errors}</p>
-            <p className="text-[10px] text-muted-foreground">Erreurs</p>
+            <p className="text-[10px] text-muted-foreground">=/  Err+Blk</p>
           </div>
           <div>
             <p className="text-2xl font-mono font-black text-foreground">{total}</p>
@@ -78,17 +95,14 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team 
         </div>
       </div>
 
-      <TrajectoryCourtMini trajectories={trajectories} title={`Toutes les trajectoires (${attacks.length} attaques)`} />
-      <div className="flex gap-2 text-[10px] font-mono text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <span className="w-3 h-0.5 bg-score-win inline-block rounded" /> Kill
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-3 h-0.5 bg-destructive inline-block rounded" /> Erreur
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-3 h-0.5 bg-yellow-500 inline-block rounded" /> Continu
-        </span>
+      <TrajectoryCourtMini trajectories={trajectories} title={`Trajectoires (${attacks.length} attaques)`} />
+      <div className="flex flex-wrap gap-2 text-[10px] font-mono text-muted-foreground">
+        {(['kill', 'good', 'touched', 'bad', 'blocked', 'error'] as AttackResult[]).map(r => (
+          <span key={r} className="flex items-center gap-1">
+            <span className="w-3 h-0.5 inline-block rounded" style={{ backgroundColor: resultColor(r) }} />
+            {resultLabel[r]}
+          </span>
+        ))}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -99,22 +113,17 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team 
             .map(a => ({
               start: a.startCoord!,
               end: a.endCoord!,
-              color: a.attackResult === 'kill'
-                ? 'hsl(145, 70%, 45%)'
-                : a.attackResult === 'error'
-                  ? 'hsl(0, 80%, 55%)'
-                  : 'hsl(45, 80%, 55%)',
+              color: resultColor(a.attackResult || 'good'),
               opacity: 0.7,
             }));
           const pKills = playerAttacks.filter(a => a.attackResult === 'kill').length;
-          const pErrors = playerAttacks.filter(a => a.attackResult === 'error').length;
+          const pErrors = playerAttacks.filter(a => a.attackResult === 'error' || a.attackResult === 'blocked').length;
           const pEff = playerAttacks.length > 0 ? ((pKills - pErrors) / playerAttacks.length * 100).toFixed(0) : '0';
-          const isSecondeMain = playerAttacks.some(a => a.attackPosition === 'seconde_main');
           return (
             <TrajectoryCourtMini
               key={num}
               trajectories={playerTrajs}
-              title={`N°${num}${isSecondeMain ? ' (2nde main)' : ''} — ${pKills}K/${pErrors}E/${playerAttacks.length}T (${pEff}%)`}
+              title={`N°${num} — ${pKills}#/${pErrors}E/${playerAttacks.length}T (${pEff}%)`}
             />
           );
         })}
