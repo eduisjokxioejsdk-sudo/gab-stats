@@ -11,6 +11,8 @@ interface VolleyCourtProps {
   teamRightName?: string;
   liberoLeft?: number[];
   liberoRight?: number[];
+  setterLeft?: number;
+  setterRight?: number;
 }
 
 const VolleyCourt: React.FC<VolleyCourtProps> = ({
