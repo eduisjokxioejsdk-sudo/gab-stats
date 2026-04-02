@@ -497,6 +497,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 });
               }
             }
+          } else if (quality === '/') {
+            // Service overpass: reception comes back to server's side
+            // Ask for receiver number, credit "/" reception, then set_call for serving team
+            set({
+              match: { ...match, sets: updatedSets },
+              inputState: { ...inputState, phase: 'ace_receiver', buffer: '', rallyTeamId: servingTeamId },
+            });
           } else {
             set({
               match: { ...match, sets: updatedSets },
