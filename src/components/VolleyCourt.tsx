@@ -252,15 +252,17 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
           stroke="hsl(var(--court-line))" strokeWidth="0.5" strokeDasharray="3,1.5" opacity="0.6" />
 
         {/* Previous service trajectories (ghost) */}
-        {isServicePhase && previousServices.map((svc, i) => (
-          <g key={`prev-svc-${i}`} opacity="0.25">
+        {isServicePhase && previousServices.map((svc, i) => {
+          const svcColor = svc.serviceType === 'smash' ? 'hsl(0, 80%, 55%)' : 'hsl(210, 80%, 55%)';
+          return (
+          <g key={`prev-svc-${i}`} opacity="0.3">
             <line
               x1={svc.startCoord.x} y1={svc.startCoord.y}
               x2={svc.endCoord.x} y2={svc.endCoord.y}
-              stroke="hsl(var(--accent))" strokeWidth="1" strokeDasharray="2,2"
-              markerEnd="url(#arrow-ghost)"
+              stroke={svcColor} strokeWidth="1" strokeDasharray="2,2"
+              markerEnd={svc.serviceType === 'smash' ? 'url(#arrow-ghost-smash)' : 'url(#arrow-ghost-float)'}
             />
-            <circle cx={svc.startCoord.x} cy={svc.startCoord.y} r="2" fill="hsl(var(--accent))" />
+            <circle cx={svc.startCoord.x} cy={svc.startCoord.y} r="2" fill={svcColor} />
             <circle cx={svc.endCoord.x} cy={svc.endCoord.y} r="2" fill="hsl(var(--accent))" />
           </g>
         ))}
