@@ -101,27 +101,27 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
   const isActive = phase !== 'idle';
 
   return (
-    <div className={`rounded-lg border p-3 transition-all ${
+    <div className={`rounded-lg border p-4 transition-all ${
       isActive
         ? 'bg-card border-primary/30 glow-primary'
         : 'bg-card border-border'
     }`}>
-      <div className="flex items-center justify-between mb-1">
-        <span className={`text-xs font-bold uppercase tracking-wider ${
+      <div className="flex items-center justify-between mb-1.5">
+        <span className={`text-sm font-bold uppercase tracking-wider ${
           isActive ? 'text-primary' : 'text-muted-foreground'
         }`}>
           {config.label}
         </span>
         {buffer && (
-          <span className="font-mono text-accent text-xl font-black bg-secondary px-4 py-1 rounded-md tracking-widest border border-accent/30">
+          <span className="font-mono text-accent text-2xl font-black bg-secondary px-5 py-1.5 rounded-md tracking-widest border border-accent/30">
             {buffer}
           </span>
         )}
       </div>
       {config.hint && (
-        <p className="text-muted-foreground text-xs mb-1">{config.hint}</p>
+        <p className="text-muted-foreground text-sm mb-1">{config.hint}</p>
       )}
-      <p className="font-mono text-xs text-foreground/70">{config.keys}</p>
+      <p className="font-mono text-sm text-foreground/70">{config.keys}</p>
     </div>
   );
 };
