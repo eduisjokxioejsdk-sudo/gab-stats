@@ -41,7 +41,10 @@ const formatAction = (action: Action, teamAName: string, teamBName: string, team
       return `APPEL ${callStr}`;
     }
     case 'attack': {
-      const resultStr = action.attackResult === 'kill' ? '++' : action.attackResult === 'error' ? 'Erreur' : action.attackResult === 'continue' ? 'Continue' : '';
+      const resultLabels: Record<string, string> = {
+        kill: '#', good: '+', touched: '-', bad: '!', blocked: '/', error: '=',
+      };
+      const resultStr = action.attackResult ? (resultLabels[action.attackResult] || '') : '';
       const blockStr = action.blockersCount !== undefined ? `${action.blockersCount}B` : '';
       const posStr = positionLabel(action.attackPosition);
       return `ATTAQUE ${posStr ? `[${posStr}] ` : ''}${playerStr} ${blockStr} ${resultStr}`.trim();
