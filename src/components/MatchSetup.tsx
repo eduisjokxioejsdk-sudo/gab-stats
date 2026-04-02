@@ -50,6 +50,14 @@ const MatchSetup: React.FC = () => {
           name: p.name || `#${p.number}`,
           teamId: teamAId,
         })),
+      liberos: teamALiberos
+        .filter(p => p.number)
+        .map(p => ({
+          id: generateId(),
+          number: parseInt(p.number),
+          name: p.name || `L#${p.number}`,
+          teamId: teamAId,
+        })),
     };
 
     const teamB: Team = {
@@ -61,6 +69,14 @@ const MatchSetup: React.FC = () => {
           id: generateId(),
           number: parseInt(p.number),
           name: p.name || `#${p.number}`,
+          teamId: teamBId,
+        })),
+      liberos: teamBLiberos
+        .filter(p => p.number)
+        .map(p => ({
+          id: generateId(),
+          number: parseInt(p.number),
+          name: p.name || `L#${p.number}`,
           teamId: teamBId,
         })),
     };
