@@ -73,7 +73,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     attack_blockers: {
       label: 'ATTAQUE — Bloqueurs',
       hint: 'Nombre de bloqueurs adverses',
-      keys: '[0] [1] [2] [3]',
+      keys: `[${formatKey(shortcuts.blockers0)}] 0  [${formatKey(shortcuts.blockers1)}] 1  [${formatKey(shortcuts.blockers2)}] 2  [${formatKey(shortcuts.blockers3)}] 3`,
     },
     attack_coord: {
       label: 'ATTAQUE — Trajectoire',
