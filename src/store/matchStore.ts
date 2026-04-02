@@ -429,36 +429,52 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'reception': {
+        // Number input: 2-digit auto-validates, 1-digit needs Enter
+        if (key === 'enter') {
+          // Validate 1-digit number from buffer
+          const parts = inputState.buffer.match(/^(\d+)(.?)$/);
+          if (parts) {
+            const playerNum = parseInt(parts[1]);
+            const qualityChar = parts[2];
+            const qualityMap: Record<string, Quality> = {
+              [sc.qualityExcellent]: '++', [sc.qualityGood]: '+', [sc.qualityNeutral]: '0',
+              [sc.qualityBad]: '-', [sc.qualityTerrible]: '--',
+            };
+            if (qualityChar && qualityMap[qualityChar]) {
+              const action: Action = {
+                id: generateId(), type: 'reception', teamId: receivingTeamId,
+                playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
+                quality: qualityMap[qualityChar], timestamp: Date.now(),
+              };
+              if (inputState.currentPointId) {
+                const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' } });
+              }
+            }
+          }
+          return;
+        }
+
         const buffer = inputState.buffer + key;
         const qualityMap: Record<string, Quality> = {
-          [sc.qualityExcellent]: '++',
-          [sc.qualityGood]: '+',
-          [sc.qualityNeutral]: '0',
-          [sc.qualityBad]: '-',
-          [sc.qualityTerrible]: '--',
+          [sc.qualityExcellent]: '++', [sc.qualityGood]: '+', [sc.qualityNeutral]: '0',
+          [sc.qualityBad]: '-', [sc.qualityTerrible]: '--',
         };
 
         const lastChar = buffer[buffer.length - 1];
-        if (qualityMap[lastChar] && buffer.length >= 2) {
+        if (qualityMap[lastChar] && buffer.length >= 3) {
+          // 2+ digit number + quality char → auto-validate
           const playerNumStr = buffer.substring(0, buffer.length - 1);
           const playerNum = parseInt(playerNumStr);
           if (!isNaN(playerNum)) {
             const action: Action = {
-              id: generateId(),
-              type: 'reception',
-              teamId: receivingTeamId,
-              playerNumber: playerNum,
-              playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
-              quality: qualityMap[lastChar],
-              timestamp: Date.now(),
+              id: generateId(), type: 'reception', teamId: receivingTeamId,
+              playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
+              quality: qualityMap[lastChar], timestamp: Date.now(),
             };
-
             if (inputState.currentPointId) {
               const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-              set({
-                match: updatedMatch,
-                inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' },
-              });
+              set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' } });
             }
           }
         } else {
