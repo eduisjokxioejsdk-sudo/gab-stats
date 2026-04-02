@@ -4,8 +4,9 @@ import type { Action, Point } from '@/types/volleyball';
 import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
 import AttackTab from './stats/AttackTab';
+import CentrauxTab from './stats/CentrauxTab';
 
-type StatsTab = 'service' | 'reception' | 'attack' | 'distribution';
+type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution';
 
 const Dashboard: React.FC = () => {
   const { match, setView } = useMatchStore();
