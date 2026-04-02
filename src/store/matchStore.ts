@@ -759,13 +759,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         if (key === 'enter') {
           const playerNum = parseInt(inputState.buffer);
           if (!isNaN(playerNum) && playerNum > 0) {
-            const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+            const player = state.getPlayerByNumber(rallyTeamId, playerNum);
             if (player) {
               set({
                 inputState: {
                   ...inputState, phase: 'attack_blockers', buffer: '',
                   pendingActions: [{
-                    type: 'attack', teamId: receivingTeamId,
+                    type: 'attack', teamId: rallyTeamId,
                     playerNumber: playerNum, playerId: player.id,
                     attackPosition,
                     timestamp: Date.now(),
