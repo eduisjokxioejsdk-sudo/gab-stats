@@ -83,6 +83,9 @@ export interface Match {
   id: string;
   name: string;
   date: string;
+  location?: string;
+  time?: string;
+  statistician?: string;
   teamA: Team;
   teamB: Team;
   sets: SetData[];
