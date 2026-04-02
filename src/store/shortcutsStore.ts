@@ -2,25 +2,21 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export interface ShortcutMap {
-  // Service type
   serviceSmash: string;
   serviceFloat: string;
-  // Reception quality
-  qualityExcellent: string; // R++
-  qualityGood: string;      // R+
-  qualityNeutral: string;   // R0
-  qualityBad: string;       // R-
-  qualityTerrible: string;  // R--
-  // Set call
+  qualityExcellent: string;
+  qualityGood: string;
+  qualityNeutral: string;
+  qualityBad: string;
+  qualityTerrible: string;
   setAvant: string;
   setArriere: string;
   setDecalee: string;
   setNone: string;
-  // Attack result
   attackKill: string;
   attackError: string;
   attackContinue: string;
-  // Point
+  attackSecondeMain: string;
   startEndPoint: string;
   winnerLeft: string;
   winnerRight: string;
@@ -41,6 +37,7 @@ export const defaultShortcuts: ShortcutMap = {
   attackKill: 'k',
   attackError: 'e',
   attackContinue: 'c',
+  attackSecondeMain: 'm',
   startEndPoint: ' ',
   winnerLeft: 'ArrowLeft',
   winnerRight: 'ArrowRight',

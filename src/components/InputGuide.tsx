@@ -7,6 +7,7 @@ interface InputGuideProps {
   buffer: string;
   teamAName?: string;
   teamBName?: string;
+  setterFront?: boolean;
 }
 
 const formatKey = (key: string): string => {
@@ -16,8 +17,10 @@ const formatKey = (key: string): string => {
   return key.toUpperCase();
 };
 
-const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Équipe A', teamBName = 'Équipe B' }) => {
+const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Équipe A', teamBName = 'Équipe B', setterFront }) => {
   const { shortcuts } = useShortcutsStore();
+
+  const oppositePos = setterFront ? '1' : '2';
 
   const phaseConfig: Record<InputPhase, { label: string; hint: string; keys: string }> = {
     idle: {
@@ -40,6 +43,11 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
       hint: 'Qualité du service (++ = ace, point direct)',
       keys: `[${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --`,
     },
+    ace_receiver: {
+      label: 'ACE — Réceptionneur',
+      hint: 'N° du réceptionneur pour lui créditer une réception -- (ENTRÉE pour passer)',
+      keys: '[N° joueur] + [ENTRÉE]  ou  [ENTRÉE] pour passer',
+    },
     reception: {
       label: 'RÉCEPTION',
       hint: 'N° joueur + qualité — 2 chiffres : auto, 1 chiffre : ENTRÉE pour valider',
@@ -49,6 +57,11 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
       label: 'APPEL DU CENTRAL',
       hint: 'Type de passe',
       keys: `[${formatKey(shortcuts.setAvant)}] Avant  [${formatKey(shortcuts.setArriere)}] Arrière  [${formatKey(shortcuts.setDecalee)}] Décalée  [${formatKey(shortcuts.setNone)}] Pas d'appel`,
+    },
+    attack_position: {
+      label: 'PASSE — Direction',
+      hint: 'Où le passeur a-t-il joué ?',
+      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [4] Poste 4  [3] Centre  [6] Pipe  [${oppositePos}] Poste ${oppositePos}`,
     },
     attack_player: {
       label: 'ATTAQUE — Joueur',

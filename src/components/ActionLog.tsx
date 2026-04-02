@@ -13,8 +13,20 @@ const qualityLabel = (q?: string) => {
   return q;
 };
 
+const positionLabel = (pos?: string) => {
+  if (!pos) return '';
+  switch (pos) {
+    case 'seconde_main': return '2nde main';
+    case '4': return 'P4';
+    case '3': return 'Centre';
+    case '6': return 'Pipe';
+    case '2': return 'P2';
+    case '1': return 'P1';
+    default: return pos;
+  }
+};
+
 const formatAction = (action: Action, teamAName: string, teamBName: string, teamAId: string): string => {
-  const teamName = action.teamId === teamAId ? teamAName : teamBName;
   const playerStr = action.playerNumber ? `N°${action.playerNumber}` : '';
 
   switch (action.type) {
@@ -26,12 +38,13 @@ const formatAction = (action: Action, teamAName: string, teamBName: string, team
       return `RÉCEPTION ${playerStr} ${qualityLabel(action.quality)}`.trim();
     case 'set': {
       const callStr = action.setCall === 'avant' ? 'Avant' : action.setCall === 'arriere' ? 'Arrière' : action.setCall === 'decalee' ? 'Décalée' : 'Pas d\'appel';
-      return `PASSE ${callStr}`;
+      return `APPEL ${callStr}`;
     }
     case 'attack': {
       const resultStr = action.attackResult === 'kill' ? '++' : action.attackResult === 'error' ? 'Erreur' : action.attackResult === 'continue' ? 'Continue' : '';
       const blockStr = action.blockersCount !== undefined ? `${action.blockersCount}B` : '';
-      return `ATTAQUE ${playerStr} ${blockStr} ${resultStr}`.trim();
+      const posStr = positionLabel(action.attackPosition);
+      return `ATTAQUE ${posStr ? `[${posStr}] ` : ''}${playerStr} ${blockStr} ${resultStr}`.trim();
     }
     case 'defense':
       return `DÉFENSE ${playerStr} ${qualityLabel(action.quality)}`.trim();
@@ -70,10 +83,7 @@ const ActionLog: React.FC<ActionLogProps> = ({ actions, teamAName, teamBName, te
           <p className="text-muted-foreground text-xs italic">Aucune action</p>
         )}
         {actions.map((action, i) => (
-          <div
-            key={action.id}
-            className="flex items-center gap-2 px-2 py-1.5 rounded bg-secondary/30 text-sm font-mono"
-          >
+          <div key={action.id} className="flex items-center gap-2 px-2 py-1.5 rounded bg-secondary/30 text-sm font-mono">
             <span className="text-muted-foreground w-5 text-[10px]">{i + 1}</span>
             <span className="text-xs">{getActionIcon(action.type)}</span>
             <span className={`flex-1 text-xs ${getActionColor(action)}`}>

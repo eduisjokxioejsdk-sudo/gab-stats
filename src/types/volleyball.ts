@@ -9,7 +9,8 @@ export interface Team {
   id: string;
   name: string;
   players: Player[];
-  liberos: Player[]; // up to 2 liberos
+  liberos: Player[];
+  setterNumber?: number;
 }
 
 export type ActionType = 'service' | 'reception' | 'set' | 'attack' | 'defense';
@@ -17,6 +18,7 @@ export type ServiceType = 'smash' | 'float';
 export type Quality = '++' | '+' | '0' | '-' | '--';
 export type SetCall = 'avant' | 'arriere' | 'decalee' | 'none';
 export type AttackResult = 'kill' | 'error' | 'continue';
+export type AttackPosition = 'seconde_main' | '4' | '3' | '6' | '2' | '1';
 
 export interface Coordinate {
   x: number;
@@ -33,9 +35,19 @@ export interface Action {
   serviceType?: ServiceType;
   setCall?: SetCall;
   attackResult?: AttackResult;
+  attackPosition?: AttackPosition;
   blockersCount?: number;
   startCoord?: Coordinate;
   endCoord?: Coordinate;
+  timestamp: number;
+}
+
+export interface Substitution {
+  id: string;
+  teamId: string;
+  outNumber: number;
+  inNumber: number;
+  atPointIndex: number;
   timestamp: number;
 }
 
@@ -55,15 +67,16 @@ export interface SetData {
   id: string;
   matchId: string;
   setNumber: number;
-  rotationA: number[]; // player numbers in positions 1-6
+  rotationA: number[];
   rotationB: number[];
   currentRotationA: number[];
   currentRotationB: number[];
   points: Point[];
   scoreA: number;
   scoreB: number;
-  servingTeamId: string; // initial serving team for this set
+  servingTeamId: string;
   winnerTeamId?: string;
+  substitutions: Substitution[];
 }
 
 export interface Match {
@@ -79,25 +92,26 @@ export interface Match {
   winnerTeamId?: string;
 }
 
-// Input workflow state
 export type InputPhase =
-  | 'idle'           // Waiting for space to start
-  | 'service_coord'  // Waiting for serve trajectory on court
-  | 'service_type'   // S or F
-  | 'service_quality'// Service quality: ++ auto-wins point
-  | 'reception'      // Player number + quality
-  | 'set_call'       // A, Z, E, or 0
-  | 'attack_player'  // Attacker number
-  | 'attack_blockers'// 0-3
-  | 'attack_coord'   // Trajectory on court
-  | 'attack_result'  // K, E, C
-  | 'point_winner'   // Left/Right arrow after space ends point
-  | 'recording';     // Point in progress, waiting for actions or space to end
+  | 'idle'
+  | 'service_coord'
+  | 'service_type'
+  | 'service_quality'
+  | 'ace_receiver'
+  | 'reception'
+  | 'set_call'
+  | 'attack_position'
+  | 'attack_player'
+  | 'attack_blockers'
+  | 'attack_coord'
+  | 'attack_result'
+  | 'point_winner'
+  | 'recording';
 
 export interface InputState {
   phase: InputPhase;
   currentPointId?: string;
   pendingActions: Partial<Action>[];
   courtClicks: Coordinate[];
-  buffer: string; // keyboard buffer for multi-char input
+  buffer: string;
 }

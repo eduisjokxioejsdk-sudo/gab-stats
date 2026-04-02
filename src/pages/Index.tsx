@@ -3,6 +3,8 @@ import MatchSetup from '@/components/MatchSetup';
 import LiveScoring from '@/components/LiveScoring';
 import Dashboard from '@/components/Dashboard';
 import Settings from '@/components/Settings';
+import HomeScreen from '@/components/HomeScreen';
+import TeamManager from '@/components/TeamManager';
 
 const Index = () => {
   const { view } = useMatchStore();
@@ -14,8 +16,13 @@ const Index = () => {
       return <Dashboard />;
     case 'settings':
       return <Settings />;
-    default:
+    case 'setup':
       return <MatchSetup />;
+    case 'teams':
+      return <TeamManager />;
+    case 'home':
+    default:
+      return <HomeScreen />;
   }
 };
 

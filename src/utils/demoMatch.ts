@@ -1,5 +1,5 @@
 import { useMatchStore } from '@/store/matchStore';
-import type { Match, Team, SetData, Point, Action, Quality, AttackResult } from '@/types/volleyball';
+import type { Match, Team, SetData, Point, Action, Quality, AttackResult, AttackPosition } from '@/types/volleyball';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -7,6 +7,7 @@ function generateId(): string {
 
 const qualityOptions: Quality[] = ['++', '+', '0', '-', '--'];
 const attackResults: AttackResult[] = ['kill', 'error', 'continue'];
+const attackPositions: AttackPosition[] = ['4', '3', '6', 'seconde_main'];
 
 function randomFrom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -32,17 +33,23 @@ export function loadDemoMatch() {
     teamId: teamBId,
   }));
 
-  const teamA: Team = { id: teamAId, name: 'Paris Volley', players: teamAPlayers, liberos: [{ id: generateId(), number: 15, name: 'Duval', teamId: teamAId }] };
-  const teamB: Team = { id: teamBId, name: 'Tours VB', players: teamBPlayers, liberos: [{ id: generateId(), number: 14, name: 'Blanc', teamId: teamBId }] };
+  const teamA: Team = {
+    id: teamAId, name: 'Paris Volley', players: teamAPlayers,
+    liberos: [{ id: generateId(), number: 15, name: 'Duval', teamId: teamAId }],
+    setterNumber: 9,
+  };
+  const teamB: Team = {
+    id: teamBId, name: 'Tours VB', players: teamBPlayers,
+    liberos: [{ id: generateId(), number: 14, name: 'Blanc', teamId: teamBId }],
+    setterNumber: 10,
+  };
 
   store.createMatch('Démo — Finale Ligue A', new Date().toISOString(), teamA, teamB);
 
-  // Start set with rotations
   const rotA = [1, 4, 7, 9, 11, 15];
   const rotB = [2, 5, 8, 10, 12, 14];
   store.startSet(rotA, rotB, teamAId);
 
-  // Generate ~15 demo points
   const numPoints = 15;
   for (let i = 0; i < numPoints; i++) {
     store.startPoint();
@@ -59,7 +66,6 @@ export function loadDemoMatch() {
     const receivingPlayers = receivingTeamId === teamAId ? teamAPlayers : teamBPlayers;
     const servingPlayers = servingTeamId === teamAId ? teamAPlayers : teamBPlayers;
 
-    // Service action
     const serviceAction: Action = {
       id: generateId(),
       type: 'service',
@@ -67,13 +73,13 @@ export function loadDemoMatch() {
       playerNumber: servingPlayers[0].number,
       playerId: servingPlayers[0].id,
       serviceType: Math.random() > 0.5 ? 'smash' : 'float',
+      quality: randomFrom(qualityOptions),
       startCoord: { x: 35 + Math.random() * 30, y: 75 + Math.random() * 15 },
       endCoord: { x: 10 + Math.random() * 35, y: 20 + Math.random() * 50 },
       timestamp: Date.now(),
     };
     store.addAction(serviceAction);
 
-    // Reception
     const receiver = randomFrom(receivingPlayers);
     const receptionAction: Action = {
       id: generateId(),
@@ -86,7 +92,6 @@ export function loadDemoMatch() {
     };
     store.addAction(receptionAction);
 
-    // Attack
     const attacker = randomFrom(receivingPlayers);
     const attackAction: Action = {
       id: generateId(),
@@ -95,6 +100,7 @@ export function loadDemoMatch() {
       playerNumber: attacker.number,
       playerId: attacker.id,
       attackResult: randomFrom(attackResults),
+      attackPosition: randomFrom(attackPositions),
       blockersCount: Math.floor(Math.random() * 3),
       startCoord: { x: 10 + Math.random() * 30, y: 20 + Math.random() * 30 },
       endCoord: { x: 55 + Math.random() * 35, y: 10 + Math.random() * 70 },
@@ -102,14 +108,10 @@ export function loadDemoMatch() {
     };
     store.addAction(attackAction);
 
-    // End point and assign winner
     store.endPoint();
-
-    // Random winner
     const winner = Math.random() > 0.5 ? teamAId : teamBId;
     store.assignPointWinner(winner);
 
-    // Check if set is over
     const updatedSet = useMatchStore.getState().getCurrentSet();
     if (updatedSet?.winnerTeamId) break;
   }

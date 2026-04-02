@@ -1,10 +1,11 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import { useMatchStore } from '@/store/matchStore';
 import { useShortcutsStore } from '@/store/shortcutsStore';
 import VolleyCourt from '@/components/VolleyCourt';
 import InputGuide from '@/components/InputGuide';
 import ScoreBoard from '@/components/ScoreBoard';
 import ActionLog from '@/components/ActionLog';
+import SubstitutionDialog from '@/components/SubstitutionDialog';
 
 const LiveScoring: React.FC = () => {
   const {
@@ -17,19 +18,25 @@ const LiveScoring: React.FC = () => {
     setView,
     getCurrentSet,
     getCurrentPointActions,
+    isSetterFront,
   } = useMatchStore();
 
   const currentSet = getCurrentSet();
   const { shortcuts } = useShortcutsStore();
   const currentActions = getCurrentPointActions();
+  const [showSub, setShowSub] = useState(false);
+
+  const servingTeamId = useMatchStore.getState().getServingTeamId();
+  const receivingTeamId = match && servingTeamId ? (servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id) : null;
+  const setterFront = receivingTeamId ? isSetterFront(receivingTeamId) : false;
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (showSub) return;
     const key = e.key;
 
-    // End point shortcut (only when in a point, not idle or point_winner)
     if (key === shortcuts.startEndPoint) {
       e.preventDefault();
-      if (inputState.phase !== 'idle' && inputState.phase !== 'point_winner') {
+      if (inputState.phase !== 'idle' && inputState.phase !== 'point_winner' && inputState.phase !== 'ace_receiver') {
         endPoint();
       }
       return;
@@ -52,7 +59,7 @@ const LiveScoring: React.FC = () => {
     } else if (key.length === 1) {
       processKeyInput(key.toLowerCase());
     }
-  }, [inputState.phase, match, endPoint, assignPointWinner, processKeyInput, shortcuts]);
+  }, [inputState.phase, match, endPoint, assignPointWinner, processKeyInput, shortcuts, showSub]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -62,8 +69,8 @@ const LiveScoring: React.FC = () => {
   if (!match || !currentSet) return null;
 
   const lastPoint = currentSet.points[currentSet.points.length - 1];
-  const servingTeamId = lastPoint?.servingTeamId || match.teamA.id;
-  const servingSide: 'A' | 'B' = servingTeamId === match.teamA.id ? 'A' : 'B';
+  const currentServingTeamId = servingTeamId || match.teamA.id;
+  const servingSide: 'A' | 'B' = currentServingTeamId === match.teamA.id ? 'A' : 'B';
 
   return (
     <div className="h-screen flex flex-col no-select overflow-hidden">
@@ -76,6 +83,12 @@ const LiveScoring: React.FC = () => {
           <span className="text-xs text-muted-foreground font-mono">{match.name}</span>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setShowSub(true)}
+            className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
+          >
+            🔄 Changement
+          </button>
           <button
             onClick={() => setView('dashboard')}
             className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
@@ -107,7 +120,6 @@ const LiveScoring: React.FC = () => {
 
       {/* Main area: Court left + Action log right */}
       <div className="flex-1 flex min-h-0 px-4 py-2 gap-3">
-        {/* Court - takes most space, pinned left */}
         <div className="flex-1 flex items-center justify-start">
           <div className="w-full max-w-4xl">
             <VolleyCourt
@@ -142,6 +154,7 @@ const LiveScoring: React.FC = () => {
           buffer={inputState.buffer}
           teamAName={match.teamA.name}
           teamBName={match.teamB.name}
+          setterFront={setterFront}
         />
       </div>
 
@@ -184,6 +197,9 @@ const LiveScoring: React.FC = () => {
           </p>
         </div>
       )}
+
+      {/* Substitution dialog */}
+      <SubstitutionDialog isOpen={showSub} onClose={() => setShowSub(false)} />
     </div>
   );
 };
