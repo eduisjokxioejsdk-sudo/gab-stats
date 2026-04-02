@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMatchStore } from '@/store/matchStore';
+import { useShortcutsStore } from '@/store/shortcutsStore';
 import VolleyCourt from '@/components/VolleyCourt';
 import InputGuide from '@/components/InputGuide';
 import ScoreBoard from '@/components/ScoreBoard';
