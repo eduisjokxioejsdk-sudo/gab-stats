@@ -315,6 +315,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         buffer: '',
       },
     });
+    // Auto-save to history
+    get().saveMatchToHistory();
   },
 
   setInputPhase: (phase) => set(state => ({ inputState: { ...state.inputState, phase } })),
