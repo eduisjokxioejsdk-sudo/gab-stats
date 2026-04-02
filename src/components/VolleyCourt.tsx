@@ -5,6 +5,11 @@ interface PlayerRoleMap {
   [playerNumber: number]: PlayerRole | undefined;
 }
 
+export interface PreviousService {
+  startCoord: Coordinate;
+  endCoord: Coordinate;
+}
+
 interface VolleyCourtProps {
   onCourtClick: (coord: Coordinate) => void;
   clicks: Coordinate[];
@@ -19,6 +24,8 @@ interface VolleyCourtProps {
   setterRight?: number;
   rolesLeft?: PlayerRoleMap;
   rolesRight?: PlayerRoleMap;
+  inputPhase?: string;
+  previousServices?: PreviousService[];
 }
 
 const roleShape = (
@@ -29,7 +36,6 @@ const roleShape = (
 
   switch (role) {
     case 'central':
-      // Diamond
       return (
         <polygon
           points={`${x},${y - r} ${x + r},${y} ${x},${y + r} ${x - r},${y}`}
@@ -37,7 +43,6 @@ const roleShape = (
         />
       );
     case 'pointu':
-      // Triangle pointing up
       return (
         <polygon
           points={`${x},${y - r} ${x + r},${y + r * 0.7} ${x - r},${y + r * 0.7}`}
@@ -45,7 +50,6 @@ const roleShape = (
         />
       );
     case 'r4':
-      // Square
       return (
         <rect
           x={x - r * 0.8} y={y - r * 0.8} width={r * 1.6} height={r * 1.6}
@@ -53,7 +57,6 @@ const roleShape = (
         />
       );
     case 'passeur':
-      // Star/circle with stroke
       return (
         <>
           <circle cx={x} cy={y} r={r} fill={setterColor} opacity="0.9" />
@@ -61,10 +64,33 @@ const roleShape = (
         </>
       );
     default:
-      // Circle
       return <circle cx={x} cy={y} r={r} fill={fill} opacity="0.9" />;
   }
 };
+
+// Front row = rotation positions 2,3,4 ; Back row = 1,5,6
+const isFrontRow = (rotPos: number) => rotPos >= 2 && rotPos <= 4;
+
+// Map a role to its physical court zone for the serving team
+// Front: passeur/pointu→2, central→3, r4→4
+// Back: passeur/pointu→1, central→5, r4→6
+function getRolePhysicalZone(role: PlayerRole | undefined, front: boolean): number {
+  if (front) {
+    switch (role) {
+      case 'passeur': case 'pointu': return 2;
+      case 'central': return 3;
+      case 'r4': return 4;
+      default: return 3; // fallback center
+    }
+  } else {
+    switch (role) {
+      case 'passeur': case 'pointu': return 1;
+      case 'central': return 5;
+      case 'r4': return 6;
+      default: return 6; // fallback center
+    }
+  }
+}
 
 const VolleyCourt: React.FC<VolleyCourtProps> = ({
   onCourtClick,
@@ -80,6 +106,8 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   setterRight,
   rolesLeft = {},
   rolesRight = {},
+  inputPhase,
+  previousServices = [],
 }) => {
   const courtLeft = 20;
   const courtRight = 200;
@@ -89,6 +117,29 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   const courtW = 90;
   const courtH = 90;
   const attackLineOffset = 30;
+  const thirdH = courtH / 3;
+
+  // Physical zone coordinates for left team
+  const leftZoneCoords: Record<number, { x: number; y: number }> = {
+    4: { x: courtMidX - 15, y: courtTop + thirdH * 0.5 },
+    3: { x: courtMidX - 15, y: courtTop + thirdH * 1.5 },
+    2: { x: courtMidX - 15, y: courtTop + thirdH * 2.5 },
+    5: { x: courtLeft + 15,  y: courtTop + thirdH * 0.5 },
+    6: { x: courtLeft + 15,  y: courtTop + thirdH * 1.5 },
+    1: { x: courtLeft + 15,  y: courtTop + thirdH * 2.5 },
+  };
+  const leftServiceZone = { x: 10, y: courtTop + thirdH * 2.5 };
+
+  // Physical zone coordinates for right team
+  const rightZoneCoords: Record<number, { x: number; y: number }> = {
+    2: { x: courtMidX + 15, y: courtTop + thirdH * 0.5 },
+    3: { x: courtMidX + 15, y: courtTop + thirdH * 1.5 },
+    4: { x: courtMidX + 15, y: courtTop + thirdH * 2.5 },
+    1: { x: courtRight - 15, y: courtTop + thirdH * 0.5 },
+    6: { x: courtRight - 15, y: courtTop + thirdH * 1.5 },
+    5: { x: courtRight - 15, y: courtTop + thirdH * 2.5 },
+  };
+  const rightServiceZone = { x: 210, y: courtTop + thirdH * 2.5 };
 
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
@@ -100,27 +151,58 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
     onCourtClick({ x: svgX, y: svgY });
   };
 
-  const thirdH = courtH / 3;
+  const isServicePhase = inputPhase === 'idle' || inputPhase === 'service_coord' || inputPhase === 'service_type' || inputPhase === 'service_quality';
+  const isLeftServing = servingSide === 'left';
+  const isRightServing = servingSide === 'right';
 
-  const leftPositions = [
-    { pos: 4, x: courtMidX - 15, y: courtTop + thirdH * 0.5 },
-    { pos: 3, x: courtMidX - 15, y: courtTop + thirdH * 1.5 },
-    { pos: 2, x: courtMidX - 15, y: courtTop + thirdH * 2.5 },
-    { pos: 5, x: courtLeft + 15, y: courtTop + thirdH * 0.5 },
-    { pos: 6, x: courtLeft + 15, y: courtTop + thirdH * 1.5 },
-    { pos: 1, x: courtLeft + 15, y: courtTop + thirdH * 2.5 },
-  ];
+  // Compute player positions for a team
+  const computePlayerPositions = (
+    rotation: number[],
+    roles: PlayerRoleMap,
+    zoneCoords: Record<number, { x: number; y: number }>,
+    serviceZone: { x: number; y: number },
+    isServing: boolean,
+  ) => {
+    const positions: { playerNum: number; x: number; y: number; rotPos: number }[] = [];
 
-  const rightPositions = [
-    { pos: 2, x: courtMidX + 15, y: courtTop + thirdH * 0.5 },
-    { pos: 3, x: courtMidX + 15, y: courtTop + thirdH * 1.5 },
-    { pos: 4, x: courtMidX + 15, y: courtTop + thirdH * 2.5 },
-    { pos: 1, x: courtRight - 15, y: courtTop + thirdH * 0.5 },
-    { pos: 6, x: courtRight - 15, y: courtTop + thirdH * 1.5 },
-    { pos: 5, x: courtRight - 15, y: courtTop + thirdH * 2.5 },
-  ];
+    if (!rotation.length) return positions;
 
-  const getPlayerAtPosition = (rotation: number[], pos: number) => rotation[pos - 1];
+    for (let rotPos = 1; rotPos <= 6; rotPos++) {
+      const playerNum = rotation[rotPos - 1];
+      if (!playerNum) continue;
+
+      const front = isFrontRow(rotPos);
+      const isServer = rotPos === 1;
+      const role = roles[playerNum];
+
+      if (isServing && isServicePhase) {
+        // Server goes to service zone (or previous service start)
+        if (isServer) {
+          if (previousServices.length > 0) {
+            // Position at last service start coord
+            const lastService = previousServices[previousServices.length - 1];
+            positions.push({ playerNum, x: lastService.startCoord.x, y: lastService.startCoord.y, rotPos });
+          } else {
+            positions.push({ playerNum, x: serviceZone.x, y: serviceZone.y, rotPos });
+          }
+        } else {
+          // Non-server: place by role
+          const physZone = getRolePhysicalZone(role, front);
+          const coords = zoneCoords[physZone];
+          positions.push({ playerNum, x: coords.x, y: coords.y, rotPos });
+        }
+      } else {
+        // Not serving or not service phase: standard rotation position
+        const coords = zoneCoords[rotPos];
+        positions.push({ playerNum, x: coords.x, y: coords.y, rotPos });
+      }
+    }
+
+    return positions;
+  };
+
+  const leftPlayers = computePlayerPositions(rotationLeft, rolesLeft, leftZoneCoords, leftServiceZone, isLeftServing);
+  const rightPlayers = computePlayerPositions(rotationRight, rolesRight, rightZoneCoords, rightServiceZone, isRightServing);
 
   const blueTeam = 'hsl(210, 80%, 55%)';
   const redTeam = 'hsl(0, 70%, 50%)';
@@ -168,16 +250,28 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
         <line x1={courtMidX + attackLineOffset} y1={courtTop} x2={courtMidX + attackLineOffset} y2={courtBottom}
           stroke="hsl(var(--court-line))" strokeWidth="0.5" strokeDasharray="3,1.5" opacity="0.6" />
 
+        {/* Previous service trajectories (ghost) */}
+        {isServicePhase && previousServices.map((svc, i) => (
+          <g key={`prev-svc-${i}`} opacity="0.25">
+            <line
+              x1={svc.startCoord.x} y1={svc.startCoord.y}
+              x2={svc.endCoord.x} y2={svc.endCoord.y}
+              stroke="hsl(var(--accent))" strokeWidth="1" strokeDasharray="2,2"
+              markerEnd="url(#arrow-ghost)"
+            />
+            <circle cx={svc.startCoord.x} cy={svc.startCoord.y} r="2" fill="hsl(var(--accent))" />
+            <circle cx={svc.endCoord.x} cy={svc.endCoord.y} r="2" fill="hsl(var(--accent))" />
+          </g>
+        ))}
+
         {/* Left team players */}
-        {leftPositions.map((zone) => {
-          const playerNum = getPlayerAtPosition(rotationLeft, zone.pos);
-          if (!playerNum) return null;
+        {leftPlayers.map(({ playerNum, x, y, rotPos }) => {
           const isSetter = playerNum === setterLeft;
           const role = rolesLeft[playerNum];
           return (
-            <g key={`l-${zone.pos}`}>
-              {roleShape(zone.x, zone.y, 6, role, blueTeam, setterYellow, isSetter)}
-              <text x={zone.x} y={zone.y + 3.5} textAnchor="middle"
+            <g key={`l-${rotPos}`}>
+              {roleShape(x, y, 6, role, blueTeam, setterYellow, isSetter)}
+              <text x={x} y={y + 3.5} textAnchor="middle"
                 fontSize="8" fill="hsl(0, 0%, 100%)" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
                 {playerNum}
               </text>
@@ -186,15 +280,13 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
         })}
 
         {/* Right team players */}
-        {rightPositions.map((zone) => {
-          const playerNum = getPlayerAtPosition(rotationRight, zone.pos);
-          if (!playerNum) return null;
+        {rightPlayers.map(({ playerNum, x, y, rotPos }) => {
           const isSetter = playerNum === setterRight;
           const role = rolesRight[playerNum];
           return (
-            <g key={`r-${zone.pos}`}>
-              {roleShape(zone.x, zone.y, 6, role, redTeam, setterYellow, isSetter)}
-              <text x={zone.x} y={zone.y + 3.5} textAnchor="middle"
+            <g key={`r-${rotPos}`}>
+              {roleShape(x, y, 6, role, redTeam, setterYellow, isSetter)}
+              <text x={x} y={y + 3.5} textAnchor="middle"
                 fontSize="8" fill="hsl(0, 0%, 100%)" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
                 {playerNum}
               </text>
@@ -240,6 +332,9 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
         <defs>
           <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
             <path d="M0,0 L8,4 L0,8 Z" fill="hsl(var(--accent))" />
+          </marker>
+          <marker id="arrow-ghost" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(var(--accent))" opacity="0.4" />
           </marker>
         </defs>
       </svg>
