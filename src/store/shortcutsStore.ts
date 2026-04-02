@@ -43,6 +43,8 @@ export const defaultShortcuts: ShortcutMap = {
   startEndPoint: ' ',
   winnerLeft: 'ArrowLeft',
   winnerRight: 'ArrowRight',
+  faultA: 'q',
+  faultB: 'w',
 };
 
 interface ShortcutsStore {
