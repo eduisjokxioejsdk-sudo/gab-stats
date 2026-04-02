@@ -166,6 +166,8 @@ const LiveScoring: React.FC = () => {
               liberoRight={match.teamB.liberos.map(l => l.number)}
               setterLeft={match.teamA.setterNumber}
               setterRight={match.teamB.setterNumber}
+              rolesLeft={rolesLeft}
+              rolesRight={rolesRight}
             />
           </div>
         </div>
