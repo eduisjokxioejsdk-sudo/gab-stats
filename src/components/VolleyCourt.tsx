@@ -263,9 +263,10 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
               markerEnd={svc.serviceType === 'smash' ? 'url(#arrow-ghost-smash)' : 'url(#arrow-ghost-float)'}
             />
             <circle cx={svc.startCoord.x} cy={svc.startCoord.y} r="2" fill={svcColor} />
-            <circle cx={svc.endCoord.x} cy={svc.endCoord.y} r="2" fill="hsl(var(--accent))" />
+            <circle cx={svc.endCoord.x} cy={svc.endCoord.y} r="2" fill={svcColor} />
           </g>
-        ))}
+          );
+        })}
 
         {/* Left team players */}
         {leftPlayers.map(({ playerNum, x, y, rotPos }) => {
