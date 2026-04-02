@@ -108,10 +108,12 @@ const LiveScoring: React.FC = () => {
             onCourtClick={addCourtClick}
             clicks={inputState.courtClicks}
             servingSide={servingSide === 'A' ? 'left' : 'right'}
-            rotationLeft={mapRotationToDisplay(currentSet.currentRotationA)}
-            rotationRight={mapRotationToDisplay(currentSet.currentRotationB)}
+            rotationLeft={currentSet.currentRotationA}
+            rotationRight={currentSet.currentRotationB}
             teamLeftName={match.teamA.name}
             teamRightName={match.teamB.name}
+            liberoLeft={match.teamA.liberos.map(l => l.number)}
+            liberoRight={match.teamB.liberos.map(l => l.number)}
           />
 
           <InputGuide phase={inputState.phase} buffer={inputState.buffer} />
