@@ -21,6 +21,15 @@ export interface ShortcutMap {
   attackBlocked: string;
   attackError: string;
   attackSecondeMain: string;
+  attackPos4: string;
+  attackPos3: string;
+  attackPos2: string;
+  attackPos1: string;
+  attackPos6: string;
+  blockers0: string;
+  blockers1: string;
+  blockers2: string;
+  blockers3: string;
   startEndPoint: string;
   winnerLeft: string;
   winnerRight: string;
@@ -48,6 +57,15 @@ export const defaultShortcuts: ShortcutMap = {
   attackBlocked: '/',
   attackError: '=',
   attackSecondeMain: 'm',
+  attackPos4: '4',
+  attackPos3: '3',
+  attackPos2: '2',
+  attackPos1: '1',
+  attackPos6: '6',
+  blockers0: '0',
+  blockers1: '1',
+  blockers2: '2',
+  blockers3: '3',
   startEndPoint: ' ',
   winnerLeft: 'ArrowLeft',
   winnerRight: 'ArrowRight',

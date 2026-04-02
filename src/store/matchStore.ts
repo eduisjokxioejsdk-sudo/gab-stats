@@ -682,7 +682,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         }
 
         const posMap: Record<string, AttackPosition> = {
-          '1': '1', '2': '2', '3': '3', '4': '4', '6': '6',
+          [sc.attackPos1]: '1', [sc.attackPos2]: '2', [sc.attackPos3]: '3', [sc.attackPos4]: '4', [sc.attackPos6]: '6',
         };
         const pos = posMap[key];
         if (pos) {
@@ -813,8 +813,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_blockers': {
-        const blockers = parseInt(key);
-        if (isNaN(blockers) || blockers < 0 || blockers > 3) return;
+        const blockersMap: Record<string, number> = {
+          [sc.blockers0]: 0, [sc.blockers1]: 1, [sc.blockers2]: 2, [sc.blockers3]: 3,
+        };
+        const blockers = blockersMap[key];
+        if (blockers === undefined) return;
         const pending = [...inputState.pendingActions];
         if (pending[0]) pending[0].blockersCount = blockers;
         set({

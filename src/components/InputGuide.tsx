@@ -63,7 +63,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     attack_position: {
       label: `PASSE — Direction${rallyTeamName ? ` (${rallyTeamName})` : ''}`,
       hint: 'Où le passeur a-t-il joué ?',
-      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [4] Poste 4  [3] Centre  [6] Pipe  [${oppositePos}] Poste ${oppositePos}`,
+      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [${formatKey(shortcuts.attackPos4)}] P4  [${formatKey(shortcuts.attackPos3)}] Centre  [${formatKey(shortcuts.attackPos6)}] Pipe  [${formatKey(shortcuts.attackPos2)}] P2  [${formatKey(shortcuts.attackPos1)}] P1`,
     },
     attack_player: {
       label: 'ATTAQUE — Joueur',
@@ -73,7 +73,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     attack_blockers: {
       label: 'ATTAQUE — Bloqueurs',
       hint: 'Nombre de bloqueurs adverses',
-      keys: '[0] [1] [2] [3]',
+      keys: `[${formatKey(shortcuts.blockers0)}] 0  [${formatKey(shortcuts.blockers1)}] 1  [${formatKey(shortcuts.blockers2)}] 2  [${formatKey(shortcuts.blockers3)}] 3`,
     },
     attack_coord: {
       label: 'ATTAQUE — Trajectoire',
