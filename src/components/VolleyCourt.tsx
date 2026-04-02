@@ -176,24 +176,24 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
       const isServer = rotPos === 1;
       const role = roles[playerNum];
 
-      if (isServing && isServicePhase) {
-        // Server goes to service zone (or previous service start)
-        if (isServer) {
+      if (isServing) {
+        // Serving team: always role-based positioning
+        if (isServer && isServicePhase) {
+          // Server in service zone during service phase
           if (previousServices.length > 0) {
-            // Position at last service start coord
             const lastService = previousServices[previousServices.length - 1];
             positions.push({ playerNum, x: lastService.startCoord.x, y: lastService.startCoord.y, rotPos });
           } else {
             positions.push({ playerNum, x: serviceZone.x, y: serviceZone.y, rotPos });
           }
         } else {
-          // Non-server: place by role
+          // Server enters court OR non-server: place by role
           const physZone = getRolePhysicalZone(role, front);
           const coords = zoneCoords[physZone];
           positions.push({ playerNum, x: coords.x, y: coords.y, rotPos });
         }
       } else {
-        // Not serving or not service phase: standard rotation position
+        // Receiving team: standard rotation position
         const coords = zoneCoords[rotPos];
         positions.push({ playerNum, x: coords.x, y: coords.y, rotPos });
       }

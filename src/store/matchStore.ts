@@ -671,11 +671,64 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         };
         const pos = posMap[key];
         if (pos) {
-          // Auto-attribute attack to the player at this court position
-          // Rotation indices: [P1, P2, P3, P4, P5, P6] → indices [0,1,2,3,4,5]
+          // Check if we're in P1 reception (setter at rotation position 1)
+          const setterNum = team.setterNumber;
+          const isSetterP1 = setterNum !== undefined && rotation[0] === setterNum;
+
+          let targetRotIdx: number;
+          if (isSetterP1 && (pos === '2' || pos === '4')) {
+            // P1 exception: position 4 → pointu, position 2 → R4
+            // Find the pointu and R4 players
+            const findPlayerByRole = (role: string) => team.players.find(p => p.role === role);
+            if (pos === '4') {
+              const pointu = findPlayerByRole('pointu');
+              if (pointu) {
+                const player = state.getPlayerByNumber(receivingTeamId, pointu.number);
+                set({
+                  inputState: {
+                    ...inputState,
+                    phase: 'attack_blockers',
+                    buffer: '',
+                    pendingActions: [{
+                      type: 'attack', teamId: receivingTeamId,
+                      playerNumber: pointu.number, playerId: player?.id,
+                      attackPosition: pos, timestamp: Date.now(),
+                    }],
+                  },
+                });
+                break;
+              }
+            } else {
+              // pos === '2' → R4 who is in front row
+              const r4Players = team.players.filter(p => p.role === 'r4');
+              // Find the R4 that is in front row (rotation pos 2, 3, or 4)
+              const frontR4 = r4Players.find(p => {
+                const rIdx = rotation.indexOf(p.number);
+                return rIdx >= 1 && rIdx <= 3; // positions 2,3,4 (indices 1,2,3)
+              });
+              if (frontR4) {
+                const player = state.getPlayerByNumber(receivingTeamId, frontR4.number);
+                set({
+                  inputState: {
+                    ...inputState,
+                    phase: 'attack_blockers',
+                    buffer: '',
+                    pendingActions: [{
+                      type: 'attack', teamId: receivingTeamId,
+                      playerNumber: frontR4.number, playerId: player?.id,
+                      attackPosition: pos, timestamp: Date.now(),
+                    }],
+                  },
+                });
+                break;
+              }
+            }
+          }
+
+          // Default: use rotation position directly
           const positionIndexMap: Record<string, number> = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
-          const rotIdx = positionIndexMap[pos];
-          const playerNum = rotation[rotIdx];
+          targetRotIdx = positionIndexMap[pos];
+          const playerNum = rotation[targetRotIdx];
           const player = state.getPlayerByNumber(receivingTeamId, playerNum);
 
           set({
