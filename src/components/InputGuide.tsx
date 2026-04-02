@@ -42,8 +42,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     },
     reception: {
       label: 'RÉCEPTION',
-      hint: 'Numéro du joueur + qualité (facultatif si ace)',
-      keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --`,
+      hint: 'N° joueur + qualité — 2 chiffres : auto, 1 chiffre : ENTRÉE pour valider',
+      keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --  [ENTRÉE]`,
     },
     set_call: {
       label: 'APPEL DU CENTRAL',
