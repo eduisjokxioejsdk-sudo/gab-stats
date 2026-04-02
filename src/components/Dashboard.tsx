@@ -28,6 +28,7 @@ const Dashboard: React.FC = () => {
     { id: 'service', label: '🏐 Service', enabled: true },
     { id: 'reception', label: '🤲 Réception', enabled: true },
     { id: 'attack', label: '💥 Attaque', enabled: true },
+    { id: 'centraux', label: '🔶 Centraux', enabled: true },
     { id: 'distribution', label: '📊 Distribution', enabled: false },
   ];
 
