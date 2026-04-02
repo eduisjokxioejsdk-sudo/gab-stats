@@ -25,6 +25,28 @@ const TeamManager: React.FC = () => {
     setIsNew(true);
   };
 
+  const fastStart = () => {
+    // Generate 10 unique random jersey numbers (1-20)
+    const allNums: number[] = [];
+    while (allNums.length < 11) {
+      const n = Math.floor(Math.random() * 20) + 1;
+      if (!allNums.includes(n)) allNums.push(n);
+    }
+    const playerNums = allNums.slice(0, 10);
+    const liberoNum = allNums[10];
+    const setterNum = playerNums[Math.floor(Math.random() * playerNums.length)];
+
+    const team: SavedTeam = {
+      id: generateId(),
+      name: `Équipe ${teams.length + 1}`,
+      players: playerNums.map(n => ({ number: n, name: `Joueur ${n}` })),
+      liberos: [{ number: liberoNum, name: `Libéro ${liberoNum}` }],
+      setterNumber: setterNum,
+    };
+    setEditing(team);
+    setIsNew(true);
+  };
+
   const startEdit = (team: SavedTeam) => {
     setEditing({ ...team, players: [...team.players], liberos: [...team.liberos] });
     setIsNew(false);
@@ -163,9 +185,14 @@ const TeamManager: React.FC = () => {
           </button>
         </div>
 
-        <button onClick={startNew} className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-lg mb-4 hover:opacity-90 transition-opacity">
-          + Nouvelle équipe
-        </button>
+        <div className="flex gap-3 mb-4">
+          <button onClick={startNew} className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-lg hover:opacity-90 transition-opacity">
+            + Nouvelle équipe
+          </button>
+          <button onClick={fastStart} className="flex-1 bg-accent text-accent-foreground font-bold py-3 rounded-lg hover:opacity-90 transition-opacity">
+            ⚡ Fast Start
+          </button>
+        </div>
 
         {teams.length === 0 && (
           <p className="text-center text-muted-foreground text-sm py-12">Aucune équipe sauvegardée</p>
