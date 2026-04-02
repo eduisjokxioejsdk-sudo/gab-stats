@@ -62,6 +62,7 @@ export interface SetData {
   points: Point[];
   scoreA: number;
   scoreB: number;
+  servingTeamId: string; // initial serving team for this set
   winnerTeamId?: string;
 }
 
