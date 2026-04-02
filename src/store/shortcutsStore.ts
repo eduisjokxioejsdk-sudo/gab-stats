@@ -21,6 +21,15 @@ export interface ShortcutMap {
   attackBlocked: string;
   attackError: string;
   attackSecondeMain: string;
+  attackPos4: string;
+  attackPos3: string;
+  attackPos2: string;
+  attackPos1: string;
+  attackPos6: string;
+  blockers0: string;
+  blockers1: string;
+  blockers2: string;
+  blockers3: string;
   startEndPoint: string;
   winnerLeft: string;
   winnerRight: string;
