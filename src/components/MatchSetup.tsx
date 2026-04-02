@@ -61,10 +61,10 @@ const MatchSetup: React.FC = () => {
       statistician: statistician || undefined,
     });
 
-    const aNumbers = teamA.players.map(p => p.number.toString());
-    const bNumbers = teamB.players.map(p => p.number.toString());
-    setRotationA(aNumbers.concat(Array(6 - aNumbers.length).fill('')));
-    setRotationB(bNumbers.concat(Array(6 - bNumbers.length).fill('')));
+    const aNumbers = teamA.players.slice(0, 6).map(p => p.number.toString());
+    const bNumbers = teamB.players.slice(0, 6).map(p => p.number.toString());
+    setRotationA(aNumbers.concat(Array(Math.max(0, 6 - aNumbers.length)).fill('')));
+    setRotationB(bNumbers.concat(Array(Math.max(0, 6 - bNumbers.length)).fill('')));
     setStep('rotation');
   };
 
