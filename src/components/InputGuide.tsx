@@ -10,7 +10,8 @@ interface InputGuideProps {
   setterFront?: boolean;
 }
 
-const formatKey = (key: string): string => {
+const formatKey = (key: string | undefined | null): string => {
+  if (!key) return '?';
   if (key === ' ') return 'ESPACE';
   if (key === 'ArrowLeft') return '←';
   if (key === 'ArrowRight') return '→';
