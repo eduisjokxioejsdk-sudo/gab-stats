@@ -38,12 +38,14 @@ const MatchSetup: React.FC = () => {
         number: p.number,
         name: p.name || `#${p.number}`,
         teamId,
+        role: p.role,
       })),
       liberos: saved.liberos.map(p => ({
         id: generateId(),
         number: p.number,
         name: p.name || `L#${p.number}`,
         teamId,
+        role: 'libero' as const,
       })),
       setterNumber: saved.setterNumber,
     };

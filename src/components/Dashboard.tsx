@@ -4,8 +4,9 @@ import type { Action, Point } from '@/types/volleyball';
 import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
 import AttackTab from './stats/AttackTab';
+import CentrauxTab from './stats/CentrauxTab';
 
-type StatsTab = 'service' | 'reception' | 'attack' | 'distribution';
+type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution';
 
 const Dashboard: React.FC = () => {
   const { match, setView } = useMatchStore();
@@ -27,6 +28,7 @@ const Dashboard: React.FC = () => {
     { id: 'service', label: '🏐 Service', enabled: true },
     { id: 'reception', label: '🤲 Réception', enabled: true },
     { id: 'attack', label: '💥 Attaque', enabled: true },
+    { id: 'centraux', label: '🔶 Centraux', enabled: true },
     { id: 'distribution', label: '📊 Distribution', enabled: false },
   ];
 
@@ -101,6 +103,7 @@ const Dashboard: React.FC = () => {
             {activeTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {activeTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {activeTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {activeTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
             {activeTab === 'distribution' && <div className="text-center text-muted-foreground text-sm py-12">À venir...</div>}
           </div>
         </>

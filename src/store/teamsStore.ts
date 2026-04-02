@@ -1,10 +1,12 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+import type { PlayerRole } from '@/types/volleyball';
+
 export interface SavedTeam {
   id: string;
   name: string;
-  players: { number: number; name: string }[];
+  players: { number: number; name: string; role?: PlayerRole }[];
   liberos: { number: number; name: string }[];
   setterNumber?: number;
 }

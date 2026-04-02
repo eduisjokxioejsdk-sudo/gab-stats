@@ -1,8 +1,11 @@
+export type PlayerRole = 'pointu' | 'recepteur' | 'central' | 'passeur' | 'libero';
+
 export interface Player {
   id: string;
   number: number;
   name: string;
   teamId: string;
+  role?: PlayerRole;
 }
 
 export interface Team {
@@ -17,7 +20,7 @@ export type ActionType = 'service' | 'reception' | 'set' | 'attack' | 'defense';
 export type ServiceType = 'smash' | 'float';
 export type Quality = '++' | '+' | '0' | '-' | '--';
 export type SetCall = 'avant' | 'arriere' | 'decalee' | 'none';
-export type AttackResult = 'kill' | 'error' | 'continue';
+export type AttackResult = 'kill' | 'good' | 'touched' | 'bad' | 'blocked' | 'error';
 export type AttackPosition = 'seconde_main' | '4' | '3' | '6' | '2' | '1';
 
 export interface Coordinate {

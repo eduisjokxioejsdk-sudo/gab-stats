@@ -14,8 +14,11 @@ export interface ShortcutMap {
   setDecalee: string;
   setNone: string;
   attackKill: string;
+  attackGood: string;
+  attackTouched: string;
+  attackBad: string;
+  attackBlocked: string;
   attackError: string;
-  attackContinue: string;
   attackSecondeMain: string;
   startEndPoint: string;
   winnerLeft: string;
@@ -36,9 +39,12 @@ export const defaultShortcuts: ShortcutMap = {
   setArriere: 'z',
   setDecalee: 'e',
   setNone: '0',
-  attackKill: 'k',
-  attackError: 'e',
-  attackContinue: 'c',
+  attackKill: '#',
+  attackGood: '+',
+  attackTouched: '-',
+  attackBad: '!',
+  attackBlocked: '/',
+  attackError: '=',
   attackSecondeMain: 'm',
   startEndPoint: ' ',
   winnerLeft: 'ArrowLeft',

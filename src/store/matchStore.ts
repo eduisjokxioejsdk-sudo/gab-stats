@@ -31,7 +31,7 @@ function addActionToCurrentPoint(match: Match, currentSetIndex: number, currentS
 
 const phaseOrder: InputPhase[] = [
   'service_coord', 'service_type', 'service_quality', 'ace_receiver',
-  'reception', 'set_call', 'attack_position', 'attack_player', 'attack_blockers', 'attack_coord', 'attack_result',
+  'reception', 'set_call', 'attack_position', 'attack_blockers', 'attack_coord', 'attack_result',
 ];
 
 function getPreviousPhase(current: InputPhase): InputPhase | null {
@@ -639,9 +639,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
       case 'attack_position': {
         // Where the setter played
+        const team = receivingTeamId === match.teamA.id ? match.teamA : match.teamB;
+        const rotation = receivingTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
+
         if (key === sc.attackSecondeMain) {
           // Seconde main: setter attacks
-          const team = receivingTeamId === match.teamA.id ? match.teamA : match.teamB;
           const setterNum = team.setterNumber;
           if (setterNum) {
             const setter = state.getPlayerByNumber(receivingTeamId, setterNum);
@@ -669,12 +671,26 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         };
         const pos = posMap[key];
         if (pos) {
+          // Auto-attribute attack to the player at this court position
+          // Rotation indices: [P1, P2, P3, P4, P5, P6] → indices [0,1,2,3,4,5]
+          const positionIndexMap: Record<string, number> = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
+          const rotIdx = positionIndexMap[pos];
+          const playerNum = rotation[rotIdx];
+          const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+
           set({
             inputState: {
               ...inputState,
-              phase: 'attack_player',
+              phase: 'attack_blockers',
               buffer: '',
-              pendingActions: [{ attackPosition: pos }],
+              pendingActions: [{
+                type: 'attack',
+                teamId: receivingTeamId,
+                playerNumber: playerNum,
+                playerId: player?.id,
+                attackPosition: pos,
+                timestamp: Date.now(),
+              }],
             },
           });
         }
@@ -740,24 +756,20 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_result': {
-        const qualityMap: Record<string, Quality> = {
-          [sc.qualityExcellent]: '++',
-        };
         const resultMap: Record<string, AttackResult> = {
+          [sc.attackKill]: 'kill',
+          [sc.attackGood]: 'good',
+          [sc.attackTouched]: 'touched',
+          [sc.attackBad]: 'bad',
+          [sc.attackBlocked]: 'blocked',
           [sc.attackError]: 'error',
-          [sc.attackContinue]: 'continue',
         };
 
-        let attackResult: AttackResult | null = null;
-        let autoWin = false;
-
-        if (qualityMap[key] === '++') {
-          attackResult = 'kill';
-          autoWin = true;
-        } else {
-          attackResult = resultMap[key] || null;
-        }
+        const attackResult = resultMap[key];
         if (!attackResult) return;
+
+        const autoWinAttacker = attackResult === 'kill';
+        const autoWinOpponent = attackResult === 'blocked' || attackResult === 'error';
 
         const pending = inputState.pendingActions[0];
         const action: Action = {
@@ -778,7 +790,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
           set({ match: updatedMatch });
 
-          if (autoWin) {
+          if (autoWinAttacker) {
             const attackTeamId = pending?.teamId || receivingTeamId;
             const s2 = get();
             const cs2 = s2.getCurrentSet();
@@ -795,11 +807,26 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               }
             }
             get().assignPointWinner(attackTeamId);
-          } else if (attackResult === 'continue') {
-            set({
-              inputState: { ...inputState, phase: 'reception', pendingActions: [], buffer: '', courtClicks: [] },
-            });
+          } else if (autoWinOpponent) {
+            const attackTeamId = pending?.teamId || receivingTeamId;
+            const opponentTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
+            const s2 = get();
+            const cs2 = s2.getCurrentSet();
+            if (cs2) {
+              const pi = cs2.points.findIndex(p => p.id === inputState.currentPointId);
+              if (pi !== -1) {
+                const ep = { ...cs2.points[pi], timecodeEnd: Date.now() };
+                const eps = [...cs2.points];
+                eps[pi] = ep;
+                const es = { ...cs2, points: eps };
+                const ess = [...(s2.match?.sets || [])];
+                ess[match.currentSetIndex] = es;
+                set({ match: { ...s2.match!, sets: ess } });
+              }
+            }
+            get().assignPointWinner(opponentTeamId);
           } else {
+            // good, touched, bad → continue play, go back to recording
             set({
               inputState: { ...inputState, phase: 'recording', pendingActions: [], buffer: '', courtClicks: [] },
             });
