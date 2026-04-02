@@ -45,6 +45,28 @@ const LiveScoring: React.FC = () => {
     return map;
   }, [match]);
 
+  // Find previous service trajectories for the current server
+  const previousServices: PreviousService[] = useMemo(() => {
+    if (!match || !currentSet) return [];
+    const servTeamId = servingTeamId || match.teamA.id;
+    const rotation = servTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
+    const serverNum = rotation[0]; // position 1
+    if (!serverNum) return [];
+
+    const services: PreviousService[] = [];
+    // Search all sets for this player's services
+    for (const s of match.sets) {
+      for (const pt of s.points) {
+        for (const act of pt.actions) {
+          if (act.type === 'service' && act.playerNumber === serverNum && act.teamId === servTeamId && act.startCoord && act.endCoord) {
+            services.push({ startCoord: act.startCoord, endCoord: act.endCoord });
+          }
+        }
+      }
+    }
+    return services;
+  }, [match, currentSet, servingTeamId]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (showSub) return;
     const key = e.key;
