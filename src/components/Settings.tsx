@@ -25,7 +25,8 @@ const shortcutLabels: Record<keyof ShortcutMap, { label: string; group: string }
   faultB: { label: 'Faute Équipe B', group: 'Point' },
 };
 
-const displayKey = (key: string) => {
+const displayKey = (key: string | undefined | null) => {
+  if (!key) return '?';
   if (key === ' ') return 'ESPACE';
   if (key === 'ArrowLeft') return '← Flèche gauche';
   if (key === 'ArrowRight') return '→ Flèche droite';
