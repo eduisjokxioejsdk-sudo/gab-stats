@@ -191,6 +191,8 @@ const LiveScoring: React.FC = () => {
               setterRight={match.teamB.setterNumber}
               rolesLeft={rolesLeft}
               rolesRight={rolesRight}
+              inputPhase={inputState.phase}
+              previousServices={previousServices}
             />
           </div>
         </div>
