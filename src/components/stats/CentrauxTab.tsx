@@ -23,52 +23,56 @@ const resultColor = (r?: string): string => {
 };
 
 const CentrauxTab: React.FC<CentrauxTabProps> = ({ actions, allPoints, teamId, team, match }) => {
-  // Find central players by role
   const centralNumbers = useMemo(() => {
     if (!team) return [];
     return team.players.filter(p => p.role === 'central').map(p => p.number);
   }, [team]);
 
-  // All set actions (calls) for this team
-  const setCalls = useMemo(() =>
-    actions.filter(a => a.type === 'set' && a.teamId === teamId),
-    [actions, teamId]
-  );
-
-  // All attacks by centrals (position 3 means center was attacked)
   const centralAttacks = useMemo(() =>
     actions.filter(a => a.type === 'attack' && a.teamId === teamId && centralNumbers.includes(a.playerNumber || 0)),
     [actions, teamId, centralNumbers]
   );
 
-  // Group by central player
   const centralStats = useMemo(() => {
     return centralNumbers.map(num => {
       const playerAttacks = centralAttacks.filter(a => a.playerNumber === num);
       const player = team?.players.find(p => p.number === num);
 
-      // Count calls: how many times was this central's position attacked
-      const byCall: Record<string, { total: number; kills: number; errors: number }> = {};
+      // Count ALL set calls when this central was in front row (available to attack)
+      // AND count how many balls they actually got per call
+      const byCall: Record<string, { called: number; attacked: number; kills: number; errors: number }> = {};
       const calls = ['avant', 'arriere', 'decalee'];
-      calls.forEach(c => { byCall[c] = { total: 0, kills: 0, errors: 0 }; });
+      calls.forEach(c => { byCall[c] = { called: 0, attacked: 0, kills: 0, errors: 0 }; });
 
-      // Look at set actions preceding this central's attacks
       allPoints.forEach(point => {
         const pointActions = point.actions;
         for (let i = 0; i < pointActions.length; i++) {
           const a = pointActions[i];
-          if (a.type === 'attack' && a.playerNumber === num && a.teamId === teamId) {
-            // Find the preceding set call
-            for (let j = i - 1; j >= 0; j--) {
-              if (pointActions[j].type === 'set' && pointActions[j].setCall) {
-                const call = pointActions[j].setCall!;
-                if (!byCall[call]) byCall[call] = { total: 0, kills: 0, errors: 0 };
-                byCall[call].total++;
-                if (a.attackResult === 'kill') byCall[call].kills++;
-                if (a.attackResult === 'error' || a.attackResult === 'blocked') byCall[call].errors++;
+
+          // Count set calls — central was "called" (available) whenever there's a set action
+          // and the central is in front row. We approximate by checking if the central
+          // attacked in this point or if the set call matches a central position.
+          if (a.type === 'set' && a.teamId === teamId && a.setCall) {
+            const call = a.setCall;
+            if (call === 'none') continue;
+            if (!byCall[call]) byCall[call] = { called: 0, attacked: 0, kills: 0, errors: 0 };
+
+            // Check if there's an attack by this central following this set
+            let centralAttacked = false;
+            for (let j = i + 1; j < pointActions.length; j++) {
+              if (pointActions[j].type === 'attack' && pointActions[j].playerNumber === num && pointActions[j].teamId === teamId) {
+                centralAttacked = true;
+                byCall[call].attacked++;
+                if (pointActions[j].attackResult === 'kill') byCall[call].kills++;
+                if (pointActions[j].attackResult === 'error' || pointActions[j].attackResult === 'blocked') byCall[call].errors++;
                 break;
               }
+              if (pointActions[j].type === 'attack') break; // another player attacked
             }
+
+            // Count the call as "seen" by the central (he was called/available)
+            // Only if the set call is a central-type call (avant, arriere, decalee)
+            byCall[call].called++;
           }
         }
       });
@@ -128,19 +132,19 @@ const CentrauxTab: React.FC<CentrauxTabProps> = ({ actions, allPoints, teamId, t
                 </div>
               </div>
 
-              {/* By call type */}
+              {/* By call type — shows called vs attacked */}
               <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Distribution par appel</h4>
               <div className="grid grid-cols-3 gap-2">
                 {['avant', 'arriere', 'decalee'].map(call => {
-                  const data = cs.byCall[call] || { total: 0, kills: 0, errors: 0 };
-                  const callLabel = call === 'avant' ? 'Avant' : call === 'arriere' ? 'Arrière' : 'Décalée';
-                  const callEff = data.total > 0 ? ((data.kills - data.errors) / data.total * 100).toFixed(0) : '-';
+                  const data = cs.byCall[call] || { called: 0, attacked: 0, kills: 0, errors: 0 };
+                  const callLabel = call === 'avant' ? 'Fixe Avant' : call === 'arriere' ? 'Fixe Arrière' : 'Décalée';
+                  const callEff = data.attacked > 0 ? ((data.kills - data.errors) / data.attacked * 100).toFixed(0) : '-';
                   return (
                     <div key={call} className="bg-secondary/50 rounded-md p-2 text-center">
                       <p className="text-[10px] text-muted-foreground font-semibold">{callLabel}</p>
-                      <p className="text-lg font-mono font-black text-foreground">{data.total}</p>
+                      <p className="text-lg font-mono font-black text-foreground">{data.attacked}<span className="text-xs text-muted-foreground">/{data.called}</span></p>
                       <p className="text-[10px] text-muted-foreground">
-                        {data.kills}# / {data.errors}E — {callEff}%
+                        {data.attacked > 0 ? `${data.kills}# / ${data.errors}E — ${callEff}%` : 'Pas de ballon'}
                       </p>
                     </div>
                   );
