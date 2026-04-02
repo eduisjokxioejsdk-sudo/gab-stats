@@ -29,6 +29,8 @@ const shortcutLabels: Record<keyof ShortcutMap, { label: string; group: string }
   winnerRight: { label: 'Gagnant Équipe B', group: 'Point' },
   faultA: { label: 'Faute Équipe A', group: 'Point' },
   faultB: { label: 'Faute Équipe B', group: 'Point' },
+  openSubstitution: { label: 'Ouvrir changements', group: 'Navigation' },
+  openStats: { label: 'Ouvrir stats', group: 'Navigation' },
 };
 
 const displayKey = (key: string | undefined | null) => {
