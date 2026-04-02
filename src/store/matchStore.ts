@@ -619,7 +619,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const action: Action = {
           id: generateId(),
           type: 'set',
-          teamId: receivingTeamId,
+          teamId: rallyTeamId,
           timestamp: Date.now(),
           setCall: call,
         };
