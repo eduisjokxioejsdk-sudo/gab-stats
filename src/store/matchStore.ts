@@ -908,8 +908,33 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               }
             }
             get().assignPointWinner(opponentTeamId);
+          } else if (attackResult === 'good') {
+            // Attack +: ball comes back to attacking team (they keep possession)
+            const attackTeamId = pending?.teamId || rallyTeamId;
+            set({
+              inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', courtClicks: [], rallyTeamId: attackTeamId },
+            });
+          } else if (attackResult === 'bad') {
+            // Attack !: ball defended but poorly, other team can't play central → auto "none" set_call, skip to attack_position
+            const attackTeamId = pending?.teamId || rallyTeamId;
+            const otherTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
+            // Add auto set_call "none" for the defending team
+            const setCallAction: Action = {
+              id: generateId(), type: 'set', teamId: otherTeamId, timestamp: Date.now(), setCall: 'none',
+            };
+            if (inputState.currentPointId) {
+              const s3 = get();
+              const cs3 = s3.getCurrentSet();
+              if (cs3) {
+                const updatedMatch3 = addActionToCurrentPoint(s3.match!, match.currentSetIndex, cs3, inputState.currentPointId, setCallAction);
+                set({
+                  match: updatedMatch3,
+                  inputState: { ...inputState, phase: 'attack_position', pendingActions: [], buffer: '', courtClicks: [], rallyTeamId: otherTeamId },
+                });
+              }
+            }
           } else {
-            // good, touched, bad → ball crosses net, other team attacks
+            // touched → ball crosses net, other team attacks normally
             const attackTeamId = pending?.teamId || rallyTeamId;
             const otherTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
             set({
