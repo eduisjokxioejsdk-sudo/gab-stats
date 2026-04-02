@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMatchStore } from '@/store/matchStore';
+import { loadDemoMatch } from '@/utils/demoMatch';
 import type { Team, Player } from '@/types/volleyball';
 
 function generateId(): string {
