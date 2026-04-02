@@ -185,9 +185,14 @@ const TeamManager: React.FC = () => {
           </button>
         </div>
 
-        <button onClick={startNew} className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-lg mb-4 hover:opacity-90 transition-opacity">
-          + Nouvelle équipe
-        </button>
+        <div className="flex gap-3 mb-4">
+          <button onClick={startNew} className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-lg hover:opacity-90 transition-opacity">
+            + Nouvelle équipe
+          </button>
+          <button onClick={fastStart} className="flex-1 bg-accent text-accent-foreground font-bold py-3 rounded-lg hover:opacity-90 transition-opacity">
+            ⚡ Fast Start
+          </button>
+        </div>
 
         {teams.length === 0 && (
           <p className="text-center text-muted-foreground text-sm py-12">Aucune équipe sauvegardée</p>
