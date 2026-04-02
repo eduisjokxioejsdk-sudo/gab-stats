@@ -30,6 +30,20 @@ const LiveScoring: React.FC = () => {
   const receivingTeamId = match && servingTeamId ? (servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id) : null;
   const setterFront = receivingTeamId ? isSetterFront(receivingTeamId) : false;
 
+  const rolesLeft = useMemo(() => {
+    if (!match) return {};
+    const map: Record<number, any> = {};
+    match.teamA.players.forEach(p => { if (p.role) map[p.number] = p.role; });
+    return map;
+  }, [match]);
+
+  const rolesRight = useMemo(() => {
+    if (!match) return {};
+    const map: Record<number, any> = {};
+    match.teamB.players.forEach(p => { if (p.role) map[p.number] = p.role; });
+    return map;
+  }, [match]);
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (showSub) return;
     const key = e.key;
