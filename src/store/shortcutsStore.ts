@@ -4,22 +4,16 @@ import { persist } from 'zustand/middleware';
 export interface ShortcutMap {
   serviceSmash: string;
   serviceFloat: string;
-  qualityExcellent: string;  // # Perfect pass (3 pass)
-  qualityGood: string;      // + Good pass (2 pass)
-  qualityNeutral: string;   // - Bad pass (1 pass)
-  qualityBad: string;       // ! Freeball
-  qualityOverpass: string;  // / Over pass
-  qualityTerrible: string;  // = Error (0 pass)
+  qualityExcellent: string;  // # Perfect pass (3 pass) / Kill / Ace
+  qualityGood: string;      // + Good pass (2 pass) / Good attack
+  qualityNeutral: string;   // - Bad pass (1 pass) / Touched by block
+  qualityBad: string;       // ! Freeball / Bad attack
+  qualityOverpass: string;  // / Over pass / Blocked
+  qualityTerrible: string;  // = Error (0 pass) / Attack error
   setAvant: string;
   setArriere: string;
   setDecalee: string;
   setNone: string;
-  attackKill: string;
-  attackGood: string;
-  attackTouched: string;
-  attackBad: string;
-  attackBlocked: string;
-  attackError: string;
   attackSecondeMain: string;
   attackPos4: string;
   attackPos3: string;
@@ -34,6 +28,8 @@ export interface ShortcutMap {
   winnerRight: string;
   faultA: string;
   faultB: string;
+  openSubstitution: string;
+  openStats: string;
 }
 
 export const defaultShortcuts: ShortcutMap = {
@@ -49,12 +45,6 @@ export const defaultShortcuts: ShortcutMap = {
   setArriere: 'z',
   setDecalee: 'e',
   setNone: '0',
-  attackKill: '#',
-  attackGood: '+',
-  attackTouched: '-',
-  attackBad: '!',
-  attackBlocked: '/',
-  attackError: '=',
   attackSecondeMain: 'm',
   attackPos4: '4',
   attackPos3: '3',
@@ -69,6 +59,8 @@ export const defaultShortcuts: ShortcutMap = {
   winnerRight: 'ArrowRight',
   faultA: 'q',
   faultB: 'w',
+  openSubstitution: 'c',
+  openStats: 'd',
 };
 
 interface ShortcutsStore {

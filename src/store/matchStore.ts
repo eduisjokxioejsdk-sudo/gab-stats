@@ -834,12 +834,12 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
       case 'attack_result': {
         const resultMap: Record<string, AttackResult> = {
-          [sc.attackKill]: 'kill',
-          [sc.attackGood]: 'good',
-          [sc.attackTouched]: 'touched',
-          [sc.attackBad]: 'bad',
-          [sc.attackBlocked]: 'blocked',
-          [sc.attackError]: 'error',
+          [sc.qualityExcellent]: 'kill',
+          [sc.qualityGood]: 'good',
+          [sc.qualityNeutral]: 'touched',
+          [sc.qualityBad]: 'bad',
+          [sc.qualityOverpass]: 'blocked',
+          [sc.qualityTerrible]: 'error',
         };
 
         const attackResult = resultMap[key];
