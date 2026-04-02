@@ -27,7 +27,6 @@ const TeamManager: React.FC = () => {
   };
 
   const fastStart = () => {
-    // Generate 10 unique random jersey numbers (1-20)
     const allNums: number[] = [];
     while (allNums.length < 11) {
       const n = Math.floor(Math.random() * 20) + 1;
@@ -35,12 +34,15 @@ const TeamManager: React.FC = () => {
     }
     const playerNums = allNums.slice(0, 10);
     const liberoNum = allNums[10];
-    const setterNum = playerNums[Math.floor(Math.random() * playerNums.length)];
+
+    // Assign roles: 1 passeur, 1 pointu, 2 centraux, 2 R4, 4 remplaçants (no role)
+    const roles: (PlayerRole | undefined)[] = ['passeur', 'pointu', 'central', 'central', 'r4', 'r4', undefined, undefined, undefined, undefined];
+    const setterNum = playerNums[0]; // first player is setter
 
     const team: SavedTeam = {
       id: generateId(),
       name: `Équipe ${teams.length + 1}`,
-      players: playerNums.map(n => ({ number: n, name: `Joueur ${n}` })),
+      players: playerNums.map((n, i) => ({ number: n, name: `Joueur ${n}`, role: roles[i] })),
       liberos: [{ number: liberoNum, name: `Libéro ${liberoNum}` }],
       setterNumber: setterNum,
     };
