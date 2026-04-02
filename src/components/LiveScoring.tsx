@@ -222,6 +222,7 @@ const LiveScoring: React.FC = () => {
           teamAName={match.teamA.name}
           teamBName={match.teamB.name}
           setterFront={setterFront}
+          rallyTeamName={inputState.rallyTeamId ? (inputState.rallyTeamId === match.teamA.id ? match.teamA.name : match.teamB.name) : undefined}
         />
       </div>
 
