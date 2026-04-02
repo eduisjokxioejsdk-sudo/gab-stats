@@ -457,6 +457,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           [sc.qualityGood]: '+',
           [sc.qualityNeutral]: '0',
           [sc.qualityBad]: '-',
+          [sc.qualityOverpass]: '/',
           [sc.qualityTerrible]: '--',
         };
         const quality = qualityMap[key];
