@@ -415,7 +415,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'set_call': {
-        const callMap: Record<string, SetCall> = { 'a': 'avant', 'z': 'arriere', 'e': 'decalee', '0': 'none' };
+        const sc = useShortcutsStore.getState().shortcuts;
+        const callMap: Record<string, SetCall> = {
+          [sc.setAvant]: 'avant',
+          [sc.setArriere]: 'arriere',
+          [sc.setDecalee]: 'decalee',
+          [sc.setNone]: 'none',
+        };
         const call = callMap[key];
         if (!call) return;
 
