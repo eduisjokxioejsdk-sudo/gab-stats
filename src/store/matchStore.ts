@@ -517,23 +517,32 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_player': {
+        // Enter validates 1-digit number
+        if (key === 'enter') {
+          const playerNum = parseInt(inputState.buffer);
+          if (!isNaN(playerNum) && playerNum > 0) {
+            const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+            if (player) {
+              set({
+                inputState: {
+                  ...inputState, phase: 'attack_blockers', buffer: '',
+                  pendingActions: [{ type: 'attack', teamId: receivingTeamId, playerNumber: playerNum, playerId: player.id, timestamp: Date.now() }],
+                },
+              });
+            }
+          }
+          return;
+        }
         const buffer = inputState.buffer + key;
         const playerNum = parseInt(buffer);
-        if (!isNaN(playerNum) && playerNum > 0) {
+        // Auto-validate if 2+ digits and player exists
+        if (buffer.length >= 2 && !isNaN(playerNum) && playerNum > 0) {
           const player = state.getPlayerByNumber(receivingTeamId, playerNum);
           if (player) {
             set({
               inputState: {
-                ...inputState,
-                phase: 'attack_blockers',
-                buffer: '',
-                pendingActions: [{
-                  type: 'attack',
-                  teamId: receivingTeamId,
-                  playerNumber: playerNum,
-                  playerId: player.id,
-                  timestamp: Date.now(),
-                }],
+                ...inputState, phase: 'attack_blockers', buffer: '',
+                pendingActions: [{ type: 'attack', teamId: receivingTeamId, playerNumber: playerNum, playerId: player.id, timestamp: Date.now() }],
               },
             });
             return;
