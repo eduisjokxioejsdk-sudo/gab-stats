@@ -43,28 +43,13 @@ const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId, tea
 
   return (
     <div className="space-y-4">
-      {/* Main: court left + legend */}
-      <div className="flex gap-4 items-start">
-        <div className="flex-1 min-w-0">
-          <TrajectoryCourtMini trajectories={trajectories} title={`Toutes les trajectoires (${services.length} services)`} />
-          <div className="flex gap-2 text-[10px] font-mono text-muted-foreground mt-1">
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-0.5 bg-blue-500 inline-block rounded" /> Flottant ({floatServices.length})
-            </span>
-            <span className="flex items-center gap-1">
-              <span className="w-3 h-0.5 bg-red-500 inline-block rounded" /> Smashé ({smashServices.length})
-            </span>
-          </div>
-        </div>
-
-        {/* Stats tables on the right */}
-        <div className="w-64 shrink-0 space-y-3">
-          {floatRows.length > 0 && <QualityTable title="Service flottant" rows={floatRows} />}
-          {smashRows.length > 0 && <QualityTable title="Service smashé" rows={smashRows} />}
-          {floatRows.length === 0 && smashRows.length === 0 && (
-            <QualityTable title="Service (tous)" rows={buildQualityRows(services)} />
-          )}
-        </div>
+      {/* Stats tables */}
+      <div className="space-y-3">
+        {floatRows.length > 0 && <QualityTable title={`Service flottant (${floatServices.length})`} rows={floatRows} />}
+        {smashRows.length > 0 && <QualityTable title={`Service smashé (${smashServices.length})`} rows={smashRows} />}
+        {floatRows.length === 0 && smashRows.length === 0 && (
+          <QualityTable title="Service (tous)" rows={buildQualityRows(services)} />
+        )}
       </div>
 
       {/* Per-player courts */}
