@@ -19,7 +19,7 @@ const formatKey = (key: string | undefined | null): string => {
   return key.toUpperCase();
 };
 
-const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Équipe A', teamBName = 'Équipe B', setterFront }) => {
+const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Équipe A', teamBName = 'Équipe B', setterFront, rallyTeamName }) => {
   const { shortcuts } = useShortcutsStore();
 
   const oppositePos = setterFront ? '1' : '2';
