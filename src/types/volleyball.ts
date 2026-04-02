@@ -83,6 +83,7 @@ export type InputPhase =
   | 'idle'           // Waiting for space to start
   | 'service_coord'  // Waiting for serve trajectory on court
   | 'service_type'   // S or F
+  | 'service_quality'// Service quality: ++ auto-wins point
   | 'reception'      // Player number + quality
   | 'set_call'       // A, Z, E, or 0
   | 'attack_player'  // Attacker number
