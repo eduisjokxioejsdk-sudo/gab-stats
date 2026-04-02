@@ -34,6 +34,24 @@ const LiveScoring: React.FC = () => {
     if (showSub) return;
     const key = e.key;
 
+    // Fault shortcuts — end point immediately and assign to the other team
+    if (key === shortcuts.faultA && match && inputState.phase !== 'idle') {
+      e.preventDefault();
+      if (inputState.phase !== 'point_winner' && inputState.phase !== 'ace_receiver') {
+        endPoint();
+      }
+      setTimeout(() => assignPointWinner(match.teamB.id), 0);
+      return;
+    }
+    if (key === shortcuts.faultB && match && inputState.phase !== 'idle') {
+      e.preventDefault();
+      if (inputState.phase !== 'point_winner' && inputState.phase !== 'ace_receiver') {
+        endPoint();
+      }
+      setTimeout(() => assignPointWinner(match.teamA.id), 0);
+      return;
+    }
+
     if (key === shortcuts.startEndPoint) {
       e.preventDefault();
       if (inputState.phase !== 'idle' && inputState.phase !== 'point_winner' && inputState.phase !== 'ace_receiver') {
