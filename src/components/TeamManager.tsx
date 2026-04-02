@@ -83,7 +83,7 @@ const TeamManager: React.FC = () => {
             </div>
 
             <div>
-              <label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Joueurs (6 titulaires)</label>
+              <label className="text-muted-foreground text-xs uppercase tracking-wider font-semibold">Joueurs</label>
               <div className="space-y-2 mt-1">
                 {editing.players.map((p, i) => (
                   <div key={i} className="flex gap-2 items-center">
@@ -108,21 +108,32 @@ const TeamManager: React.FC = () => {
                         setEditing({ ...editing, players: updated });
                       }}
                     />
-                    <button
-                      onClick={() => setEditing({ ...editing, setterNumber: p.number })}
-                      className={`text-[10px] px-2 py-1 rounded font-bold shrink-0 ${
-                        editing.setterNumber === p.number && p.number > 0
-                          ? 'bg-primary text-primary-foreground'
-                          : 'bg-secondary text-muted-foreground hover:text-foreground'
-                      }`}
+                    <select
+                      className={`${inputClass} !w-28`}
+                      value={p.role || ''}
+                      onChange={e => {
+                        const updated = [...editing.players];
+                        const role = e.target.value as PlayerRole | '';
+                        updated[i] = { ...updated[i], role: role || undefined };
+                        // If setting as passeur, also set setterNumber
+                        if (role === 'passeur') {
+                          setEditing({ ...editing, players: updated, setterNumber: updated[i].number });
+                        } else {
+                          setEditing({ ...editing, players: updated });
+                        }
+                      }}
                     >
-                      Passeur
-                    </button>
+                      <option value="">Rôle...</option>
+                      <option value="pointu">Pointu</option>
+                      <option value="recepteur">Récepteur</option>
+                      <option value="central">Central</option>
+                      <option value="passeur">Passeur</option>
+                    </select>
                   </div>
                 ))}
                 {editing.players.length < 14 && (
                   <button
-                    onClick={() => setEditing({ ...editing, players: [...editing.players, { number: 0, name: '' }] })}
+                    onClick={() => setEditing({ ...editing, players: [...editing.players, { number: 0, name: '', role: undefined }] })}
                     className="text-xs text-primary hover:underline"
                   >
                     + Ajouter un joueur
