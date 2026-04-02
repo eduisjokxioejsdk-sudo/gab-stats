@@ -572,7 +572,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               };
               if (inputState.currentPointId) {
                 const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' } });
+                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
               }
             }
           }
