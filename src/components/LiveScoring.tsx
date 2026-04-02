@@ -194,12 +194,7 @@ const LiveScoring: React.FC = () => {
 
         {/* Action log - right panel */}
         <div className="w-56 shrink-0">
-          <ActionLog
-            actions={currentActions}
-            teamAName={match.teamA.name}
-            teamBName={match.teamB.name}
-            teamAId={match.teamA.id}
-          />
+          <ActionLog />
         </div>
       </div>
 
