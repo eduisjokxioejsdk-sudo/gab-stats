@@ -110,15 +110,18 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   inputPhase,
   previousServices = [],
 }) => {
-  const courtLeft = 20;
-  const courtRight = 200;
-  const courtTop = 5;
-  const courtBottom = 95;
-  const courtMidX = 110;
+  const pad = 15; // free zone around court for out-of-bounds trajectories
+  const courtLeft = 20 + pad;
+  const courtRight = 200 + pad;
+  const courtTop = 5 + pad;
+  const courtBottom = 95 + pad;
+  const courtMidX = 110 + pad;
   const courtW = 90;
   const courtH = 90;
   const attackLineOffset = 30;
   const thirdH = courtH / 3;
+  const svgW = 220 + pad * 2;
+  const svgH = 100 + pad * 2;
 
   // Physical zone coordinates for left team
   const leftZoneCoords: Record<number, { x: number; y: number }> = {
@@ -129,7 +132,7 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
     6: { x: courtLeft + 15,  y: courtTop + thirdH * 1.5 },
     1: { x: courtLeft + 15,  y: courtTop + thirdH * 2.5 },
   };
-  const leftServiceZone = { x: 10, y: courtTop + thirdH * 2.5 };
+  const leftServiceZone = { x: courtLeft - 10, y: courtTop + thirdH * 2.5 };
 
   // Physical zone coordinates for right team
   const rightZoneCoords: Record<number, { x: number; y: number }> = {
@@ -140,7 +143,7 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
     6: { x: courtRight - 15, y: courtTop + thirdH * 1.5 },
     5: { x: courtRight - 15, y: courtTop + thirdH * 2.5 },
   };
-  const rightServiceZone = { x: 210, y: courtTop + thirdH * 2.5 };
+  const rightServiceZone = { x: courtRight + 10, y: courtTop + thirdH * 2.5 };
 
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
@@ -227,20 +230,20 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
       </div>
 
       <svg
-        viewBox="0 0 220 100"
+        viewBox={`0 0 ${svgW} ${svgH}`}
         className="w-full cursor-crosshair court-shadow rounded-md"
         onClick={handleClick}
         preserveAspectRatio="xMidYMid meet"
       >
-        <rect x="0" y="0" width="220" height="100" fill="hsl(var(--background))" rx="2" />
-        <rect x="0" y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'left' ? 0.5 : 0.15} rx="1" />
-        <rect x="200" y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'right' ? 0.5 : 0.15} rx="1" />
+        <rect x="0" y="0" width={svgW} height={svgH} fill="hsl(var(--background))" rx="2" />
+        <rect x={courtLeft - 20} y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'left' ? 0.5 : 0.15} rx="1" />
+        <rect x={courtRight} y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'right' ? 0.5 : 0.15} rx="1" />
         
         {servingSide === 'left' && (
-          <text x="10" y="55" textAnchor="middle" fontSize="5" fill="hsl(var(--accent))" fontWeight="bold" writingMode="tb" letterSpacing="2">SERVICE</text>
+          <text x={courtLeft - 10} y={courtTop + courtH / 2} textAnchor="middle" fontSize="5" fill="hsl(var(--accent))" fontWeight="bold" writingMode="tb" letterSpacing="2">SERVICE</text>
         )}
         {servingSide === 'right' && (
-          <text x="210" y="55" textAnchor="middle" fontSize="5" fill="hsl(var(--accent))" fontWeight="bold" writingMode="tb" letterSpacing="2">SERVICE</text>
+          <text x={courtRight + 10} y={courtTop + courtH / 2} textAnchor="middle" fontSize="5" fill="hsl(var(--accent))" fontWeight="bold" writingMode="tb" letterSpacing="2">SERVICE</text>
         )}
 
         <rect x={courtLeft} y={courtTop} width={courtW * 2} height={courtH} fill="hsl(var(--court))" />
