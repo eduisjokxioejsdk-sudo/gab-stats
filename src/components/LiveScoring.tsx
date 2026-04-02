@@ -140,44 +140,15 @@ const LiveScoring: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col no-select overflow-hidden">
-      {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-        <div className="flex items-center gap-3">
-          <h1 className="text-lg font-black tracking-tighter text-foreground">
+      {/* Compact header bar with score */}
+      <div className="flex items-center justify-between px-3 py-1 border-b border-border bg-card shrink-0">
+        <div className="flex items-center gap-2">
+          <h1 className="text-sm font-black tracking-tighter text-foreground">
             pure<span className="text-primary">volley</span>
           </h1>
-          <span className="text-xs text-muted-foreground font-mono">{match.name}</span>
+          <span className="text-[10px] text-muted-foreground font-mono">{match.name}</span>
         </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setShowSub(true)}
-            className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
-          >
-            🔄 Changement
-          </button>
-          <button
-            onClick={() => setView('dashboard')}
-            className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
-          >
-            📊 Stats
-          </button>
-          <button
-            onClick={() => setView('settings')}
-            className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
-          >
-            ⚙️
-          </button>
-          <button
-            onClick={() => setView('home')}
-            className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
-          >
-            🏠 Accueil
-          </button>
-        </div>
-      </div>
 
-      {/* Score */}
-      <div className="px-4 pt-2 shrink-0">
         <ScoreBoard
           teamAName={match.teamA.name}
           teamBName={match.teamB.name}
@@ -188,10 +159,17 @@ const LiveScoring: React.FC = () => {
           setNumber={currentSet.setNumber}
           servingTeamSide={servingSide}
         />
+
+        <div className="flex gap-1">
+          <button onClick={() => setShowSub(true)} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">🔄</button>
+          <button onClick={() => setView('dashboard')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">📊</button>
+          <button onClick={() => setView('settings')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">⚙️</button>
+          <button onClick={() => setView('home')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">🏠</button>
+        </div>
       </div>
 
       {/* Main area: Court left + Action log right */}
-      <div className="flex-1 flex min-h-0 px-4 py-2 gap-3">
+      <div className="flex-1 flex min-h-0 px-2 py-1 gap-2">
         <div className="flex-1 flex items-center justify-start">
           <div className="w-full max-w-4xl">
             <VolleyCourt
@@ -215,7 +193,7 @@ const LiveScoring: React.FC = () => {
         </div>
 
         {/* Action log - right panel */}
-        <div className="w-64 shrink-0">
+        <div className="w-56 shrink-0">
           <ActionLog
             actions={currentActions}
             teamAName={match.teamA.name}
@@ -225,8 +203,8 @@ const LiveScoring: React.FC = () => {
         </div>
       </div>
 
-      {/* Input guide at bottom */}
-      <div className="px-4 pb-3 shrink-0">
+      {/* Input guide at bottom - larger */}
+      <div className="px-3 pb-2 shrink-0">
         <InputGuide
           phase={inputState.phase}
           buffer={inputState.buffer}
