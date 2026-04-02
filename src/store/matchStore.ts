@@ -40,15 +40,18 @@ function getPreviousPhase(current: InputPhase): InputPhase | null {
   return phaseOrder[idx - 1];
 }
 
-export type ViewType = 'home' | 'setup' | 'live' | 'dashboard' | 'settings' | 'teams';
+export type ViewType = 'home' | 'setup' | 'live' | 'dashboard' | 'settings' | 'teams' | 'matches';
 
 interface MatchStore {
   match: Match | null;
+  matchHistory: Match[];
   inputState: InputState;
   view: ViewType;
 
   setView: (view: ViewType) => void;
-  createMatch: (name: string, date: string, teamA: Team, teamB: Team) => void;
+  createMatch: (name: string, date: string, teamA: Team, teamB: Team, extras?: { location?: string; time?: string; statistician?: string }) => void;
+  loadMatch: (match: Match) => void;
+  saveMatchToHistory: () => void;
   startSet: (rotationA: number[], rotationB: number[], servingTeamId: string) => void;
 
   startPoint: () => void;
@@ -73,6 +76,7 @@ interface MatchStore {
 
 export const useMatchStore = create<MatchStore>((set, get) => ({
   match: null,
+  matchHistory: JSON.parse(localStorage.getItem('purevolley-match-history') || '[]'),
   inputState: {
     phase: 'idle',
     pendingActions: [],
@@ -83,11 +87,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
   setView: (view) => set({ view }),
 
-  createMatch: (name, date, teamA, teamB) => {
+  createMatch: (name, date, teamA, teamB, extras) => {
     const match: Match = {
       id: generateId(),
       name,
       date,
+      location: extras?.location,
+      time: extras?.time,
+      statistician: extras?.statistician,
       teamA,
       teamB,
       sets: [],
@@ -96,6 +103,25 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       currentSetIndex: -1,
     };
     set({ match });
+  },
+
+  loadMatch: (match) => {
+    set({ match, view: 'live', inputState: { phase: 'idle', pendingActions: [], courtClicks: [], buffer: '' } });
+  },
+
+  saveMatchToHistory: () => {
+    const { match, matchHistory } = get();
+    if (!match) return;
+    const existing = matchHistory.findIndex(m => m.id === match.id);
+    let updated: Match[];
+    if (existing !== -1) {
+      updated = [...matchHistory];
+      updated[existing] = match;
+    } else {
+      updated = [...matchHistory, match];
+    }
+    localStorage.setItem('purevolley-match-history', JSON.stringify(updated));
+    set({ matchHistory: updated });
   },
 
   startSet: (rotationA, rotationB, servingTeamId) => {
@@ -289,6 +315,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         buffer: '',
       },
     });
+    // Auto-save to history
+    get().saveMatchToHistory();
   },
 
   setInputPhase: (phase) => set(state => ({ inputState: { ...state.inputState, phase } })),

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMatchStore } from '@/store/matchStore';
 import { useTeamsStore, type SavedTeam } from '@/store/teamsStore';
-import type { Team, Player } from '@/types/volleyball';
+import type { Team } from '@/types/volleyball';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
@@ -9,128 +9,63 @@ function generateId(): string {
 
 const MatchSetup: React.FC = () => {
   const { createMatch, startSet, match, setView } = useMatchStore();
-  const { teams: savedTeams, addTeam } = useTeamsStore();
+  const { teams: savedTeams } = useTeamsStore();
 
-  const [step, setStep] = useState<'match' | 'players' | 'rotation'>('match');
+  const [step, setStep] = useState<'match' | 'rotation'>('match');
   const [matchName, setMatchName] = useState('');
-  const [teamAName, setTeamAName] = useState('');
-  const [teamBName, setTeamBName] = useState('');
   const [selectedTeamAId, setSelectedTeamAId] = useState<string | null>(null);
   const [selectedTeamBId, setSelectedTeamBId] = useState<string | null>(null);
 
-  const [teamAPlayers, setTeamAPlayers] = useState<{ number: string; name: string }[]>(
-    Array.from({ length: 6 }, () => ({ number: '', name: '' }))
-  );
-  const [teamBPlayers, setTeamBPlayers] = useState<{ number: string; name: string }[]>(
-    Array.from({ length: 6 }, () => ({ number: '', name: '' }))
-  );
-  const [teamALiberos, setTeamALiberos] = useState<{ number: string; name: string }[]>(
-    Array.from({ length: 2 }, () => ({ number: '', name: '' }))
-  );
-  const [teamBLiberos, setTeamBLiberos] = useState<{ number: string; name: string }[]>(
-    Array.from({ length: 2 }, () => ({ number: '', name: '' }))
-  );
-  const [setterA, setSetterA] = useState<string>('');
-  const [setterB, setSetterB] = useState<string>('');
+  // Optional fields
+  const [location, setLocation] = useState('');
+  const [matchTime, setMatchTime] = useState('');
+  const [statistician, setStatistician] = useState('');
 
   const [rotationA, setRotationA] = useState<string[]>(Array(6).fill(''));
   const [rotationB, setRotationB] = useState<string[]>(Array(6).fill(''));
   const [servingTeam, setServingTeam] = useState<'A' | 'B'>('A');
 
-  const loadSavedTeam = (saved: SavedTeam, side: 'A' | 'B') => {
-    const players = saved.players.map(p => ({ number: p.number.toString(), name: p.name }));
-    while (players.length < 6) players.push({ number: '', name: '' });
-    const liberos = saved.liberos.map(p => ({ number: p.number.toString(), name: p.name }));
-    while (liberos.length < 2) liberos.push({ number: '', name: '' });
+  const selectedTeamA = savedTeams.find(t => t.id === selectedTeamAId);
+  const selectedTeamB = savedTeams.find(t => t.id === selectedTeamBId);
 
-    if (side === 'A') {
-      setTeamAName(saved.name);
-      setTeamAPlayers(players);
-      setTeamALiberos(liberos);
-      setSetterA(saved.setterNumber?.toString() || '');
-      setSelectedTeamAId(saved.id);
-    } else {
-      setTeamBName(saved.name);
-      setTeamBPlayers(players);
-      setTeamBLiberos(liberos);
-      setSetterB(saved.setterNumber?.toString() || '');
-      setSelectedTeamBId(saved.id);
-    }
-  };
-
-  const handleCreateMatch = () => {
-    if (!matchName || !teamAName || !teamBName) return;
-    // If teams were loaded from saved, skip to rotation directly
-    if (selectedTeamAId && selectedTeamBId) {
-      buildAndCreateMatch();
-    } else {
-      setStep('players');
-    }
-  };
-
-  const buildTeam = (
-    name: string,
-    players: { number: string; name: string }[],
-    liberos: { number: string; name: string }[],
-    setter: string,
-  ): Team => {
+  const buildTeamFromSaved = (saved: SavedTeam): Team => {
     const teamId = generateId();
     return {
       id: teamId,
-      name,
-      players: players
-        .filter(p => p.number)
-        .map(p => ({
-          id: generateId(),
-          number: parseInt(p.number),
-          name: p.name || `#${p.number}`,
-          teamId,
-        })),
-      liberos: liberos
-        .filter(p => p.number)
-        .map(p => ({
-          id: generateId(),
-          number: parseInt(p.number),
-          name: p.name || `L#${p.number}`,
-          teamId,
-        })),
-      setterNumber: setter ? parseInt(setter) : undefined,
+      name: saved.name,
+      players: saved.players.map(p => ({
+        id: generateId(),
+        number: p.number,
+        name: p.name || `#${p.number}`,
+        teamId,
+      })),
+      liberos: saved.liberos.map(p => ({
+        id: generateId(),
+        number: p.number,
+        name: p.name || `L#${p.number}`,
+        teamId,
+      })),
+      setterNumber: saved.setterNumber,
     };
   };
 
-  const buildAndCreateMatch = () => {
-    const teamA = buildTeam(teamAName, teamAPlayers, teamALiberos, setterA);
-    const teamB = buildTeam(teamBName, teamBPlayers, teamBLiberos, setterB);
+  const handleCreateMatch = () => {
+    if (!matchName || !selectedTeamA || !selectedTeamB) return;
 
-    createMatch(matchName, new Date().toISOString(), teamA, teamB);
+    const teamA = buildTeamFromSaved(selectedTeamA);
+    const teamB = buildTeamFromSaved(selectedTeamB);
 
-    // Auto-save teams if new
-    if (!selectedTeamAId) {
-      addTeam({
-        id: generateId(), name: teamAName,
-        players: teamA.players.map(p => ({ number: p.number, name: p.name })),
-        liberos: teamA.liberos.map(p => ({ number: p.number, name: p.name })),
-        setterNumber: teamA.setterNumber,
-      });
-    }
-    if (!selectedTeamBId) {
-      addTeam({
-        id: generateId(), name: teamBName,
-        players: teamB.players.map(p => ({ number: p.number, name: p.name })),
-        liberos: teamB.liberos.map(p => ({ number: p.number, name: p.name })),
-        setterNumber: teamB.setterNumber,
-      });
-    }
+    createMatch(matchName, new Date().toISOString(), teamA, teamB, {
+      location: location || undefined,
+      time: matchTime || undefined,
+      statistician: statistician || undefined,
+    });
 
     const aNumbers = teamA.players.map(p => p.number.toString());
     const bNumbers = teamB.players.map(p => p.number.toString());
     setRotationA(aNumbers.concat(Array(6 - aNumbers.length).fill('')));
     setRotationB(bNumbers.concat(Array(6 - bNumbers.length).fill('')));
     setStep('rotation');
-  };
-
-  const handlePlayersSubmit = () => {
-    buildAndCreateMatch();
   };
 
   const handleStartSet = () => {
@@ -163,144 +98,82 @@ const MatchSetup: React.FC = () => {
 
         {step === 'match' && (
           <div className="bg-card border border-border rounded-lg p-6 space-y-4 animate-slide-in">
-            <h2 className="text-lg font-bold text-foreground">Configuration</h2>
+            <h2 className="text-lg font-bold text-foreground">Configuration du match</h2>
 
             <div>
-              <label className={labelClass}>Nom du match</label>
+              <label className={labelClass}>Nom du match *</label>
               <input className={inputClass} placeholder="Ex: Finale Coupe de France" value={matchName} onChange={e => setMatchName(e.target.value)} />
             </div>
 
+            {/* Team selection */}
             <div className="grid grid-cols-2 gap-4">
               {(['A', 'B'] as const).map(side => {
-                const name = side === 'A' ? teamAName : teamBName;
                 const selectedId = side === 'A' ? selectedTeamAId : selectedTeamBId;
+                const setSelected = side === 'A' ? setSelectedTeamAId : setSelectedTeamBId;
+                const otherSelectedId = side === 'A' ? selectedTeamBId : selectedTeamAId;
                 return (
                   <div key={side}>
-                    <label className={labelClass}>Équipe {side}</label>
-                    {savedTeams.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2 mt-1">
-                        {savedTeams.map(t => (
-                          <button
-                            key={t.id}
-                            onClick={() => loadSavedTeam(t, side)}
-                            className={`text-[10px] px-2 py-1 rounded font-mono transition-all ${
-                              selectedId === t.id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                            }`}
-                          >
-                            {t.name}
-                          </button>
-                        ))}
+                    <label className={labelClass}>Équipe {side} *</label>
+                    {savedTeams.length === 0 ? (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        <p>Aucune équipe créée.</p>
+                        <button
+                          onClick={() => setView('teams')}
+                          className="text-primary hover:underline mt-1"
+                        >
+                          Créer une équipe →
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {savedTeams
+                          .filter(t => t.id !== otherSelectedId)
+                          .map(t => (
+                            <button
+                              key={t.id}
+                              onClick={() => setSelected(t.id)}
+                              className={`text-xs px-3 py-1.5 rounded-md font-semibold transition-all ${
+                                selectedId === t.id
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                              }`}
+                            >
+                              {t.name}
+                              <span className="text-[10px] ml-1 opacity-60">({t.players.length}j)</span>
+                            </button>
+                          ))}
                       </div>
                     )}
-                    <input
-                      className={inputClass}
-                      placeholder="Nom"
-                      value={name}
-                      onChange={e => {
-                        if (side === 'A') { setTeamAName(e.target.value); setSelectedTeamAId(null); }
-                        else { setTeamBName(e.target.value); setSelectedTeamBId(null); }
-                      }}
-                    />
                   </div>
                 );
               })}
             </div>
 
-            <button
-              onClick={handleCreateMatch}
-              disabled={!matchName || !teamAName || !teamBName}
-              className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-md hover:opacity-90 disabled:opacity-40 transition-opacity"
-            >
-              {selectedTeamAId && selectedTeamBId ? 'Rotations →' : 'Joueurs →'}
-            </button>
-          </div>
-        )}
-
-        {step === 'players' && (
-          <div className="bg-card border border-border rounded-lg p-6 space-y-6 animate-slide-in">
-            <h2 className="text-lg font-bold text-foreground">Joueurs</h2>
-
-            <div className="grid grid-cols-2 gap-6">
-              {[
-                { name: teamAName, players: teamAPlayers, setPlayers: setTeamAPlayers, liberos: teamALiberos, setLiberos: setTeamALiberos, setter: setterA, setSetter: setSetterA },
-                { name: teamBName, players: teamBPlayers, setPlayers: setTeamBPlayers, liberos: teamBLiberos, setLiberos: setTeamBLiberos, setter: setterB, setSetter: setSetterB },
-              ].map((team, ti) => (
-                <div key={ti}>
-                  <h3 className="text-sm font-bold text-primary mb-3">{team.name}</h3>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Titulaires (6)</p>
-                  <div className="space-y-2">
-                    {team.players.map((p, i) => (
-                      <div key={i} className="flex gap-2 items-center">
-                        <input
-                          className={`${inputClass} !w-16 text-center`}
-                          placeholder="#"
-                          value={p.number}
-                          onChange={e => {
-                            const updated = [...team.players];
-                            updated[i] = { ...updated[i], number: e.target.value };
-                            team.setPlayers(updated);
-                          }}
-                        />
-                        <input
-                          className={inputClass}
-                          placeholder={`Joueur ${i + 1}`}
-                          value={p.name}
-                          onChange={e => {
-                            const updated = [...team.players];
-                            updated[i] = { ...updated[i], name: e.target.value };
-                            team.setPlayers(updated);
-                          }}
-                        />
-                        <button
-                          onClick={() => team.setSetter(p.number)}
-                          className={`text-[10px] px-2 py-1 rounded font-bold shrink-0 ${
-                            team.setter === p.number && p.number
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-secondary text-muted-foreground hover:text-foreground'
-                          }`}
-                        >
-                          P
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <p className="text-[10px] text-accent uppercase tracking-wider mt-3 mb-1">Libéros (max 2)</p>
-                  <div className="space-y-2">
-                    {team.liberos.map((p, i) => (
-                      <div key={i} className="flex gap-2">
-                        <input
-                          className={`${inputClass} !w-16 text-center border-accent/30`}
-                          placeholder="#"
-                          value={p.number}
-                          onChange={e => {
-                            const updated = [...team.liberos];
-                            updated[i] = { ...updated[i], number: e.target.value };
-                            team.setLiberos(updated);
-                          }}
-                        />
-                        <input
-                          className={`${inputClass} border-accent/30`}
-                          placeholder={`Libéro ${i + 1}`}
-                          value={p.name}
-                          onChange={e => {
-                            const updated = [...team.liberos];
-                            updated[i] = { ...updated[i], name: e.target.value };
-                            team.setLiberos(updated);
-                          }}
-                        />
-                      </div>
-                    ))}
-                  </div>
+            {/* Optional info */}
+            <div className="border-t border-border pt-4 mt-2">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3 font-semibold">Informations facultatives</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className={labelClass}>Lieu</label>
+                  <input className={inputClass} placeholder="Ex: Palais des Sports" value={location} onChange={e => setLocation(e.target.value)} />
                 </div>
-              ))}
+                <div>
+                  <label className={labelClass}>Heure</label>
+                  <input className={inputClass} type="time" value={matchTime} onChange={e => setMatchTime(e.target.value)} />
+                </div>
+                <div className="col-span-2">
+                  <label className={labelClass}>Statisticien</label>
+                  <input className={inputClass} placeholder="Votre nom" value={statistician} onChange={e => setStatistician(e.target.value)} />
+                </div>
+              </div>
             </div>
 
             <button
-              onClick={handlePlayersSubmit}
-              className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-md hover:opacity-90 transition-opacity"
+              onClick={handleCreateMatch}
+              disabled={!matchName || !selectedTeamAId || !selectedTeamBId}
+              className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-md hover:opacity-90 disabled:opacity-40 transition-opacity"
             >
-              Définir rotations →
+              Définir les rotations →
             </button>
           </div>
         )}
