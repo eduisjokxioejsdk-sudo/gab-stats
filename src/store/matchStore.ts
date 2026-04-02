@@ -61,6 +61,8 @@ interface MatchStore {
   addCourtClick: (coord: Coordinate) => void;
   processKeyInput: (key: string) => void;
   addAction: (action: Action) => void;
+  updateAction: (setIndex: number, pointIndex: number, actionId: string, updates: Partial<Action>) => void;
+  getAllMatchActions: () => { setIndex: number; pointIndex: number; point: Point; action: Action; setNumber: number }[];
 
   performSubstitution: (teamId: string, outNumber: number, inNumber: number) => void;
   updateSetter: (teamId: string, newSetterNumber: number) => void;
