@@ -20,33 +20,35 @@ const LiveScoring: React.FC = () => {
   } = useMatchStore();
 
   const currentSet = getCurrentSet();
+  const { shortcuts } = useShortcutsStore();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Prevent default for space to avoid scrolling
-    if (e.key === ' ') {
+    const key = e.key;
+    // Start/end point
+    if (key === shortcuts.startEndPoint) {
       e.preventDefault();
       if (inputState.phase === 'idle') {
         startPoint();
-      } else if (inputState.phase === 'recording' || inputState.phase === 'service_coord' || inputState.phase === 'service_type' || inputState.phase === 'reception' || inputState.phase === 'set_call' || inputState.phase === 'attack_player' || inputState.phase === 'attack_blockers' || inputState.phase === 'attack_coord' || inputState.phase === 'attack_result') {
+      } else if (inputState.phase !== 'point_winner') {
         endPoint();
       }
       return;
     }
 
     if (inputState.phase === 'point_winner') {
-      if (e.key === 'ArrowLeft' && match) {
+      if (key === shortcuts.winnerLeft && match) {
         assignPointWinner(match.teamA.id);
-      } else if (e.key === 'ArrowRight' && match) {
+      } else if (key === shortcuts.winnerRight && match) {
         assignPointWinner(match.teamB.id);
       }
       return;
     }
 
     // Forward key to processKeyInput
-    if (e.key.length === 1) {
-      processKeyInput(e.key.toLowerCase());
+    if (key.length === 1) {
+      processKeyInput(key.toLowerCase());
     }
-  }, [inputState.phase, match, startPoint, endPoint, assignPointWinner, processKeyInput]);
+  }, [inputState.phase, match, startPoint, endPoint, assignPointWinner, processKeyInput, shortcuts]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
