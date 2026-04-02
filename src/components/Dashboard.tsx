@@ -41,9 +41,14 @@ const Dashboard: React.FC = () => {
           </h1>
           <span className="text-xs text-muted-foreground">📊 Statistiques</span>
         </div>
-        <button onClick={() => setView('live')} className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-md font-semibold hover:opacity-90 transition-opacity">
-          ← Retour au live
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => setView('live')} className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-md font-semibold hover:opacity-90 transition-opacity">
+            ← Retour au live
+          </button>
+          <button onClick={() => setView('home')} className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors">
+            🏠 Accueil
+          </button>
+        </div>
       </div>
 
       <div className="px-4 pt-3 pb-2 shrink-0">
