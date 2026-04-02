@@ -32,8 +32,8 @@ export function loadDemoMatch() {
     teamId: teamBId,
   }));
 
-  const teamA: Team = { id: teamAId, name: 'Paris Volley', players: teamAPlayers };
-  const teamB: Team = { id: teamBId, name: 'Tours VB', players: teamBPlayers };
+  const teamA: Team = { id: teamAId, name: 'Paris Volley', players: teamAPlayers, liberos: [{ id: generateId(), number: 15, name: 'Duval', teamId: teamAId }] };
+  const teamB: Team = { id: teamBId, name: 'Tours VB', players: teamBPlayers, liberos: [{ id: generateId(), number: 14, name: 'Blanc', teamId: teamBId }] };
 
   store.createMatch('Démo — Finale Ligue A', new Date().toISOString(), teamA, teamB);
 
