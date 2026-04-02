@@ -648,7 +648,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           // Seconde main: setter attacks
           const setterNum = team.setterNumber;
           if (setterNum) {
-            const setter = state.getPlayerByNumber(receivingTeamId, setterNum);
+            const setter = state.getPlayerByNumber(rallyTeamId, setterNum);
             set({
               inputState: {
                 ...inputState,
@@ -656,7 +656,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 buffer: '',
                 pendingActions: [{
                   type: 'attack',
-                  teamId: receivingTeamId,
+                  teamId: rallyTeamId,
                   playerNumber: setterNum,
                   playerId: setter?.id,
                   attackPosition: 'seconde_main',
