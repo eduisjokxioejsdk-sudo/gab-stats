@@ -58,7 +58,9 @@ const formatAction = (action: Action, teamAName: string, teamBName: string, team
 
 const getActionColor = (action: Action): string => {
   if (action.quality === '++' || action.attackResult === 'kill') return 'text-score-win';
-  if (action.quality === '--' || action.attackResult === 'error') return 'text-destructive';
+  if (action.quality === '--' || action.attackResult === 'error' || action.attackResult === 'blocked') return 'text-destructive';
+  if (action.attackResult === 'good') return 'text-primary';
+  if (action.attackResult === 'touched' || action.attackResult === 'bad') return 'text-orange-400';
   if (action.quality === '+') return 'text-primary';
   if (action.quality === '-') return 'text-orange-400';
   return 'text-foreground';

@@ -6,7 +6,7 @@ function generateId(): string {
 }
 
 const qualityOptions: Quality[] = ['++', '+', '0', '-', '--'];
-const attackResults: AttackResult[] = ['kill', 'error', 'continue'];
+const attackResults: AttackResult[] = ['kill', 'good', 'touched', 'bad', 'blocked', 'error'];
 const attackPositions: AttackPosition[] = ['4', '3', '6', 'seconde_main'];
 
 function randomFrom<T>(arr: T[]): T {
