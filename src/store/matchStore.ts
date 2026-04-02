@@ -515,37 +515,15 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'ace_receiver': {
-        // After ace (service ++), optionally enter receiver number for reception --
-        if (key === 'enter') {
-          if (inputState.buffer) {
-            const playerNum = parseInt(inputState.buffer);
-            if (!isNaN(playerNum)) {
-              const action: Action = {
-                id: generateId(), type: 'reception', teamId: receivingTeamId,
-                playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
-                quality: '--', timestamp: Date.now(),
-              };
-              if (inputState.currentPointId) {
-                const cs2 = state.getCurrentSet();
-                if (cs2) {
-                  const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, cs2, inputState.currentPointId, action);
-                  set({ match: updatedMatch });
-                }
-              }
-            }
-          }
-          get().assignPointWinner(servingTeamId);
-          return;
-        }
+        // Check if this is a service overpass (/) or ace (++)
+        const isServiceOverpass = inputState.rallyTeamId === servingTeamId;
+        const recQualityForAce: Quality = isServiceOverpass ? '/' : '--';
 
-        const buffer = inputState.buffer + key;
-        const playerNum = parseInt(buffer);
-        // Auto-validate on 2 digits
-        if (buffer.length >= 2 && !isNaN(playerNum)) {
+        const handleAceReceiver = (playerNum: number) => {
           const action: Action = {
             id: generateId(), type: 'reception', teamId: receivingTeamId,
             playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
-            quality: '--', timestamp: Date.now(),
+            quality: recQualityForAce, timestamp: Date.now(),
           };
           if (inputState.currentPointId) {
             const cs2 = state.getCurrentSet();
@@ -554,7 +532,29 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               set({ match: updatedMatch });
             }
           }
-          get().assignPointWinner(servingTeamId);
+          if (isServiceOverpass) {
+            // Service overpass: ball goes back to serving team, they attack
+            set({ inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: servingTeamId } });
+          } else {
+            // Ace: point goes to serving team
+            get().assignPointWinner(servingTeamId);
+          }
+        };
+
+        if (key === 'enter') {
+          if (inputState.buffer) {
+            const playerNum = parseInt(inputState.buffer);
+            if (!isNaN(playerNum)) handleAceReceiver(playerNum);
+          } else if (!isServiceOverpass) {
+            get().assignPointWinner(servingTeamId);
+          }
+          return;
+        }
+
+        const buffer = inputState.buffer + key;
+        const playerNum = parseInt(buffer);
+        if (buffer.length >= 2 && !isNaN(playerNum)) {
+          handleAceReceiver(playerNum);
           return;
         }
         set({ inputState: { ...inputState, buffer } });
