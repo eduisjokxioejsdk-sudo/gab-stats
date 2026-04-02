@@ -8,6 +8,7 @@ interface PlayerQualityRow {
   good: number;
   neutral: number;
   bad: number;
+  overpass: number;
   terrible: number;
   efficiency: number;
 }
@@ -18,11 +19,12 @@ interface QualityTableProps {
 }
 
 const qualityCols: { key: keyof PlayerQualityRow; label: string; colorClass: string }[] = [
-  { key: 'excellent', label: '++', colorClass: 'text-score-win' },
+  { key: 'excellent', label: '#', colorClass: 'text-score-win' },
   { key: 'good', label: '+', colorClass: 'text-primary' },
-  { key: 'neutral', label: '0', colorClass: 'text-muted-foreground' },
-  { key: 'bad', label: '-', colorClass: 'text-orange-400' },
-  { key: 'terrible', label: '--', colorClass: 'text-destructive' },
+  { key: 'neutral', label: '-', colorClass: 'text-orange-400' },
+  { key: 'bad', label: '!', colorClass: 'text-orange-600' },
+  { key: 'overpass', label: '/', colorClass: 'text-destructive' },
+  { key: 'terrible', label: '=', colorClass: 'text-destructive' },
 ];
 
 const QualityTable: React.FC<QualityTableProps> = ({ title, rows }) => {
@@ -82,15 +84,16 @@ export function buildQualityRows(
     if (!byPlayer[a.playerNumber]) {
       byPlayer[a.playerNumber] = {
         playerNumber: a.playerNumber,
-        total: 0, excellent: 0, good: 0, neutral: 0, bad: 0, terrible: 0, efficiency: 0,
+        total: 0, excellent: 0, good: 0, neutral: 0, bad: 0, overpass: 0, terrible: 0, efficiency: 0,
       };
     }
     const row = byPlayer[a.playerNumber];
     row.total++;
     if (a.quality === '++') row.excellent++;
     else if (a.quality === '+') row.good++;
-    else if (a.quality === '0') row.neutral++;
-    else if (a.quality === '-') row.bad++;
+    else if (a.quality === '0') row.neutral++;  // - (1 pass) stored as '0' internally
+    else if (a.quality === '-') row.bad++;       // ! (freeball) stored as '-'
+    else if (a.quality === '/') row.overpass++;
     else if (a.quality === '--') row.terrible++;
   });
 
