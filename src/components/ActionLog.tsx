@@ -36,7 +36,7 @@ const formatAction = (action: Action, teamAName: string, teamBName: string, team
     case 'defense':
       return `DÉFENSE ${playerStr} ${qualityLabel(action.quality)}`.trim();
     default:
-      return action.type.toUpperCase();
+      return (action.type as string).toUpperCase();
   }
 };
 
