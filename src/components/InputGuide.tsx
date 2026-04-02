@@ -22,8 +22,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
   const phaseConfig: Record<InputPhase, { label: string; hint: string; keys: string }> = {
     idle: {
       label: 'EN ATTENTE',
-      hint: `Appuyez sur ${formatKey(shortcuts.startEndPoint)} pour démarrer un point`,
-      keys: `[${formatKey(shortcuts.startEndPoint)}]`,
+      hint: 'Cliquez sur le terrain pour démarrer un point (position du serveur)',
+      keys: '[CLIC sur terrain]',
     },
     service_coord: {
       label: 'SERVICE — Trajectoire',

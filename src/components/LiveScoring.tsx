@@ -4,30 +4,32 @@ import { useShortcutsStore } from '@/store/shortcutsStore';
 import VolleyCourt from '@/components/VolleyCourt';
 import InputGuide from '@/components/InputGuide';
 import ScoreBoard from '@/components/ScoreBoard';
+import ActionLog from '@/components/ActionLog';
 
 const LiveScoring: React.FC = () => {
   const {
     match,
     inputState,
-    startPoint,
     endPoint,
     assignPointWinner,
     processKeyInput,
     addCourtClick,
     setView,
     getCurrentSet,
+    getCurrentPointActions,
   } = useMatchStore();
 
   const currentSet = getCurrentSet();
   const { shortcuts } = useShortcutsStore();
+  const currentActions = getCurrentPointActions();
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     const key = e.key;
+
+    // End point shortcut (only when in a point, not idle or point_winner)
     if (key === shortcuts.startEndPoint) {
       e.preventDefault();
-      if (inputState.phase === 'idle') {
-        startPoint();
-      } else if (inputState.phase !== 'point_winner') {
+      if (inputState.phase !== 'idle' && inputState.phase !== 'point_winner') {
         endPoint();
       }
       return;
@@ -45,11 +47,12 @@ const LiveScoring: React.FC = () => {
     if (key === 'Enter') {
       processKeyInput('enter');
     } else if (key === 'Backspace') {
+      e.preventDefault();
       processKeyInput('backspace');
     } else if (key.length === 1) {
       processKeyInput(key.toLowerCase());
     }
-  }, [inputState.phase, match, startPoint, endPoint, assignPointWinner, processKeyInput, shortcuts]);
+  }, [inputState.phase, match, endPoint, assignPointWinner, processKeyInput, shortcuts]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -58,15 +61,14 @@ const LiveScoring: React.FC = () => {
 
   if (!match || !currentSet) return null;
 
-  // Determine serving team from store logic
   const lastPoint = currentSet.points[currentSet.points.length - 1];
   const servingTeamId = lastPoint?.servingTeamId || match.teamA.id;
   const servingSide: 'A' | 'B' = servingTeamId === match.teamA.id ? 'A' : 'B';
 
   return (
-    <div className="min-h-screen flex flex-col no-select">
+    <div className="h-screen flex flex-col no-select overflow-hidden">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-black tracking-tighter text-foreground">
             pure<span className="text-primary">volley</span>
@@ -89,8 +91,8 @@ const LiveScoring: React.FC = () => {
         </div>
       </div>
 
-      {/* Score above */}
-      <div className="px-4 pt-3">
+      {/* Score */}
+      <div className="px-4 pt-2 shrink-0">
         <ScoreBoard
           teamAName={match.teamA.name}
           teamBName={match.teamB.name}
@@ -103,25 +105,38 @@ const LiveScoring: React.FC = () => {
         />
       </div>
 
-      {/* Large centered court */}
-      <div className="flex-1 flex items-center justify-center px-4 py-2">
-        <div className="w-full max-w-5xl">
-          <VolleyCourt
-            onCourtClick={addCourtClick}
-            clicks={inputState.courtClicks}
-            servingSide={servingSide === 'A' ? 'left' : 'right'}
-            rotationLeft={currentSet.currentRotationA}
-            rotationRight={currentSet.currentRotationB}
-            teamLeftName={match.teamA.name}
-            teamRightName={match.teamB.name}
-            liberoLeft={match.teamA.liberos.map(l => l.number)}
-            liberoRight={match.teamB.liberos.map(l => l.number)}
+      {/* Main area: Court left + Action log right */}
+      <div className="flex-1 flex min-h-0 px-4 py-2 gap-3">
+        {/* Court - takes most space, pinned left */}
+        <div className="flex-1 flex items-center justify-start">
+          <div className="w-full max-w-4xl">
+            <VolleyCourt
+              onCourtClick={addCourtClick}
+              clicks={inputState.courtClicks}
+              servingSide={servingSide === 'A' ? 'left' : 'right'}
+              rotationLeft={currentSet.currentRotationA}
+              rotationRight={currentSet.currentRotationB}
+              teamLeftName={match.teamA.name}
+              teamRightName={match.teamB.name}
+              liberoLeft={match.teamA.liberos.map(l => l.number)}
+              liberoRight={match.teamB.liberos.map(l => l.number)}
+            />
+          </div>
+        </div>
+
+        {/* Action log - right panel */}
+        <div className="w-64 shrink-0">
+          <ActionLog
+            actions={currentActions}
+            teamAName={match.teamA.name}
+            teamBName={match.teamB.name}
+            teamAId={match.teamA.id}
           />
         </div>
       </div>
 
       {/* Input guide at bottom */}
-      <div className="px-4 pb-3">
+      <div className="px-4 pb-3 shrink-0">
         <InputGuide
           phase={inputState.phase}
           buffer={inputState.buffer}
@@ -130,7 +145,7 @@ const LiveScoring: React.FC = () => {
         />
       </div>
 
-      {/* Point winner modal overlay */}
+      {/* Point winner modal */}
       {inputState.phase === 'point_winner' && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-card border border-primary/30 rounded-xl p-8 glow-primary animate-slide-in max-w-md w-full mx-4">

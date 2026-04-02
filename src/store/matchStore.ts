@@ -16,7 +16,6 @@ function rotatePositions(positions: number[]): number[] {
   return newPositions;
 }
 
-// Helper to add action to current point
 function addActionToCurrentPoint(match: Match, currentSetIndex: number, currentSet: SetData, pointId: string, action: Action): Match {
   const pointIndex = currentSet.points.findIndex(p => p.id === pointId);
   if (pointIndex === -1) return match;
@@ -28,6 +27,18 @@ function addActionToCurrentPoint(match: Match, currentSetIndex: number, currentS
   const updatedSets = [...match.sets];
   updatedSets[currentSetIndex] = updatedSet;
   return { ...match, sets: updatedSets };
+}
+
+// Phase order for undo navigation
+const phaseOrder: InputPhase[] = [
+  'service_coord', 'service_type', 'service_quality',
+  'reception', 'set_call', 'attack_player', 'attack_blockers', 'attack_coord', 'attack_result',
+];
+
+function getPreviousPhase(current: InputPhase): InputPhase | null {
+  const idx = phaseOrder.indexOf(current);
+  if (idx <= 0) return null;
+  return phaseOrder[idx - 1];
 }
 
 interface MatchStore {
@@ -52,6 +63,7 @@ interface MatchStore {
   getCurrentSet: () => SetData | null;
   getServingTeamId: () => string | null;
   getPlayerByNumber: (teamId: string, num: number) => { id: string; number: number; name: string } | undefined;
+  getCurrentPointActions: () => Action[];
 }
 
 export const useMatchStore = create<MatchStore>((set, get) => ({
@@ -114,28 +126,24 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     });
   },
 
-  // Determine who is serving for the NEXT point
   getServingTeamId: () => {
     const { match } = get();
     if (!match) return null;
     const currentSet = get().getCurrentSet();
     if (!currentSet) return null;
-    // If no points played yet, use set's initial serving team
     if (currentSet.points.length === 0) {
-      return (currentSet as any).servingTeamId || match.teamA.id;
+      return currentSet.servingTeamId || match.teamA.id;
     }
-    // Last completed point determines next server
     const lastPoint = currentSet.points[currentSet.points.length - 1];
     if (!lastPoint.winnerTeamId) {
-      // Point in progress - serving team is this point's serving team
       return lastPoint.servingTeamId;
     }
-    // If winner == server, same team serves. If winner != server, winner serves next.
     return lastPoint.winnerTeamId === lastPoint.servingTeamId
       ? lastPoint.servingTeamId
       : lastPoint.winnerTeamId;
   },
 
+  // Start point is now triggered by first court click (idle → service_coord)
   startPoint: () => {
     const { match, inputState } = get();
     if (!match || inputState.phase !== 'idle') return;
@@ -210,13 +218,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (teamId === match.teamA.id) newScoreA++;
     else newScoreB++;
 
-    // Rotation: if receiving team wins (side-out), they rotate
+    // Rotation: if receiving team wins (side-out), the winning team rotates and takes service
     const servingTeamId = point.servingTeamId;
     let newRotationA = [...currentSet.currentRotationA];
     let newRotationB = [...currentSet.currentRotationB];
 
     if (teamId !== servingTeamId) {
-      // Side-out: winning team (receiver) rotates
+      // Side-out: receiving team wins → they rotate and will serve next
       if (teamId === match.teamA.id) {
         newRotationA = rotatePositions(newRotationA);
       } else {
@@ -284,7 +292,19 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
   setInputPhase: (phase) => set(state => ({ inputState: { ...state.inputState, phase } })),
 
   addCourtClick: (coord) => {
-    const { inputState } = get();
+    const { inputState, match } = get();
+    if (!match) return;
+
+    // If idle, first click starts point AND is first service coord
+    if (inputState.phase === 'idle') {
+      get().startPoint();
+      // After startPoint, phase is 'service_coord' with empty clicks
+      // Add this click as the first service coord
+      const newState = get().inputState;
+      set({ inputState: { ...newState, courtClicks: [coord] } });
+      return;
+    }
+
     const clicks = [...inputState.courtClicks, coord];
 
     if (inputState.phase === 'service_coord' && clicks.length >= 2) {
@@ -332,10 +352,39 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     const receivingTeamId = servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
     const sc = useShortcutsStore.getState().shortcuts;
 
-    // Handle backspace globally for any phase with a buffer
+    // Handle backspace: erase buffer char, or undo previous step
     if (key === 'backspace') {
       if (inputState.buffer.length > 0) {
         set({ inputState: { ...inputState, buffer: inputState.buffer.slice(0, -1) } });
+      } else {
+        // Undo: go back to previous phase
+        const prevPhase = getPreviousPhase(inputState.phase);
+        if (prevPhase) {
+          // Remove last action from current point if we're undoing a committed step
+          const cs = state.getCurrentSet();
+          if (cs && inputState.currentPointId) {
+            const pi = cs.points.findIndex(p => p.id === inputState.currentPointId);
+            if (pi !== -1) {
+              const point = cs.points[pi];
+              // If going back removes the last committed action, do it
+              if (point.actions.length > 0) {
+                const updatedActions = point.actions.slice(0, -1);
+                const updatedPoint = { ...point, actions: updatedActions };
+                const updatedPoints = [...cs.points];
+                updatedPoints[pi] = updatedPoint;
+                const updatedSet = { ...cs, points: updatedPoints };
+                const updatedSets = [...match.sets];
+                updatedSets[match.currentSetIndex] = updatedSet;
+                set({
+                  match: { ...match, sets: updatedSets },
+                  inputState: { ...inputState, phase: prevPhase, buffer: '', pendingActions: [], courtClicks: [] },
+                });
+                return;
+              }
+            }
+          }
+          set({ inputState: { ...inputState, phase: prevPhase, buffer: '', pendingActions: [], courtClicks: [] } });
+        }
       }
       return;
     }
@@ -355,7 +404,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           if (player) pending[0].playerId = player.id;
         }
 
-        // Commit service action, move to service_quality
         const action: Action = {
           id: generateId(),
           type: 'service',
@@ -397,7 +445,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const serviceAction = point.actions.find(a => a.type === 'service');
         if (serviceAction) {
           serviceAction.quality = quality;
-          // Update in place
           const updatedPoints = [...updatedCurrentSet.points];
           updatedPoints[pointIndex] = { ...point, actions: [...point.actions] };
           const updatedSet = { ...updatedCurrentSet, points: updatedPoints };
@@ -406,9 +453,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
           if (quality === '++') {
             // ACE! Auto-validate point for serving team
-            // Set timecodeEnd and directly assign winner
             set({ match: { ...match, sets: updatedSets } });
-            // End the point
             const endState = get();
             const endSet = endState.getCurrentSet();
             if (endSet) {
@@ -423,8 +468,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 set({ match: { ...endState.match!, sets: ess } });
               }
             }
-            // Add a reception action with -- for the receiver (optional, skip if no receiver)
-            // Auto-assign point to serving team
             get().assignPointWinner(servingTeamId);
           } else {
             set({
@@ -437,9 +480,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'reception': {
-        // Number input: 2-digit auto-validates, 1-digit needs Enter
         if (key === 'enter') {
-          // Validate 1-digit number from buffer
           const parts = inputState.buffer.match(/^(\d+)(.?)$/);
           if (parts) {
             const playerNum = parseInt(parts[1]);
@@ -471,7 +512,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
         const lastChar = buffer[buffer.length - 1];
         if (qualityMap[lastChar] && buffer.length >= 3) {
-          // 2+ digit number + quality char → auto-validate
           const playerNumStr = buffer.substring(0, buffer.length - 1);
           const playerNum = parseInt(playerNumStr);
           if (!isNaN(playerNum)) {
@@ -525,7 +565,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_player': {
-        // Enter validates 1-digit number
         if (key === 'enter') {
           const playerNum = parseInt(inputState.buffer);
           if (!isNaN(playerNum) && playerNum > 0) {
@@ -543,7 +582,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         }
         const buffer = inputState.buffer + key;
         const playerNum = parseInt(buffer);
-        // Auto-validate if 2+ digits and player exists
         if (buffer.length >= 2 && !isNaN(playerNum) && playerNum > 0) {
           const player = state.getPlayerByNumber(receivingTeamId, playerNum);
           if (player) {
@@ -572,7 +610,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_result': {
-        // ++ (qualityExcellent) = kill/point direct, auto-validate
         const qualityMap: Record<string, Quality> = {
           [sc.qualityExcellent]: '++',
         };
@@ -611,9 +648,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           set({ match: updatedMatch });
 
           if (autoWin) {
-            // Auto-validate point for attacking team
+            // Attack ++ = point for attacking team (receiving team)
             const attackTeamId = pending?.teamId || receivingTeamId;
-            // End point
             const s2 = get();
             const cs2 = s2.getCurrentSet();
             if (cs2) {
@@ -628,6 +664,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 set({ match: { ...s2.match!, sets: ess } });
               }
             }
+            // assignPointWinner handles rotation: receiving team wins → they rotate and serve
             get().assignPointWinner(attackTeamId);
           } else if (attackResult === 'continue') {
             set({
@@ -671,5 +708,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (!match) return undefined;
     const team = teamId === match.teamA.id ? match.teamA : match.teamB;
     return team.players.find(p => p.number === num) || team.liberos.find(p => p.number === num);
+  },
+
+  getCurrentPointActions: () => {
+    const { match, inputState } = get();
+    if (!match || !inputState.currentPointId) return [];
+    const currentSet = get().getCurrentSet();
+    if (!currentSet) return [];
+    const point = currentSet.points.find(p => p.id === inputState.currentPointId);
+    return point?.actions || [];
   },
 }));
