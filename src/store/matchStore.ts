@@ -497,7 +497,12 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_result': {
-        const resultMap: Record<string, AttackResult> = { 'k': 'kill', 'e': 'error', 'c': 'continue' };
+        const sc = useShortcutsStore.getState().shortcuts;
+        const resultMap: Record<string, AttackResult> = {
+          [sc.attackKill]: 'kill',
+          [sc.attackError]: 'error',
+          [sc.attackContinue]: 'continue',
+        };
         const result = resultMap[key];
         if (!result) return;
 
