@@ -8,6 +8,7 @@ interface PlayerRoleMap {
 export interface PreviousService {
   startCoord: Coordinate;
   endCoord: Coordinate;
+  serviceType?: 'smash' | 'float';
 }
 
 interface VolleyCourtProps {
