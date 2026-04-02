@@ -156,6 +156,12 @@ const LiveScoring: React.FC = () => {
           >
             ⚙️
           </button>
+          <button
+            onClick={() => setView('home')}
+            className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
+          >
+            🏠 Accueil
+          </button>
         </div>
       </div>
 
