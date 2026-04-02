@@ -21,10 +21,10 @@ function rotatePositions(positions: number[]): number[] {
 interface MatchStore {
   match: Match | null;
   inputState: InputState;
-  view: 'setup' | 'live' | 'dashboard';
+  view: 'setup' | 'live' | 'dashboard' | 'settings';
 
   // Setup
-  setView: (view: 'setup' | 'live' | 'dashboard') => void;
+  setView: (view: 'setup' | 'live' | 'dashboard' | 'settings') => void;
   createMatch: (name: string, date: string, teamA: Team, teamB: Team) => void;
   startSet: (rotationA: number[], rotationB: number[], servingTeamId: string) => void;
 
