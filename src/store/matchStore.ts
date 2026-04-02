@@ -367,8 +367,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       case 'reception': {
         const buffer = inputState.buffer + key;
         // Pattern: player_number + quality
-        // Quality keys: + = R++, = = R+, 0 = R0, - = R-, _ = R--
-        const qualityMap: Record<string, Quality> = { '+': '++', '=': '+', '0': '0', '-': '-', '_': '--' };
+        const sc = useShortcutsStore.getState().shortcuts;
+        const qualityMap: Record<string, Quality> = {
+          [sc.qualityExcellent]: '++',
+          [sc.qualityGood]: '+',
+          [sc.qualityNeutral]: '0',
+          [sc.qualityBad]: '-',
+          [sc.qualityTerrible]: '--',
+        };
 
         // Check if last char is a quality key
         const lastChar = buffer[buffer.length - 1];
