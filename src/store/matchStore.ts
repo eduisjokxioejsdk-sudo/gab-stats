@@ -7,8 +7,6 @@ function generateId(): string {
 }
 
 function rotatePositions(positions: number[]): number[] {
-  // Clockwise rotation: 1->6, 2->1, 3->2, 4->3, 5->4, 6->5
-  // positions array: index 0 = pos1, index 1 = pos2, etc.
   const newPositions = [...positions];
   const fromPos1 = newPositions[0];
   for (let i = 0; i < 5; i++) {
@@ -18,17 +16,29 @@ function rotatePositions(positions: number[]): number[] {
   return newPositions;
 }
 
+// Helper to add action to current point
+function addActionToCurrentPoint(match: Match, currentSetIndex: number, currentSet: SetData, pointId: string, action: Action): Match {
+  const pointIndex = currentSet.points.findIndex(p => p.id === pointId);
+  if (pointIndex === -1) return match;
+  const updatedPoint = { ...currentSet.points[pointIndex] };
+  updatedPoint.actions = [...updatedPoint.actions, action];
+  const updatedPoints = [...currentSet.points];
+  updatedPoints[pointIndex] = updatedPoint;
+  const updatedSet = { ...currentSet, points: updatedPoints };
+  const updatedSets = [...match.sets];
+  updatedSets[currentSetIndex] = updatedSet;
+  return { ...match, sets: updatedSets };
+}
+
 interface MatchStore {
   match: Match | null;
   inputState: InputState;
   view: 'setup' | 'live' | 'dashboard' | 'settings';
 
-  // Setup
   setView: (view: 'setup' | 'live' | 'dashboard' | 'settings') => void;
   createMatch: (name: string, date: string, teamA: Team, teamB: Team) => void;
   startSet: (rotationA: number[], rotationB: number[], servingTeamId: string) => void;
 
-  // Input workflow
   startPoint: () => void;
   endPoint: () => void;
   assignPointWinner: (teamId: string) => void;
@@ -37,13 +47,10 @@ interface MatchStore {
   processKeyInput: (key: string) => void;
   addAction: (action: Action) => void;
 
-  // Edit
   selectPoint: (pointId: string) => void;
 
-  // Helpers
   getCurrentSet: () => SetData | null;
-  getServingTeam: () => Team | null;
-  getReceivingTeam: () => Team | null;
+  getServingTeamId: () => string | null;
   getPlayerByNumber: (teamId: string, num: number) => { id: string; number: number; name: string } | undefined;
 }
 
@@ -89,6 +96,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       points: [],
       scoreA: 0,
       scoreB: 0,
+      servingTeamId,
     };
     set({
       match: {
@@ -106,18 +114,35 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     });
   },
 
+  // Determine who is serving for the NEXT point
+  getServingTeamId: () => {
+    const { match } = get();
+    if (!match) return null;
+    const currentSet = get().getCurrentSet();
+    if (!currentSet) return null;
+    // If no points played yet, use set's initial serving team
+    if (currentSet.points.length === 0) {
+      return (currentSet as any).servingTeamId || match.teamA.id;
+    }
+    // Last completed point determines next server
+    const lastPoint = currentSet.points[currentSet.points.length - 1];
+    if (!lastPoint.winnerTeamId) {
+      // Point in progress - serving team is this point's serving team
+      return lastPoint.servingTeamId;
+    }
+    // If winner == server, same team serves. If winner != server, winner serves next.
+    return lastPoint.winnerTeamId === lastPoint.servingTeamId
+      ? lastPoint.servingTeamId
+      : lastPoint.winnerTeamId;
+  },
+
   startPoint: () => {
     const { match, inputState } = get();
     if (!match || inputState.phase !== 'idle') return;
     const currentSet = get().getCurrentSet();
     if (!currentSet) return;
 
-    // Determine serving team
-    const lastPoint = currentSet.points[currentSet.points.length - 1];
-    const servingTeamId = lastPoint ? lastPoint.servingTeamId : (currentSet.points.length === 0 ?
-      // First point: team whose position 1 serves - determined at set start
-      // We'll use a convention: first serving team is stored
-      match.teamA.id : lastPoint.servingTeamId);
+    const servingTeamId = get().getServingTeamId() || match.teamA.id;
 
     const pointId = generateId();
     const newPoint: Point = {
@@ -127,7 +152,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       actions: [],
       scoreA: currentSet.scoreA,
       scoreB: currentSet.scoreB,
-      servingTeamId: lastPoint?.servingTeamId || match.teamA.id,
+      servingTeamId,
     };
 
     const updatedSet = { ...currentSet, points: [...currentSet.points, newPoint] };
@@ -185,15 +210,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (teamId === match.teamA.id) newScoreA++;
     else newScoreB++;
 
-    // Check rotation: if receiving team wins, they rotate
+    // Rotation: if receiving team wins (side-out), they rotate
     const servingTeamId = point.servingTeamId;
     let newRotationA = [...currentSet.currentRotationA];
     let newRotationB = [...currentSet.currentRotationB];
-    let newServingTeamId = servingTeamId;
 
     if (teamId !== servingTeamId) {
-      // Service changes - receiving team won, they rotate
-      newServingTeamId = teamId;
+      // Side-out: winning team (receiver) rotates
       if (teamId === match.teamA.id) {
         newRotationA = rotatePositions(newRotationA);
       } else {
@@ -206,7 +229,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       winnerTeamId: teamId,
       scoreA: newScoreA,
       scoreB: newScoreB,
-      servingTeamId: point.servingTeamId,
+      timecodeEnd: point.timecodeEnd || Date.now(),
     };
 
     const updatedPoints = [...currentSet.points];
@@ -240,9 +263,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (setWinner === match.teamA.id) setsWonA++;
     else if (setWinner === match.teamB.id) setsWonB++;
 
-    // Next point's serving team
-    const nextPoint: Partial<Point> = { servingTeamId: newServingTeamId };
-
     set({
       match: {
         ...match,
@@ -259,19 +279,15 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         buffer: '',
       },
     });
-
-    // Store serving team for next point by updating last point
-    // Actually we handle this in startPoint by looking at previous point winner
   },
 
   setInputPhase: (phase) => set(state => ({ inputState: { ...state.inputState, phase } })),
 
   addCourtClick: (coord) => {
-    const { inputState, match } = get();
+    const { inputState } = get();
     const clicks = [...inputState.courtClicks, coord];
 
     if (inputState.phase === 'service_coord' && clicks.length >= 2) {
-      // Two clicks done for service trajectory
       set({
         inputState: {
           ...inputState,
@@ -286,7 +302,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         },
       });
     } else if (inputState.phase === 'attack_coord' && clicks.length >= 2) {
-      // Two clicks for attack trajectory - complete the pending attack action
       const pending = [...inputState.pendingActions];
       const attackAction = pending[pending.length - 1];
       if (attackAction) {
@@ -313,12 +328,12 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
     const currentSet = state.getCurrentSet();
     if (!currentSet) return;
-    const servingTeamId = currentSet.points[currentSet.points.length - 1]?.servingTeamId || match.teamA.id;
+    const servingTeamId = state.getServingTeamId() || match.teamA.id;
     const receivingTeamId = servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
+    const sc = useShortcutsStore.getState().shortcuts;
 
     switch (inputState.phase) {
       case 'service_type': {
-        const sc = useShortcutsStore.getState().shortcuts;
         const serviceType: ServiceType | null = key === sc.serviceSmash ? 'smash' : key === sc.serviceFloat ? 'float' : null;
         if (!serviceType) return;
 
@@ -326,36 +341,26 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         if (pending[0]) {
           pending[0].serviceType = serviceType;
           pending[0].teamId = servingTeamId;
-          // Find server: player in position 1
           const rotation = servingTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
           pending[0].playerNumber = rotation[0];
           const player = state.getPlayerByNumber(servingTeamId, rotation[0]);
           if (player) pending[0].playerId = player.id;
         }
 
-        // Commit service action and move to reception
+        // Commit service action, move to service_quality
         const action: Action = {
           id: generateId(),
           type: 'service',
           ...pending[0],
         } as Action;
 
-        // Add to current point
-        const pointIndex = currentSet.points.findIndex(p => p.id === inputState.currentPointId);
-        if (pointIndex !== -1) {
-          const updatedPoint = { ...currentSet.points[pointIndex] };
-          updatedPoint.actions = [...updatedPoint.actions, action];
-          const updatedPoints = [...currentSet.points];
-          updatedPoints[pointIndex] = updatedPoint;
-          const updatedSet = { ...currentSet, points: updatedPoints };
-          const updatedSets = [...match.sets];
-          updatedSets[match.currentSetIndex] = updatedSet;
-
+        if (inputState.currentPointId) {
+          const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
           set({
-            match: { ...match, sets: updatedSets },
+            match: updatedMatch,
             inputState: {
               ...inputState,
-              phase: 'reception',
+              phase: 'service_quality',
               pendingActions: [],
               buffer: '',
             },
@@ -364,10 +369,67 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         break;
       }
 
+      case 'service_quality': {
+        const qualityMap: Record<string, Quality> = {
+          [sc.qualityExcellent]: '++',
+          [sc.qualityGood]: '+',
+          [sc.qualityNeutral]: '0',
+          [sc.qualityBad]: '-',
+          [sc.qualityTerrible]: '--',
+        };
+        const quality = qualityMap[key];
+        if (!quality) return;
+
+        // Update service action quality
+        const updatedCurrentSet = state.getCurrentSet();
+        if (!updatedCurrentSet || !inputState.currentPointId) return;
+        const pointIndex = updatedCurrentSet.points.findIndex(p => p.id === inputState.currentPointId);
+        if (pointIndex === -1) return;
+        const point = updatedCurrentSet.points[pointIndex];
+        const serviceAction = point.actions.find(a => a.type === 'service');
+        if (serviceAction) {
+          serviceAction.quality = quality;
+          // Update in place
+          const updatedPoints = [...updatedCurrentSet.points];
+          updatedPoints[pointIndex] = { ...point, actions: [...point.actions] };
+          const updatedSet = { ...updatedCurrentSet, points: updatedPoints };
+          const updatedSets = [...match.sets];
+          updatedSets[match.currentSetIndex] = updatedSet;
+
+          if (quality === '++') {
+            // ACE! Auto-validate point for serving team
+            // Set timecodeEnd and directly assign winner
+            set({ match: { ...match, sets: updatedSets } });
+            // End the point
+            const endState = get();
+            const endSet = endState.getCurrentSet();
+            if (endSet) {
+              const pi = endSet.points.findIndex(p => p.id === inputState.currentPointId);
+              if (pi !== -1) {
+                const ep = { ...endSet.points[pi], timecodeEnd: Date.now() };
+                const eps = [...endSet.points];
+                eps[pi] = ep;
+                const es = { ...endSet, points: eps };
+                const ess = [...(endState.match?.sets || [])];
+                ess[match.currentSetIndex] = es;
+                set({ match: { ...endState.match!, sets: ess } });
+              }
+            }
+            // Add a reception action with -- for the receiver (optional, skip if no receiver)
+            // Auto-assign point to serving team
+            get().assignPointWinner(servingTeamId);
+          } else {
+            set({
+              match: { ...match, sets: updatedSets },
+              inputState: { ...inputState, phase: 'reception', buffer: '' },
+            });
+          }
+        }
+        break;
+      }
+
       case 'reception': {
         const buffer = inputState.buffer + key;
-        // Pattern: player_number + quality
-        const sc = useShortcutsStore.getState().shortcuts;
         const qualityMap: Record<string, Quality> = {
           [sc.qualityExcellent]: '++',
           [sc.qualityGood]: '+',
@@ -376,7 +438,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           [sc.qualityTerrible]: '--',
         };
 
-        // Check if last char is a quality key
         const lastChar = buffer[buffer.length - 1];
         if (qualityMap[lastChar] && buffer.length >= 2) {
           const playerNumStr = buffer.substring(0, buffer.length - 1);
@@ -392,18 +453,10 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               timestamp: Date.now(),
             };
 
-            const pointIndex = currentSet.points.findIndex(p => p.id === inputState.currentPointId);
-            if (pointIndex !== -1) {
-              const updatedPoint = { ...currentSet.points[pointIndex] };
-              updatedPoint.actions = [...updatedPoint.actions, action];
-              const updatedPoints = [...currentSet.points];
-              updatedPoints[pointIndex] = updatedPoint;
-              const updatedSet = { ...currentSet, points: updatedPoints };
-              const updatedSets = [...match.sets];
-              updatedSets[match.currentSetIndex] = updatedSet;
-
+            if (inputState.currentPointId) {
+              const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
               set({
-                match: { ...match, sets: updatedSets },
+                match: updatedMatch,
                 inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' },
               });
             }
@@ -415,7 +468,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'set_call': {
-        const sc = useShortcutsStore.getState().shortcuts;
         const callMap: Record<string, SetCall> = {
           [sc.setAvant]: 'avant',
           [sc.setArriere]: 'arriere',
@@ -433,21 +485,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           setCall: call,
         };
 
-        const pointIndex = currentSet.points.findIndex(p => p.id === inputState.currentPointId);
-        if (pointIndex !== -1) {
-          const updatedPoint = { ...currentSet.points[pointIndex] };
-          updatedPoint.actions = [...updatedPoint.actions, action];
-          const updatedPoints = [...currentSet.points];
-          updatedPoints[pointIndex] = updatedPoint;
-          const updatedSet = { ...currentSet, points: updatedPoints };
-          const updatedSets = [...match.sets];
-          updatedSets[match.currentSetIndex] = updatedSet;
-
+        if (inputState.currentPointId) {
+          const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
           set({
-            match: { ...match, sets: updatedSets },
+            match: updatedMatch,
             inputState: {
               ...inputState,
-              phase: call === 'none' ? 'idle' : 'attack_player',
+              phase: call === 'none' ? 'recording' : 'attack_player',
               pendingActions: [],
               buffer: '',
             },
@@ -459,9 +503,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       case 'attack_player': {
         const buffer = inputState.buffer + key;
         const playerNum = parseInt(buffer);
-        // Accept 1-2 digit numbers, move on when we can identify a player
         if (!isNaN(playerNum) && playerNum > 0) {
-          // Check if this player exists
           const player = state.getPlayerByNumber(receivingTeamId, playerNum);
           if (player) {
             set({
@@ -497,14 +539,25 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_result': {
-        const sc = useShortcutsStore.getState().shortcuts;
+        // ++ (qualityExcellent) = kill/point direct, auto-validate
+        const qualityMap: Record<string, Quality> = {
+          [sc.qualityExcellent]: '++',
+        };
         const resultMap: Record<string, AttackResult> = {
-          [sc.attackKill]: 'kill',
           [sc.attackError]: 'error',
           [sc.attackContinue]: 'continue',
         };
-        const result = resultMap[key];
-        if (!result) return;
+
+        let attackResult: AttackResult | null = null;
+        let autoWin = false;
+
+        if (qualityMap[key] === '++') {
+          attackResult = 'kill';
+          autoWin = true;
+        } else {
+          attackResult = resultMap[key] || null;
+        }
+        if (!attackResult) return;
 
         const pending = inputState.pendingActions[0];
         const action: Action = {
@@ -516,30 +569,39 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           blockersCount: pending?.blockersCount,
           startCoord: pending?.startCoord,
           endCoord: pending?.endCoord,
-          attackResult: result,
+          attackResult,
           timestamp: Date.now(),
         };
 
-        const pointIndex = currentSet.points.findIndex(p => p.id === inputState.currentPointId);
-        if (pointIndex !== -1) {
-          const updatedPoint = { ...currentSet.points[pointIndex] };
-          updatedPoint.actions = [...updatedPoint.actions, action];
-          const updatedPoints = [...currentSet.points];
-          updatedPoints[pointIndex] = updatedPoint;
-          const updatedSet = { ...currentSet, points: updatedPoints };
-          const updatedSets = [...match.sets];
-          updatedSets[match.currentSetIndex] = updatedSet;
+        if (inputState.currentPointId) {
+          const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+          set({ match: updatedMatch });
 
-          // If continue, loop back to reception (defense phase)
-          if (result === 'continue') {
+          if (autoWin) {
+            // Auto-validate point for attacking team
+            const attackTeamId = pending?.teamId || receivingTeamId;
+            // End point
+            const s2 = get();
+            const cs2 = s2.getCurrentSet();
+            if (cs2) {
+              const pi = cs2.points.findIndex(p => p.id === inputState.currentPointId);
+              if (pi !== -1) {
+                const ep = { ...cs2.points[pi], timecodeEnd: Date.now() };
+                const eps = [...cs2.points];
+                eps[pi] = ep;
+                const es = { ...cs2, points: eps };
+                const ess = [...(s2.match?.sets || [])];
+                ess[match.currentSetIndex] = es;
+                set({ match: { ...s2.match!, sets: ess } });
+              }
+            }
+            get().assignPointWinner(attackTeamId);
+          } else if (attackResult === 'continue') {
             set({
-              match: { ...match, sets: updatedSets },
               inputState: { ...inputState, phase: 'reception', pendingActions: [], buffer: '', courtClicks: [] },
             });
           } else {
-            // Kill or error - point effectively ends, wait for space
             set({
-              match: { ...match, sets: updatedSets },
               inputState: { ...inputState, phase: 'recording', pendingActions: [], buffer: '', courtClicks: [] },
             });
           }
@@ -557,21 +619,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (!match || !inputState.currentPointId) return;
     const currentSet = get().getCurrentSet();
     if (!currentSet) return;
-
-    const pointIndex = currentSet.points.findIndex(p => p.id === inputState.currentPointId);
-    if (pointIndex === -1) return;
-
-    const updatedPoint = { ...currentSet.points[pointIndex] };
-    updatedPoint.actions = [...updatedPoint.actions, action];
-    const updatedPoints = [...currentSet.points];
-    updatedPoints[pointIndex] = updatedPoint;
-    const updatedSet = { ...currentSet, points: updatedPoints };
-    const updatedSets = [...match.sets];
-    updatedSets[match.currentSetIndex] = updatedSet;
-    set({ match: { ...match, sets: updatedSets } });
+    const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+    set({ match: updatedMatch });
   },
 
-  selectPoint: (pointId) => {
+  selectPoint: (_pointId) => {
     // For future: open point for editing
   },
 
@@ -579,22 +631,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     const { match } = get();
     if (!match || match.currentSetIndex < 0) return null;
     return match.sets[match.currentSetIndex] || null;
-  },
-
-  getServingTeam: () => {
-    const { match } = get();
-    const currentSet = get().getCurrentSet();
-    if (!match || !currentSet) return null;
-    const lastPoint = currentSet.points[currentSet.points.length - 1];
-    const servingId = lastPoint?.servingTeamId || match.teamA.id;
-    return servingId === match.teamA.id ? match.teamA : match.teamB;
-  },
-
-  getReceivingTeam: () => {
-    const { match } = get();
-    const serving = get().getServingTeam();
-    if (!match || !serving) return null;
-    return serving.id === match.teamA.id ? match.teamB : match.teamA;
   },
 
   getPlayerByNumber: (teamId, num) => {
