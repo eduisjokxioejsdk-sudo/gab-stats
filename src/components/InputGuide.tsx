@@ -63,7 +63,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     attack_position: {
       label: `PASSE — Direction${rallyTeamName ? ` (${rallyTeamName})` : ''}`,
       hint: 'Où le passeur a-t-il joué ?',
-      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [4] Poste 4  [3] Centre  [6] Pipe  [${oppositePos}] Poste ${oppositePos}`,
+      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [${formatKey(shortcuts.attackPos4)}] P4  [${formatKey(shortcuts.attackPos3)}] Centre  [${formatKey(shortcuts.attackPos6)}] Pipe  [${formatKey(shortcuts.attackPos2)}] P2  [${formatKey(shortcuts.attackPos1)}] P1`,
     },
     attack_player: {
       label: 'ATTAQUE — Joueur',
