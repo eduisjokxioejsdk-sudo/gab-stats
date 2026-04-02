@@ -89,6 +89,17 @@ const LiveScoring: React.FC = () => {
       return;
     }
 
+    if (key === shortcuts.openSubstitution && inputState.phase === 'idle') {
+      e.preventDefault();
+      setShowSub(true);
+      return;
+    }
+    if (key === shortcuts.openStats) {
+      e.preventDefault();
+      setView('dashboard');
+      return;
+    }
+
     if (key === shortcuts.startEndPoint) {
       e.preventDefault();
       if (inputState.phase !== 'idle' && inputState.phase !== 'point_winner' && inputState.phase !== 'ace_receiver') {
