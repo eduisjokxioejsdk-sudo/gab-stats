@@ -8,6 +8,7 @@ interface InputGuideProps {
   teamAName?: string;
   teamBName?: string;
   setterFront?: boolean;
+  rallyTeamName?: string;
 }
 
 const formatKey = (key: string | undefined | null): string => {
