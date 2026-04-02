@@ -8,6 +8,7 @@ interface InputGuideProps {
   teamAName?: string;
   teamBName?: string;
   setterFront?: boolean;
+  rallyTeamName?: string;
 }
 
 const formatKey = (key: string | undefined | null): string => {
@@ -18,7 +19,7 @@ const formatKey = (key: string | undefined | null): string => {
   return key.toUpperCase();
 };
 
-const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Équipe A', teamBName = 'Équipe B', setterFront }) => {
+const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Équipe A', teamBName = 'Équipe B', setterFront, rallyTeamName }) => {
   const { shortcuts } = useShortcutsStore();
 
   const oppositePos = setterFront ? '1' : '2';
@@ -55,12 +56,12 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
       keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --  [ENTRÉE]`,
     },
     set_call: {
-      label: 'APPEL DU CENTRAL',
-      hint: 'Type de passe',
+      label: `PASSE${rallyTeamName ? ` — ${rallyTeamName}` : ''}`,
+      hint: 'Appel du central',
       keys: `[${formatKey(shortcuts.setAvant)}] Avant  [${formatKey(shortcuts.setArriere)}] Arrière  [${formatKey(shortcuts.setDecalee)}] Décalée  [${formatKey(shortcuts.setNone)}] Pas d'appel`,
     },
     attack_position: {
-      label: 'PASSE — Direction',
+      label: `PASSE — Direction${rallyTeamName ? ` (${rallyTeamName})` : ''}`,
       hint: 'Où le passeur a-t-il joué ?',
       keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [4] Poste 4  [3] Centre  [6] Pipe  [${oppositePos}] Poste ${oppositePos}`,
     },

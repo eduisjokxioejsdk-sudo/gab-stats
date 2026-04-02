@@ -377,6 +377,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (!currentSet) return;
     const servingTeamId = state.getServingTeamId() || match.teamA.id;
     const receivingTeamId = servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
+    // rallyTeamId tracks who is currently attacking during a rally (alternates after each non-terminal attack)
+    const rallyTeamId = inputState.rallyTeamId || receivingTeamId;
     const sc = useShortcutsStore.getState().shortcuts;
 
     // Handle backspace
@@ -570,7 +572,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               };
               if (inputState.currentPointId) {
                 const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' } });
+                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
               }
             }
           }
@@ -593,9 +595,9 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
               quality: qualityMap[lastChar], timestamp: Date.now(),
             };
-            if (inputState.currentPointId) {
-              const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-              set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' } });
+              if (inputState.currentPointId) {
+                const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
             }
           }
         } else {
@@ -617,7 +619,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const action: Action = {
           id: generateId(),
           type: 'set',
-          teamId: receivingTeamId,
+          teamId: rallyTeamId,
           timestamp: Date.now(),
           setCall: call,
         };
@@ -639,14 +641,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
       case 'attack_position': {
         // Where the setter played
-        const team = receivingTeamId === match.teamA.id ? match.teamA : match.teamB;
-        const rotation = receivingTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
+        const team = rallyTeamId === match.teamA.id ? match.teamA : match.teamB;
+        const rotation = rallyTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
 
         if (key === sc.attackSecondeMain) {
           // Seconde main: setter attacks
           const setterNum = team.setterNumber;
           if (setterNum) {
-            const setter = state.getPlayerByNumber(receivingTeamId, setterNum);
+            const setter = state.getPlayerByNumber(rallyTeamId, setterNum);
             set({
               inputState: {
                 ...inputState,
@@ -654,7 +656,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 buffer: '',
                 pendingActions: [{
                   type: 'attack',
-                  teamId: receivingTeamId,
+                  teamId: rallyTeamId,
                   playerNumber: setterNum,
                   playerId: setter?.id,
                   attackPosition: 'seconde_main',
@@ -683,14 +685,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             if (pos === '4') {
               const pointu = findPlayerByRole('pointu');
               if (pointu) {
-                const player = state.getPlayerByNumber(receivingTeamId, pointu.number);
+                const player = state.getPlayerByNumber(rallyTeamId, pointu.number);
                 set({
                   inputState: {
                     ...inputState,
                     phase: 'attack_blockers',
                     buffer: '',
                     pendingActions: [{
-                      type: 'attack', teamId: receivingTeamId,
+                      type: 'attack', teamId: rallyTeamId,
                       playerNumber: pointu.number, playerId: player?.id,
                       attackPosition: pos, timestamp: Date.now(),
                     }],
@@ -707,14 +709,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 return rIdx >= 1 && rIdx <= 3; // positions 2,3,4 (indices 1,2,3)
               });
               if (frontR4) {
-                const player = state.getPlayerByNumber(receivingTeamId, frontR4.number);
+                const player = state.getPlayerByNumber(rallyTeamId, frontR4.number);
                 set({
                   inputState: {
                     ...inputState,
                     phase: 'attack_blockers',
                     buffer: '',
                     pendingActions: [{
-                      type: 'attack', teamId: receivingTeamId,
+                      type: 'attack', teamId: rallyTeamId,
                       playerNumber: frontR4.number, playerId: player?.id,
                       attackPosition: pos, timestamp: Date.now(),
                     }],
@@ -729,7 +731,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           const positionIndexMap: Record<string, number> = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
           targetRotIdx = positionIndexMap[pos];
           const playerNum = rotation[targetRotIdx];
-          const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+          const player = state.getPlayerByNumber(rallyTeamId, playerNum);
 
           set({
             inputState: {
@@ -738,7 +740,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               buffer: '',
               pendingActions: [{
                 type: 'attack',
-                teamId: receivingTeamId,
+                teamId: rallyTeamId,
                 playerNumber: playerNum,
                 playerId: player?.id,
                 attackPosition: pos,
@@ -757,13 +759,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         if (key === 'enter') {
           const playerNum = parseInt(inputState.buffer);
           if (!isNaN(playerNum) && playerNum > 0) {
-            const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+            const player = state.getPlayerByNumber(rallyTeamId, playerNum);
             if (player) {
               set({
                 inputState: {
                   ...inputState, phase: 'attack_blockers', buffer: '',
                   pendingActions: [{
-                    type: 'attack', teamId: receivingTeamId,
+                    type: 'attack', teamId: rallyTeamId,
                     playerNumber: playerNum, playerId: player.id,
                     attackPosition,
                     timestamp: Date.now(),
@@ -777,13 +779,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const buffer = inputState.buffer + key;
         const playerNum = parseInt(buffer);
         if (buffer.length >= 2 && !isNaN(playerNum) && playerNum > 0) {
-          const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+          const player = state.getPlayerByNumber(rallyTeamId, playerNum);
           if (player) {
             set({
               inputState: {
                 ...inputState, phase: 'attack_blockers', buffer: '',
                 pendingActions: [{
-                  type: 'attack', teamId: receivingTeamId,
+                  type: 'attack', teamId: rallyTeamId,
                   playerNumber: playerNum, playerId: player.id,
                   attackPosition,
                   timestamp: Date.now(),
@@ -828,7 +830,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const action: Action = {
           id: generateId(),
           type: 'attack',
-          teamId: pending?.teamId || receivingTeamId,
+          teamId: pending?.teamId || rallyTeamId,
           playerNumber: pending?.playerNumber,
           playerId: pending?.playerId,
           blockersCount: pending?.blockersCount,
@@ -844,7 +846,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           set({ match: updatedMatch });
 
           if (autoWinAttacker) {
-            const attackTeamId = pending?.teamId || receivingTeamId;
+            const attackTeamId = pending?.teamId || rallyTeamId;
             const s2 = get();
             const cs2 = s2.getCurrentSet();
             if (cs2) {
@@ -861,7 +863,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             }
             get().assignPointWinner(attackTeamId);
           } else if (autoWinOpponent) {
-            const attackTeamId = pending?.teamId || receivingTeamId;
+            const attackTeamId = pending?.teamId || rallyTeamId;
             const opponentTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
             const s2 = get();
             const cs2 = s2.getCurrentSet();
@@ -879,9 +881,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             }
             get().assignPointWinner(opponentTeamId);
           } else {
-            // good, touched, bad → continue play, go back to recording
+            // good, touched, bad → ball crosses net, other team attacks
+            const attackTeamId = pending?.teamId || rallyTeamId;
+            const otherTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
             set({
-              inputState: { ...inputState, phase: 'recording', pendingActions: [], buffer: '', courtClicks: [] },
+              inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', courtClicks: [], rallyTeamId: otherTeamId },
             });
           }
         }
