@@ -20,6 +20,8 @@ export interface ShortcutMap {
   startEndPoint: string;
   winnerLeft: string;
   winnerRight: string;
+  faultA: string;
+  faultB: string;
 }
 
 export const defaultShortcuts: ShortcutMap = {
