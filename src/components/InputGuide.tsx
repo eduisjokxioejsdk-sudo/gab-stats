@@ -92,7 +92,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     recording: {
       label: 'POINT EN COURS',
       hint: `Appuyez sur ${formatKey(shortcuts.startEndPoint)} pour terminer le point`,
-      keys: `[${formatKey(shortcuts.startEndPoint)}]`,
+      keys: `[${formatKey(shortcuts.startEndPoint)}] Fin  [${formatKey(shortcuts.faultA)}] Faute ${teamAName}  [${formatKey(shortcuts.faultB)}] Faute ${teamBName}`,
     },
   };
 
