@@ -601,6 +601,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     const { match } = get();
     if (!match) return undefined;
     const team = teamId === match.teamA.id ? match.teamA : match.teamB;
-    return team.players.find(p => p.number === num);
+    return team.players.find(p => p.number === num) || team.liberos.find(p => p.number === num);
   },
 }));

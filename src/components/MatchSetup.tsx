@@ -20,6 +20,12 @@ const MatchSetup: React.FC = () => {
   const [teamBPlayers, setTeamBPlayers] = useState<{ number: string; name: string }[]>(
     Array.from({ length: 6 }, () => ({ number: '', name: '' }))
   );
+  const [teamALiberos, setTeamALiberos] = useState<{ number: string; name: string }[]>(
+    Array.from({ length: 2 }, () => ({ number: '', name: '' }))
+  );
+  const [teamBLiberos, setTeamBLiberos] = useState<{ number: string; name: string }[]>(
+    Array.from({ length: 2 }, () => ({ number: '', name: '' }))
+  );
   const [rotationA, setRotationA] = useState<string[]>(Array(6).fill(''));
   const [rotationB, setRotationB] = useState<string[]>(Array(6).fill(''));
   const [servingTeam, setServingTeam] = useState<'A' | 'B'>('A');
@@ -44,6 +50,14 @@ const MatchSetup: React.FC = () => {
           name: p.name || `#${p.number}`,
           teamId: teamAId,
         })),
+      liberos: teamALiberos
+        .filter(p => p.number)
+        .map(p => ({
+          id: generateId(),
+          number: parseInt(p.number),
+          name: p.name || `L#${p.number}`,
+          teamId: teamAId,
+        })),
     };
 
     const teamB: Team = {
@@ -55,6 +69,14 @@ const MatchSetup: React.FC = () => {
           id: generateId(),
           number: parseInt(p.number),
           name: p.name || `#${p.number}`,
+          teamId: teamBId,
+        })),
+      liberos: teamBLiberos
+        .filter(p => p.number)
+        .map(p => ({
+          id: generateId(),
+          number: parseInt(p.number),
+          name: p.name || `L#${p.number}`,
           teamId: teamBId,
         })),
     };
@@ -156,10 +178,11 @@ const MatchSetup: React.FC = () => {
             <h2 className="text-lg font-bold text-foreground">Joueurs</h2>
 
             <div className="grid grid-cols-2 gap-6">
-              {[{ name: teamAName, players: teamAPlayers, setPlayers: setTeamAPlayers },
-                { name: teamBName, players: teamBPlayers, setPlayers: setTeamBPlayers }].map((team, ti) => (
+              {[{ name: teamAName, players: teamAPlayers, setPlayers: setTeamAPlayers, liberos: teamALiberos, setLiberos: setTeamALiberos },
+                { name: teamBName, players: teamBPlayers, setPlayers: setTeamBPlayers, liberos: teamBLiberos, setLiberos: setTeamBLiberos }].map((team, ti) => (
                 <div key={ti}>
                   <h3 className="text-sm font-bold text-primary mb-3">{team.name}</h3>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Titulaires (6)</p>
                   <div className="space-y-2">
                     {team.players.map((p, i) => (
                       <div key={i} className="flex gap-2">
@@ -181,6 +204,34 @@ const MatchSetup: React.FC = () => {
                             const updated = [...team.players];
                             updated[i] = { ...updated[i], name: e.target.value };
                             team.setPlayers(updated);
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="text-[10px] text-accent uppercase tracking-wider mt-3 mb-1">Libéros (max 2)</p>
+                  <div className="space-y-2">
+                    {team.liberos.map((p, i) => (
+                      <div key={i} className="flex gap-2">
+                        <input
+                          className={`${inputClass} !w-16 text-center border-accent/30`}
+                          placeholder="#"
+                          value={p.number}
+                          onChange={e => {
+                            const updated = [...team.liberos];
+                            updated[i] = { ...updated[i], number: e.target.value };
+                            team.setLiberos(updated);
+                          }}
+                        />
+                        <input
+                          className={`${inputClass} border-accent/30`}
+                          placeholder={`Libéro ${i + 1}`}
+                          value={p.name}
+                          onChange={e => {
+                            const updated = [...team.liberos];
+                            updated[i] = { ...updated[i], name: e.target.value };
+                            team.setLiberos(updated);
                           }}
                         />
                       </div>

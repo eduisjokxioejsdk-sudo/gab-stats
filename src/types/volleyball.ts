@@ -9,6 +9,7 @@ export interface Team {
   id: string;
   name: string;
   players: Player[];
+  liberos: Player[]; // up to 2 liberos
 }
 
 export type ActionType = 'service' | 'reception' | 'set' | 'attack' | 'defense';

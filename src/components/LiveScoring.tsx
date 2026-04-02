@@ -61,12 +61,7 @@ const LiveScoring: React.FC = () => {
   const servingTeamId = lastPoint?.servingTeamId || match.teamA.id;
   const servingSide: 'A' | 'B' = servingTeamId === match.teamA.id ? 'A' : 'B';
 
-  // Map rotations to court display positions
-  // positions array: index 0 = P1, 1 = P2, ..., 5 = P6
-  // Court display wants: P4, P3, P2, P5, P6, P1
-  const mapRotationToDisplay = (rotation: number[]) => {
-    return [rotation[3], rotation[2], rotation[1], rotation[4], rotation[5], rotation[0]];
-  };
+  // Rotation array: index 0 = P1, index 1 = P2, etc. Court component handles position mapping.
 
   return (
     <div className="min-h-screen flex flex-col no-select">
@@ -113,10 +108,12 @@ const LiveScoring: React.FC = () => {
             onCourtClick={addCourtClick}
             clicks={inputState.courtClicks}
             servingSide={servingSide === 'A' ? 'left' : 'right'}
-            rotationLeft={mapRotationToDisplay(currentSet.currentRotationA)}
-            rotationRight={mapRotationToDisplay(currentSet.currentRotationB)}
+            rotationLeft={currentSet.currentRotationA}
+            rotationRight={currentSet.currentRotationB}
             teamLeftName={match.teamA.name}
             teamRightName={match.teamB.name}
+            liberoLeft={match.teamA.liberos.map(l => l.number)}
+            liberoRight={match.teamB.liberos.map(l => l.number)}
           />
 
           <InputGuide phase={inputState.phase} buffer={inputState.buffer} />
