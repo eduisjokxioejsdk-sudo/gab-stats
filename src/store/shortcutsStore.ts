@@ -23,8 +23,7 @@ export interface ShortcutMap {
   attackSecondeMain: string;
   attackPos4: string;
   attackPos3: string;
-  attackPos2: string;
-  attackPos1: string;
+  attackPos2or1: string;
   attackPos6: string;
   blockers0: string;
   blockers1: string;
@@ -59,8 +58,7 @@ export const defaultShortcuts: ShortcutMap = {
   attackSecondeMain: 'm',
   attackPos4: '4',
   attackPos3: '3',
-  attackPos2: '2',
-  attackPos1: '1',
+  attackPos2or1: '2',
   attackPos6: '6',
   blockers0: '0',
   blockers1: '1',

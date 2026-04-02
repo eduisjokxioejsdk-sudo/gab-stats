@@ -43,7 +43,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     service_quality: {
       label: 'SERVICE — Qualité',
       hint: 'Qualité du service (# = ace)',
-      keys: `[${formatKey(shortcuts.qualityExcellent)}] # Ace  [${formatKey(shortcuts.qualityGood)}] + Bon  [${formatKey(shortcuts.qualityNeutral)}] - Neutre  [${formatKey(shortcuts.qualityBad)}] ! Mauvais  [${formatKey(shortcuts.qualityOverpass)}] / Over  [${formatKey(shortcuts.qualityTerrible)}] = Erreur`,
+      keys: `[${formatKey(shortcuts.qualityExcellent)}] # Ace  [${formatKey(shortcuts.qualityGood)}] + Bon  [${formatKey(shortcuts.qualityNeutral)}] - Neutre  [${formatKey(shortcuts.qualityTerrible)}] = Erreur`,
     },
     ace_receiver: {
       label: 'ACE — Réceptionneur',
@@ -63,7 +63,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     attack_position: {
       label: `PASSE — Direction${rallyTeamName ? ` (${rallyTeamName})` : ''}`,
       hint: 'Où le passeur a-t-il joué ?',
-      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [${formatKey(shortcuts.attackPos4)}] P4  [${formatKey(shortcuts.attackPos3)}] Centre  [${formatKey(shortcuts.attackPos6)}] Pipe  [${formatKey(shortcuts.attackPos2)}] P2  [${formatKey(shortcuts.attackPos1)}] P1`,
+      keys: `[${formatKey(shortcuts.attackSecondeMain)}] 2nde main  [${formatKey(shortcuts.attackPos4)}] P4  [${formatKey(shortcuts.attackPos3)}] Centre  [${formatKey(shortcuts.attackPos6)}] Pipe  [${formatKey(shortcuts.attackPos2or1)}] ${setterFront ? 'P2' : 'P1'}`,
     },
     attack_player: {
       label: 'ATTAQUE — Joueur',

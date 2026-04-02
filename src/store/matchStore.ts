@@ -456,8 +456,6 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           [sc.qualityExcellent]: '++',
           [sc.qualityGood]: '+',
           [sc.qualityNeutral]: '0',
-          [sc.qualityBad]: '-',
-          [sc.qualityOverpass]: '/',
           [sc.qualityTerrible]: '--',
         };
         const quality = qualityMap[key];
@@ -681,8 +679,16 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           return;
         }
 
+        // attackPos2or1: resolves to '2' if setter is front, '1' if setter is back
+        const setterFront = (() => {
+          const sn = team.setterNumber;
+          if (sn === undefined) return true;
+          const idx = rotation.indexOf(sn);
+          return idx >= 1 && idx <= 3; // positions 2,3,4 = front
+        })();
+        const resolvedPos: AttackPosition = setterFront ? '2' : '1';
         const posMap: Record<string, AttackPosition> = {
-          [sc.attackPos1]: '1', [sc.attackPos2]: '2', [sc.attackPos3]: '3', [sc.attackPos4]: '4', [sc.attackPos6]: '6',
+          [sc.attackPos2or1]: resolvedPos, [sc.attackPos3]: '3', [sc.attackPos4]: '4', [sc.attackPos6]: '6',
         };
         const pos = posMap[key];
         if (pos) {
