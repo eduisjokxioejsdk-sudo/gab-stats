@@ -682,7 +682,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         }
 
         const posMap: Record<string, AttackPosition> = {
-          '1': '1', '2': '2', '3': '3', '4': '4', '6': '6',
+          [sc.attackPos1]: '1', [sc.attackPos2]: '2', [sc.attackPos3]: '3', [sc.attackPos4]: '4', [sc.attackPos6]: '6',
         };
         const pos = posMap[key];
         if (pos) {
