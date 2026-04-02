@@ -881,9 +881,11 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             }
             get().assignPointWinner(opponentTeamId);
           } else {
-            // good, touched, bad → continue play, go back to recording
+            // good, touched, bad → ball crosses net, other team attacks
+            const attackTeamId = pending?.teamId || rallyTeamId;
+            const otherTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
             set({
-              inputState: { ...inputState, phase: 'recording', pendingActions: [], buffer: '', courtClicks: [] },
+              inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', courtClicks: [], rallyTeamId: otherTeamId },
             });
           }
         }
