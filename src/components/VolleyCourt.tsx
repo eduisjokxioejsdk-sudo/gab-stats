@@ -110,15 +110,18 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   inputPhase,
   previousServices = [],
 }) => {
-  const courtLeft = 20;
-  const courtRight = 200;
-  const courtTop = 5;
-  const courtBottom = 95;
-  const courtMidX = 110;
+  const pad = 15; // free zone around court for out-of-bounds trajectories
+  const courtLeft = 20 + pad;
+  const courtRight = 200 + pad;
+  const courtTop = 5 + pad;
+  const courtBottom = 95 + pad;
+  const courtMidX = 110 + pad;
   const courtW = 90;
   const courtH = 90;
   const attackLineOffset = 30;
   const thirdH = courtH / 3;
+  const svgW = 220 + pad * 2;
+  const svgH = 100 + pad * 2;
 
   // Physical zone coordinates for left team
   const leftZoneCoords: Record<number, { x: number; y: number }> = {
