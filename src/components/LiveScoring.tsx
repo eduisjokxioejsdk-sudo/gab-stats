@@ -44,6 +44,8 @@ const LiveScoring: React.FC = () => {
 
     if (key === 'Enter') {
       processKeyInput('enter');
+    } else if (key === 'Backspace') {
+      processKeyInput('backspace');
     } else if (key.length === 1) {
       processKeyInput(key.toLowerCase());
     }
