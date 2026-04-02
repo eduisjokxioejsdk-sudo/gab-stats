@@ -25,6 +25,8 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   teamRightName,
   liberoLeft = [],
   liberoRight = [],
+  setterLeft,
+  setterRight,
 }) => {
   // Court: 18m x 9m = 2:1. ViewBox 220x100 with service zones on sides.
   // Court area: x=20..110 (left), x=110..200 (right), y=5..95
