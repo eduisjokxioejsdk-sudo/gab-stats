@@ -95,7 +95,6 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team 
         </div>
       </div>
 
-      <TrajectoryCourtMini trajectories={trajectories} title={`Trajectoires (${attacks.length} attaques)`} />
       <div className="flex flex-wrap gap-2 text-[10px] font-mono text-muted-foreground">
         {(['kill', 'good', 'touched', 'bad', 'blocked', 'error'] as AttackResult[]).map(r => (
           <span key={r} className="flex items-center gap-1">

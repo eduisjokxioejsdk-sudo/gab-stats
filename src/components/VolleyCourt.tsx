@@ -8,6 +8,7 @@ interface PlayerRoleMap {
 export interface PreviousService {
   startCoord: Coordinate;
   endCoord: Coordinate;
+  serviceType?: 'smash' | 'float';
 }
 
 interface VolleyCourtProps {
@@ -251,18 +252,21 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
           stroke="hsl(var(--court-line))" strokeWidth="0.5" strokeDasharray="3,1.5" opacity="0.6" />
 
         {/* Previous service trajectories (ghost) */}
-        {isServicePhase && previousServices.map((svc, i) => (
-          <g key={`prev-svc-${i}`} opacity="0.25">
+        {isServicePhase && previousServices.map((svc, i) => {
+          const svcColor = svc.serviceType === 'smash' ? 'hsl(0, 80%, 55%)' : 'hsl(210, 80%, 55%)';
+          return (
+          <g key={`prev-svc-${i}`} opacity="0.3">
             <line
               x1={svc.startCoord.x} y1={svc.startCoord.y}
               x2={svc.endCoord.x} y2={svc.endCoord.y}
-              stroke="hsl(var(--accent))" strokeWidth="1" strokeDasharray="2,2"
-              markerEnd="url(#arrow-ghost)"
+              stroke={svcColor} strokeWidth="1" strokeDasharray="2,2"
+              markerEnd={svc.serviceType === 'smash' ? 'url(#arrow-ghost-smash)' : 'url(#arrow-ghost-float)'}
             />
-            <circle cx={svc.startCoord.x} cy={svc.startCoord.y} r="2" fill="hsl(var(--accent))" />
-            <circle cx={svc.endCoord.x} cy={svc.endCoord.y} r="2" fill="hsl(var(--accent))" />
+            <circle cx={svc.startCoord.x} cy={svc.startCoord.y} r="2" fill={svcColor} />
+            <circle cx={svc.endCoord.x} cy={svc.endCoord.y} r="2" fill={svcColor} />
           </g>
-        ))}
+          );
+        })}
 
         {/* Left team players */}
         {leftPlayers.map(({ playerNum, x, y, rotPos }) => {
@@ -333,8 +337,11 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
           <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
             <path d="M0,0 L8,4 L0,8 Z" fill="hsl(var(--accent))" />
           </marker>
-          <marker id="arrow-ghost" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(var(--accent))" opacity="0.4" />
+          <marker id="arrow-ghost-smash" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(0, 80%, 55%)" opacity="0.4" />
+          </marker>
+          <marker id="arrow-ghost-float" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(210, 80%, 55%)" opacity="0.4" />
           </marker>
         </defs>
       </svg>

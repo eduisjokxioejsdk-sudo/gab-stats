@@ -55,9 +55,12 @@ const Dashboard: React.FC = () => {
         <div className="text-center">
           <div className="flex items-center justify-center gap-4">
             <span className="text-lg font-bold text-foreground">{match.teamA.name}</span>
-            <span className="font-mono text-2xl font-black text-primary">{match.setsWonA} - {match.setsWonB}</span>
+            <span className="font-mono text-2xl font-black text-primary">
+              {match.sets.length > 0 ? match.sets[match.sets.length - 1].scoreA : 0} - {match.sets.length > 0 ? match.sets[match.sets.length - 1].scoreB : 0}
+            </span>
             <span className="text-lg font-bold text-foreground">{match.teamB.name}</span>
           </div>
+          <p className="text-xs text-muted-foreground font-mono">Sets : {match.setsWonA} - {match.setsWonB}</p>
         </div>
       </div>
 

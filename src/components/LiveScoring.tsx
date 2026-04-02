@@ -59,7 +59,7 @@ const LiveScoring: React.FC = () => {
       for (const pt of s.points) {
         for (const act of pt.actions) {
           if (act.type === 'service' && act.playerNumber === serverNum && act.teamId === servTeamId && act.startCoord && act.endCoord) {
-            services.push({ startCoord: act.startCoord, endCoord: act.endCoord });
+            services.push({ startCoord: act.startCoord, endCoord: act.endCoord, serviceType: act.serviceType });
           }
         }
       }
