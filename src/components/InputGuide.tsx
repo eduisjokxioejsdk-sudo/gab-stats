@@ -42,8 +42,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     },
     reception: {
       label: 'RÉCEPTION',
-      hint: 'Numéro du joueur + qualité (facultatif si ace)',
-      keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --`,
+      hint: 'N° joueur + qualité — 2 chiffres : auto, 1 chiffre : ENTRÉE pour valider',
+      keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --  [ENTRÉE]`,
     },
     set_call: {
       label: 'APPEL DU CENTRAL',
@@ -52,8 +52,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     },
     attack_player: {
       label: 'ATTAQUE — Joueur',
-      hint: "Numéro de l'attaquant",
-      keys: '[N° joueur]',
+      hint: "N° attaquant — 2 chiffres : auto, 1 chiffre : ENTRÉE",
+      keys: '[N° joueur] + [ENTRÉE si 1 chiffre]',
     },
     attack_blockers: {
       label: 'ATTAQUE — Bloqueurs',

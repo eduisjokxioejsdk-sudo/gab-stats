@@ -42,7 +42,9 @@ const LiveScoring: React.FC = () => {
       return;
     }
 
-    if (key.length === 1) {
+    if (key === 'Enter') {
+      processKeyInput('enter');
+    } else if (key.length === 1) {
       processKeyInput(key.toLowerCase());
     }
   }, [inputState.phase, match, startPoint, endPoint, assignPointWinner, processKeyInput, shortcuts]);

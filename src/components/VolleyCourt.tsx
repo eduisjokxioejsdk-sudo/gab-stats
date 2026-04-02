@@ -24,18 +24,16 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   liberoLeft = [],
   liberoRight = [],
 }) => {
-  // Court dimensions: real volleyball court is 18m x 9m = 2:1 ratio
-  // viewBox: we use 220 x 100 to add service zones on each side
-  // Court area: x=20..110 (left half), x=110..200 (right half), y=5..95 (9m = 90 units)
-  // Service zones: x=0..20 (left service), x=200..220 (right service)
+  // Court: 18m x 9m = 2:1. ViewBox 220x100 with service zones on sides.
+  // Court area: x=20..110 (left), x=110..200 (right), y=5..95
   const courtLeft = 20;
   const courtRight = 200;
   const courtTop = 5;
   const courtBottom = 95;
-  const courtMidX = 110; // net
-  const courtW = 90; // each half width
-  const courtH = 90; // court height
-  const attackLineOffset = 30; // 3m line = 1/3 of 9m
+  const courtMidX = 110;
+  const courtW = 90; // each half
+  const courtH = 90;
+  const attackLineOffset = 30; // 3m line
 
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
@@ -47,57 +45,39 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
     onCourtClick({ x: svgX, y: svgY });
   };
 
-  // Zone positions for players (center of each zone)
-  // Volleyball positions viewed from above, looking at the court:
-  // Front row (near net): P4(left), P3(center), P2(right)
-  // Back row: P5(left), P6(center), P1(right - server)
-  
-  // Left team positions (court x=20..110, y=5..95)
-  const zoneW = courtW / 3;
-  const zoneH = courtH / 2;
-  
-  const leftZones = [
-    // P4 front-left, P3 front-center, P2 front-right (near net)
-    { pos: 4, x: courtLeft + zoneW * 0.5, y: courtTop + zoneH * 0.5 },
-    { pos: 3, x: courtLeft + zoneW * 1.5, y: courtTop + zoneH * 0.5 },
-    { pos: 2, x: courtLeft + zoneW * 2.5, y: courtTop + zoneH * 0.5 },
-    // P5 back-left, P6 back-center, P1 back-right
-    { pos: 5, x: courtLeft + zoneW * 0.5, y: courtTop + zoneH * 1.5 },
-    { pos: 6, x: courtLeft + zoneW * 1.5, y: courtTop + zoneH * 1.5 },
-    { pos: 1, x: courtLeft + zoneW * 2.5, y: courtTop + zoneH * 1.5 },
+  // Player positions: front row near net, back row near baseline
+  // Left team (x=20..110): net is at x=110
+  //   Front: P4(top), P3(center), P2(bottom) — near net (x ~ 90)
+  //   Back: P5(top), P6(center), P1(bottom) — near baseline (x ~ 40)
+  // Right team (x=110..200): net is at x=110
+  //   Front: P2(top), P3(center), P4(bottom) — near net (x ~ 130)
+  //   Back: P1(top), P6(center), P5(bottom) — near baseline (x ~ 180)
+
+  const thirdH = courtH / 3;
+
+  const leftPositions = [
+    // Front row (near net x=110)
+    { pos: 4, x: courtMidX - 15, y: courtTop + thirdH * 0.5 },
+    { pos: 3, x: courtMidX - 15, y: courtTop + thirdH * 1.5 },
+    { pos: 2, x: courtMidX - 15, y: courtTop + thirdH * 2.5 },
+    // Back row (near baseline x=20)
+    { pos: 5, x: courtLeft + 15, y: courtTop + thirdH * 0.5 },
+    { pos: 6, x: courtLeft + 15, y: courtTop + thirdH * 1.5 },
+    { pos: 1, x: courtLeft + 15, y: courtTop + thirdH * 2.5 },
   ];
 
-  // Right team positions (court x=110..200, y=5..95) - mirrored
-  const rightZones = [
-    { pos: 2, x: courtMidX + zoneW * 0.5, y: courtTop + zoneH * 0.5 },
-    { pos: 3, x: courtMidX + zoneW * 1.5, y: courtTop + zoneH * 0.5 },
-    { pos: 4, x: courtMidX + zoneW * 2.5, y: courtTop + zoneH * 0.5 },
-    { pos: 1, x: courtMidX + zoneW * 0.5, y: courtTop + zoneH * 1.5 },
-    { pos: 6, x: courtMidX + zoneW * 1.5, y: courtTop + zoneH * 1.5 },
-    { pos: 5, x: courtMidX + zoneW * 2.5, y: courtTop + zoneH * 1.5 },
+  const rightPositions = [
+    // Front row (near net x=110)
+    { pos: 2, x: courtMidX + 15, y: courtTop + thirdH * 0.5 },
+    { pos: 3, x: courtMidX + 15, y: courtTop + thirdH * 1.5 },
+    { pos: 4, x: courtMidX + 15, y: courtTop + thirdH * 2.5 },
+    // Back row (near baseline x=200)
+    { pos: 1, x: courtRight - 15, y: courtTop + thirdH * 0.5 },
+    { pos: 6, x: courtRight - 15, y: courtTop + thirdH * 1.5 },
+    { pos: 5, x: courtRight - 15, y: courtTop + thirdH * 2.5 },
   ];
 
-  // Map rotation array (index 0=P1, 1=P2, ..., 5=P6) to zones
-  const getPlayerAtPosition = (rotation: number[], pos: number) => {
-    return rotation[pos - 1]; // pos 1 -> index 0, etc.
-  };
-
-  const renderZoneGrid = (startX: number, startY: number, w: number, h: number) => {
-    const lines = [];
-    // Vertical lines dividing 3 columns
-    for (let i = 1; i < 3; i++) {
-      lines.push(
-        <line key={`v${i}`} x1={startX + zoneW * i} y1={startY} x2={startX + zoneW * i} y2={startY + h}
-          stroke="hsl(var(--court-line))" strokeWidth="0.3" strokeDasharray="2,2" opacity="0.4" />
-      );
-    }
-    // Horizontal line dividing 2 rows
-    lines.push(
-      <line key="h" x1={startX} y1={startY + zoneH} x2={startX + w} y2={startY + zoneH}
-        stroke="hsl(var(--court-line))" strokeWidth="0.3" strokeDasharray="2,2" opacity="0.4" />
-    );
-    return lines;
-  };
+  const getPlayerAtPosition = (rotation: number[], pos: number) => rotation[pos - 1];
 
   return (
     <div className="relative w-full">
@@ -130,7 +110,6 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
         <rect x="0" y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'left' ? 0.5 : 0.15} rx="1" />
         <rect x="200" y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'right' ? 0.5 : 0.15} rx="1" />
         
-        {/* Service zone labels */}
         {servingSide === 'left' && (
           <text x="10" y="55" textAnchor="middle" fontSize="5" fill="hsl(var(--accent))" fontWeight="bold" writingMode="tb" letterSpacing="2">SERVICE</text>
         )}
@@ -147,41 +126,43 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
         {/* Net */}
         <line x1={courtMidX} y1={courtTop - 1} x2={courtMidX} y2={courtBottom + 1} stroke="hsl(var(--court-line))" strokeWidth="2" />
 
-        {/* Attack lines (3m from net) */}
+        {/* Attack lines (3m from net) — only lines, no grid */}
         <line x1={courtMidX - attackLineOffset} y1={courtTop} x2={courtMidX - attackLineOffset} y2={courtBottom}
           stroke="hsl(var(--court-line))" strokeWidth="0.5" strokeDasharray="3,1.5" opacity="0.6" />
         <line x1={courtMidX + attackLineOffset} y1={courtTop} x2={courtMidX + attackLineOffset} y2={courtBottom}
           stroke="hsl(var(--court-line))" strokeWidth="0.5" strokeDasharray="3,1.5" opacity="0.6" />
 
-        {/* Zone grids */}
-        {renderZoneGrid(courtLeft, courtTop, courtW, courtH)}
-        {renderZoneGrid(courtMidX, courtTop, courtW, courtH)}
-
         {/* Player numbers - Left team */}
-        {leftZones.map((zone) => {
+        {leftPositions.map((zone) => {
           const playerNum = getPlayerAtPosition(rotationLeft, zone.pos);
           if (!playerNum) return null;
           return (
-            <text key={`l-${zone.pos}`} x={zone.x} y={zone.y + 3} textAnchor="middle"
-              fontSize="12" fill="hsl(var(--foreground))" fontWeight="bold" fontFamily="'Inter', sans-serif" opacity="0.85">
-              {playerNum}
-            </text>
+            <g key={`l-${zone.pos}`}>
+              <circle cx={zone.x} cy={zone.y} r="6" fill="hsl(var(--card))" stroke="hsl(var(--primary))" strokeWidth="0.6" opacity="0.7" />
+              <text x={zone.x} y={zone.y + 3.5} textAnchor="middle"
+                fontSize="8" fill="hsl(var(--foreground))" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
+                {playerNum}
+              </text>
+            </g>
           );
         })}
 
         {/* Player numbers - Right team */}
-        {rightZones.map((zone) => {
+        {rightPositions.map((zone) => {
           const playerNum = getPlayerAtPosition(rotationRight, zone.pos);
           if (!playerNum) return null;
           return (
-            <text key={`r-${zone.pos}`} x={zone.x} y={zone.y + 3} textAnchor="middle"
-              fontSize="12" fill="hsl(var(--foreground))" fontWeight="bold" fontFamily="'Inter', sans-serif" opacity="0.85">
-              {playerNum}
-            </text>
+            <g key={`r-${zone.pos}`}>
+              <circle cx={zone.x} cy={zone.y} r="6" fill="hsl(var(--card))" stroke="hsl(var(--primary))" strokeWidth="0.6" opacity="0.7" />
+              <text x={zone.x} y={zone.y + 3.5} textAnchor="middle"
+                fontSize="8" fill="hsl(var(--foreground))" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
+                {playerNum}
+              </text>
+            </g>
           );
         })}
 
-        {/* Liberos - displayed outside the court at the top */}
+        {/* Liberos - outside court at top */}
         {liberoLeft.length > 0 && liberoLeft.map((num, i) => (
           <g key={`ll-${i}`}>
             <circle cx={courtLeft - 8 + i * 14} cy={courtTop - 2} r="5" fill="hsl(var(--card))" stroke="hsl(var(--accent))" strokeWidth="0.8" />
