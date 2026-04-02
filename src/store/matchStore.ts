@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShortcutsStore } from '@/store/shortcutsStore';
 import type { Match, Team, SetData, Point, Action, InputState, InputPhase, Coordinate, Quality, ServiceType, SetCall, AttackResult } from '@/types/volleyball';
 
 function generateId(): string {
