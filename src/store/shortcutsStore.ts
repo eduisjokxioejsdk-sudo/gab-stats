@@ -14,8 +14,11 @@ export interface ShortcutMap {
   setDecalee: string;
   setNone: string;
   attackKill: string;
+  attackGood: string;
+  attackTouched: string;
+  attackBad: string;
+  attackBlocked: string;
   attackError: string;
-  attackContinue: string;
   attackSecondeMain: string;
   startEndPoint: string;
   winnerLeft: string;
