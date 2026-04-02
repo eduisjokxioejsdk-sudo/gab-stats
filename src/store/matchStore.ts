@@ -583,7 +583,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const buffer = inputState.buffer + key;
         const qualityMap: Record<string, Quality> = {
           [sc.qualityExcellent]: '++', [sc.qualityGood]: '+', [sc.qualityNeutral]: '0',
-          [sc.qualityBad]: '-', [sc.qualityTerrible]: '--',
+          [sc.qualityBad]: '-', [sc.qualityOverpass]: '/', [sc.qualityTerrible]: '--',
         };
 
         const lastChar = buffer[buffer.length - 1];
