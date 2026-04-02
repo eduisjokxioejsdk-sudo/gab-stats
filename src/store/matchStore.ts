@@ -756,24 +756,20 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_result': {
-        const qualityMap: Record<string, Quality> = {
-          [sc.qualityExcellent]: '++',
-        };
         const resultMap: Record<string, AttackResult> = {
+          [sc.attackKill]: 'kill',
+          [sc.attackGood]: 'good',
+          [sc.attackTouched]: 'touched',
+          [sc.attackBad]: 'bad',
+          [sc.attackBlocked]: 'blocked',
           [sc.attackError]: 'error',
-          [sc.attackContinue]: 'continue',
         };
 
-        let attackResult: AttackResult | null = null;
-        let autoWin = false;
-
-        if (qualityMap[key] === '++') {
-          attackResult = 'kill';
-          autoWin = true;
-        } else {
-          attackResult = resultMap[key] || null;
-        }
+        const attackResult = resultMap[key];
         if (!attackResult) return;
+
+        const autoWinAttacker = attackResult === 'kill';
+        const autoWinOpponent = attackResult === 'blocked' || attackResult === 'error';
 
         const pending = inputState.pendingActions[0];
         const action: Action = {
@@ -794,7 +790,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
           set({ match: updatedMatch });
 
-          if (autoWin) {
+          if (autoWinAttacker) {
             const attackTeamId = pending?.teamId || receivingTeamId;
             const s2 = get();
             const cs2 = s2.getCurrentSet();
@@ -811,11 +807,26 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               }
             }
             get().assignPointWinner(attackTeamId);
-          } else if (attackResult === 'continue') {
-            set({
-              inputState: { ...inputState, phase: 'reception', pendingActions: [], buffer: '', courtClicks: [] },
-            });
+          } else if (autoWinOpponent) {
+            const attackTeamId = pending?.teamId || receivingTeamId;
+            const opponentTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
+            const s2 = get();
+            const cs2 = s2.getCurrentSet();
+            if (cs2) {
+              const pi = cs2.points.findIndex(p => p.id === inputState.currentPointId);
+              if (pi !== -1) {
+                const ep = { ...cs2.points[pi], timecodeEnd: Date.now() };
+                const eps = [...cs2.points];
+                eps[pi] = ep;
+                const es = { ...cs2, points: eps };
+                const ess = [...(s2.match?.sets || [])];
+                ess[match.currentSetIndex] = es;
+                set({ match: { ...s2.match!, sets: ess } });
+              }
+            }
+            get().assignPointWinner(opponentTeamId);
           } else {
+            // good, touched, bad → continue play, go back to recording
             set({
               inputState: { ...inputState, phase: 'recording', pendingActions: [], buffer: '', courtClicks: [] },
             });
