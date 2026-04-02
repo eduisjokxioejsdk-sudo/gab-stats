@@ -863,7 +863,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             }
             get().assignPointWinner(attackTeamId);
           } else if (autoWinOpponent) {
-            const attackTeamId = pending?.teamId || receivingTeamId;
+            const attackTeamId = pending?.teamId || rallyTeamId;
             const opponentTeamId = attackTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
             const s2 = get();
             const cs2 = s2.getCurrentSet();
