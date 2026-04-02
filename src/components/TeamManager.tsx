@@ -115,7 +115,6 @@ const TeamManager: React.FC = () => {
                         const updated = [...editing.players];
                         const role = e.target.value as PlayerRole | '';
                         updated[i] = { ...updated[i], role: role || undefined };
-                        // If setting as passeur, also set setterNumber
                         if (role === 'passeur') {
                           setEditing({ ...editing, players: updated, setterNumber: updated[i].number });
                         } else {
@@ -125,7 +124,7 @@ const TeamManager: React.FC = () => {
                     >
                       <option value="">Rôle...</option>
                       <option value="pointu">Pointu</option>
-                      <option value="recepteur">Récepteur</option>
+                      <option value="r4">R4</option>
                       <option value="central">Central</option>
                       <option value="passeur">Passeur</option>
                     </select>
