@@ -709,14 +709,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
                 return rIdx >= 1 && rIdx <= 3; // positions 2,3,4 (indices 1,2,3)
               });
               if (frontR4) {
-                const player = state.getPlayerByNumber(receivingTeamId, frontR4.number);
+                const player = state.getPlayerByNumber(rallyTeamId, frontR4.number);
                 set({
                   inputState: {
                     ...inputState,
                     phase: 'attack_blockers',
                     buffer: '',
                     pendingActions: [{
-                      type: 'attack', teamId: receivingTeamId,
+                      type: 'attack', teamId: rallyTeamId,
                       playerNumber: frontR4.number, playerId: player?.id,
                       attackPosition: pos, timestamp: Date.now(),
                     }],
