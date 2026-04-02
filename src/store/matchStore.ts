@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShortcutsStore } from '@/store/shortcutsStore';
 import type { Match, Team, SetData, Point, Action, InputState, InputPhase, Coordinate, Quality, ServiceType, SetCall, AttackResult } from '@/types/volleyball';
 
 function generateId(): string {
@@ -20,10 +21,10 @@ function rotatePositions(positions: number[]): number[] {
 interface MatchStore {
   match: Match | null;
   inputState: InputState;
-  view: 'setup' | 'live' | 'dashboard';
+  view: 'setup' | 'live' | 'dashboard' | 'settings';
 
   // Setup
-  setView: (view: 'setup' | 'live' | 'dashboard') => void;
+  setView: (view: 'setup' | 'live' | 'dashboard' | 'settings') => void;
   createMatch: (name: string, date: string, teamA: Team, teamB: Team) => void;
   startSet: (rotationA: number[], rotationB: number[], servingTeamId: string) => void;
 
@@ -317,7 +318,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
     switch (inputState.phase) {
       case 'service_type': {
-        const serviceType: ServiceType | null = key === 's' ? 'smash' : key === 'f' ? 'float' : null;
+        const sc = useShortcutsStore.getState().shortcuts;
+        const serviceType: ServiceType | null = key === sc.serviceSmash ? 'smash' : key === sc.serviceFloat ? 'float' : null;
         if (!serviceType) return;
 
         const pending = [...inputState.pendingActions];
@@ -365,8 +367,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       case 'reception': {
         const buffer = inputState.buffer + key;
         // Pattern: player_number + quality
-        // Quality keys: + = R++, = = R+, 0 = R0, - = R-, _ = R--
-        const qualityMap: Record<string, Quality> = { '+': '++', '=': '+', '0': '0', '-': '-', '_': '--' };
+        const sc = useShortcutsStore.getState().shortcuts;
+        const qualityMap: Record<string, Quality> = {
+          [sc.qualityExcellent]: '++',
+          [sc.qualityGood]: '+',
+          [sc.qualityNeutral]: '0',
+          [sc.qualityBad]: '-',
+          [sc.qualityTerrible]: '--',
+        };
 
         // Check if last char is a quality key
         const lastChar = buffer[buffer.length - 1];
@@ -407,7 +415,13 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'set_call': {
-        const callMap: Record<string, SetCall> = { 'a': 'avant', 'z': 'arriere', 'e': 'decalee', '0': 'none' };
+        const sc = useShortcutsStore.getState().shortcuts;
+        const callMap: Record<string, SetCall> = {
+          [sc.setAvant]: 'avant',
+          [sc.setArriere]: 'arriere',
+          [sc.setDecalee]: 'decalee',
+          [sc.setNone]: 'none',
+        };
         const call = callMap[key];
         if (!call) return;
 
@@ -483,7 +497,12 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'attack_result': {
-        const resultMap: Record<string, AttackResult> = { 'k': 'kill', 'e': 'error', 'c': 'continue' };
+        const sc = useShortcutsStore.getState().shortcuts;
+        const resultMap: Record<string, AttackResult> = {
+          [sc.attackKill]: 'kill',
+          [sc.attackError]: 'error',
+          [sc.attackContinue]: 'continue',
+        };
         const result = resultMap[key];
         if (!result) return;
 

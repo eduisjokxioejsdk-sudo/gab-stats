@@ -22,10 +22,12 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
 }) => {
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
-    const rect = svg.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
-    onCourtClick({ x, y });
+    const ctm = svg.getScreenCTM();
+    if (!ctm) return;
+    const inverseCTM = ctm.inverse();
+    const svgX = inverseCTM.a * e.clientX + inverseCTM.c * e.clientY + inverseCTM.e;
+    const svgY = inverseCTM.b * e.clientX + inverseCTM.d * e.clientY + inverseCTM.f;
+    onCourtClick({ x: svgX, y: svgY });
   };
 
   // Position mapping for 6 positions on each side

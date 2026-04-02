@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMatchStore } from '@/store/matchStore';
+import { loadDemoMatch } from '@/utils/demoMatch';
 import type { Team, Player } from '@/types/volleyball';
 
 function generateId(): string {
@@ -89,6 +90,20 @@ const MatchSetup: React.FC = () => {
             pure<span className="text-primary">volley</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Statistiques en temps réel</p>
+          <div className="flex justify-center gap-3 mt-4">
+            <button
+              onClick={loadDemoMatch}
+              className="text-xs bg-accent text-accent-foreground px-4 py-2 rounded-md font-bold hover:opacity-90 transition-opacity"
+            >
+              🎮 Mode démo
+            </button>
+            <button
+              onClick={() => setView('settings')}
+              className="text-xs bg-secondary text-secondary-foreground px-4 py-2 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
+            >
+              ⚙️ Paramètres
+            </button>
+          </div>
         </div>
 
         {step === 'match' && (

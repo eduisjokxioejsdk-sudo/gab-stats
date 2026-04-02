@@ -2,6 +2,7 @@ import { useMatchStore } from '@/store/matchStore';
 import MatchSetup from '@/components/MatchSetup';
 import LiveScoring from '@/components/LiveScoring';
 import Dashboard from '@/components/Dashboard';
+import Settings from '@/components/Settings';
 
 const Index = () => {
   const { view } = useMatchStore();
@@ -11,6 +12,8 @@ const Index = () => {
       return <LiveScoring />;
     case 'dashboard':
       return <Dashboard />;
+    case 'settings':
+      return <Settings />;
     default:
       return <MatchSetup />;
   }
