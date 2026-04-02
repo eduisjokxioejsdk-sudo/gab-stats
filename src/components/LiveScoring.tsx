@@ -2,6 +2,7 @@ import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { useMatchStore } from '@/store/matchStore';
 import { useShortcutsStore } from '@/store/shortcutsStore';
 import VolleyCourt from '@/components/VolleyCourt';
+import type { PreviousService } from '@/components/VolleyCourt';
 import InputGuide from '@/components/InputGuide';
 import ScoreBoard from '@/components/ScoreBoard';
 import ActionLog from '@/components/ActionLog';
@@ -43,6 +44,28 @@ const LiveScoring: React.FC = () => {
     match.teamB.players.forEach(p => { if (p.role) map[p.number] = p.role; });
     return map;
   }, [match]);
+
+  // Find previous service trajectories for the current server
+  const previousServices: PreviousService[] = useMemo(() => {
+    if (!match || !currentSet) return [];
+    const servTeamId = servingTeamId || match.teamA.id;
+    const rotation = servTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
+    const serverNum = rotation[0]; // position 1
+    if (!serverNum) return [];
+
+    const services: PreviousService[] = [];
+    // Search all sets for this player's services
+    for (const s of match.sets) {
+      for (const pt of s.points) {
+        for (const act of pt.actions) {
+          if (act.type === 'service' && act.playerNumber === serverNum && act.teamId === servTeamId && act.startCoord && act.endCoord) {
+            services.push({ startCoord: act.startCoord, endCoord: act.endCoord });
+          }
+        }
+      }
+    }
+    return services;
+  }, [match, currentSet, servingTeamId]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (showSub) return;
@@ -168,6 +191,8 @@ const LiveScoring: React.FC = () => {
               setterRight={match.teamB.setterNumber}
               rolesLeft={rolesLeft}
               rolesRight={rolesRight}
+              inputPhase={inputState.phase}
+              previousServices={previousServices}
             />
           </div>
         </div>
