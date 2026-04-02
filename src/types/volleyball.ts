@@ -120,4 +120,5 @@ export interface InputState {
   pendingActions: Partial<Action>[];
   courtClicks: Coordinate[];
   buffer: string;
+  rallyTeamId?: string; // team currently building the attack (alternates during rally)
 }
