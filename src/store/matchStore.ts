@@ -61,6 +61,8 @@ interface MatchStore {
   addCourtClick: (coord: Coordinate) => void;
   processKeyInput: (key: string) => void;
   addAction: (action: Action) => void;
+  updateAction: (setIndex: number, pointIndex: number, actionId: string, updates: Partial<Action>) => void;
+  getAllMatchActions: () => { setIndex: number; pointIndex: number; point: Point; action: Action; setNumber: number }[];
 
   performSubstitution: (teamId: string, outNumber: number, inNumber: number) => void;
   updateSetter: (teamId: string, newSetterNumber: number) => void;
@@ -957,6 +959,42 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     if (!currentSet) return;
     const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
     set({ match: updatedMatch });
+  },
+
+  updateAction: (setIndex, pointIndex, actionId, updates) => {
+    const { match } = get();
+    if (!match) return;
+    const s = match.sets[setIndex];
+    if (!s) return;
+    const point = s.points[pointIndex];
+    if (!point) return;
+    const actionIdx = point.actions.findIndex(a => a.id === actionId);
+    if (actionIdx === -1) return;
+    const updatedAction = { ...point.actions[actionIdx], ...updates };
+    const updatedActions = [...point.actions];
+    updatedActions[actionIdx] = updatedAction;
+    const updatedPoint = { ...point, actions: updatedActions };
+    const updatedPoints = [...s.points];
+    updatedPoints[pointIndex] = updatedPoint;
+    const updatedSet = { ...s, points: updatedPoints };
+    const updatedSets = [...match.sets];
+    updatedSets[setIndex] = updatedSet;
+    set({ match: { ...match, sets: updatedSets } });
+    get().saveMatchToHistory();
+  },
+
+  getAllMatchActions: () => {
+    const { match } = get();
+    if (!match) return [];
+    const result: { setIndex: number; pointIndex: number; point: Point; action: Action; setNumber: number }[] = [];
+    match.sets.forEach((s, si) => {
+      s.points.forEach((p, pi) => {
+        p.actions.forEach(a => {
+          result.push({ setIndex: si, pointIndex: pi, point: p, action: a, setNumber: s.setNumber });
+        });
+      });
+    });
+    return result;
   },
 
   performSubstitution: (teamId, outNumber, inNumber) => {
