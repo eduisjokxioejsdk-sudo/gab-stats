@@ -86,7 +86,7 @@ const LiveScoring: React.FC = () => {
             📊 Stats
           </button>
           <button
-            onClick={() => setView('setup')}
+            onClick={() => setView('settings')}
             className="text-xs bg-secondary text-secondary-foreground px-3 py-1.5 rounded-md font-semibold hover:bg-secondary/80 transition-colors"
           >
             ⚙️
