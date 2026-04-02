@@ -1,8 +1,11 @@
+export type PlayerRole = 'pointu' | 'recepteur' | 'central' | 'passeur' | 'libero';
+
 export interface Player {
   id: string;
   number: number;
   name: string;
   teamId: string;
+  role?: PlayerRole;
 }
 
 export interface Team {
