@@ -20,6 +20,12 @@ const MatchSetup: React.FC = () => {
   const [teamBPlayers, setTeamBPlayers] = useState<{ number: string; name: string }[]>(
     Array.from({ length: 6 }, () => ({ number: '', name: '' }))
   );
+  const [teamALiberos, setTeamALiberos] = useState<{ number: string; name: string }[]>(
+    Array.from({ length: 2 }, () => ({ number: '', name: '' }))
+  );
+  const [teamBLiberos, setTeamBLiberos] = useState<{ number: string; name: string }[]>(
+    Array.from({ length: 2 }, () => ({ number: '', name: '' }))
+  );
   const [rotationA, setRotationA] = useState<string[]>(Array(6).fill(''));
   const [rotationB, setRotationB] = useState<string[]>(Array(6).fill(''));
   const [servingTeam, setServingTeam] = useState<'A' | 'B'>('A');
