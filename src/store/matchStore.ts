@@ -318,7 +318,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
     switch (inputState.phase) {
       case 'service_type': {
-        const serviceType: ServiceType | null = key === 's' ? 'smash' : key === 'f' ? 'float' : null;
+        const sc = useShortcutsStore.getState().shortcuts;
+        const serviceType: ServiceType | null = key === sc.serviceSmash ? 'smash' : key === sc.serviceFloat ? 'float' : null;
         if (!serviceType) return;
 
         const pending = [...inputState.pendingActions];
