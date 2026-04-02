@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTeamsStore, type SavedTeam } from '@/store/teamsStore';
 import { useMatchStore } from '@/store/matchStore';
+import type { PlayerRole } from '@/types/volleyball';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 9);
