@@ -562,6 +562,32 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
       }
 
       case 'reception': {
+        const handleReceptionResult = (playerNum: number, recQuality: Quality) => {
+          const action: Action = {
+            id: generateId(), type: 'reception', teamId: receivingTeamId,
+            playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
+            quality: recQuality, timestamp: Date.now(),
+          };
+          if (inputState.currentPointId) {
+            const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+            if (recQuality === '/') {
+              // Overpass: ball goes to serving team side, they attack
+              set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: servingTeamId } });
+            } else if (recQuality === '+' || recQuality === '0' || recQuality === '-') {
+              // Good/neutral/bad reception: setter can't play central, auto "none" set_call and skip to attack_position
+              const setCallAction: Action = {
+                id: generateId(), type: 'set', teamId: receivingTeamId, timestamp: Date.now(), setCall: 'none',
+              };
+              const updatedMatch2 = addActionToCurrentPoint(updatedMatch, match.currentSetIndex,
+                updatedMatch.sets[match.currentSetIndex], inputState.currentPointId!, setCallAction);
+              set({ match: updatedMatch2, inputState: { ...inputState, phase: 'attack_position', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
+            } else {
+              // ++ or -- : normal flow to set_call
+              set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
+            }
+          }
+        };
+
         if (key === 'enter') {
           const parts = inputState.buffer.match(/^(\d+)(.?)$/);
           if (parts) {
@@ -572,21 +598,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               [sc.qualityBad]: '-', [sc.qualityOverpass]: '/', [sc.qualityTerrible]: '--',
             };
             if (qualityChar && qualityMap[qualityChar]) {
-              const recQuality = qualityMap[qualityChar];
-              const action: Action = {
-                id: generateId(), type: 'reception', teamId: receivingTeamId,
-                playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
-                quality: recQuality, timestamp: Date.now(),
-              };
-              if (inputState.currentPointId) {
-                const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-                // Over pass: ball goes back to serving team side, they attack
-                if (recQuality === '/') {
-                  set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: servingTeamId } });
-                } else {
-                  set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
-                }
-              }
+              handleReceptionResult(playerNum, qualityMap[qualityChar]);
             }
           }
           return;
@@ -603,21 +615,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           const playerNumStr = buffer.substring(0, buffer.length - 1);
           const playerNum = parseInt(playerNumStr);
           if (!isNaN(playerNum)) {
-            const recQuality = qualityMap[lastChar];
-            const action: Action = {
-              id: generateId(), type: 'reception', teamId: receivingTeamId,
-              playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
-              quality: recQuality, timestamp: Date.now(),
-            };
-            if (inputState.currentPointId) {
-              const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-              // Over pass: ball goes back to serving team side, they attack
-              if (recQuality === '/') {
-                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: servingTeamId } });
-              } else {
-                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
-              }
-            }
+            handleReceptionResult(playerNum, qualityMap[lastChar]);
           }
         } else {
           set({ inputState: { ...inputState, buffer } });
