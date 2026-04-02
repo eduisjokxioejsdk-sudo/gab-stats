@@ -132,7 +132,7 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
     6: { x: courtLeft + 15,  y: courtTop + thirdH * 1.5 },
     1: { x: courtLeft + 15,  y: courtTop + thirdH * 2.5 },
   };
-  const leftServiceZone = { x: 10, y: courtTop + thirdH * 2.5 };
+  const leftServiceZone = { x: courtLeft - 10, y: courtTop + thirdH * 2.5 };
 
   // Physical zone coordinates for right team
   const rightZoneCoords: Record<number, { x: number; y: number }> = {
@@ -143,7 +143,7 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
     6: { x: courtRight - 15, y: courtTop + thirdH * 1.5 },
     5: { x: courtRight - 15, y: courtTop + thirdH * 2.5 },
   };
-  const rightServiceZone = { x: 210, y: courtTop + thirdH * 2.5 };
+  const rightServiceZone = { x: courtRight + 10, y: courtTop + thirdH * 2.5 };
 
   const handleClick = (e: React.MouseEvent<SVGSVGElement>) => {
     const svg = e.currentTarget;
