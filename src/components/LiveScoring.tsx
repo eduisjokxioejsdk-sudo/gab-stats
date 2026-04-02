@@ -169,7 +169,7 @@ const LiveScoring: React.FC = () => {
       </div>
 
       {/* Main area: Court left + Action log right */}
-      <div className="flex-1 flex min-h-0 px-4 py-2 gap-3">
+      <div className="flex-1 flex min-h-0 px-2 py-1 gap-2">
         <div className="flex-1 flex items-center justify-start">
           <div className="w-full max-w-4xl">
             <VolleyCourt
@@ -193,7 +193,7 @@ const LiveScoring: React.FC = () => {
         </div>
 
         {/* Action log - right panel */}
-        <div className="w-64 shrink-0">
+        <div className="w-56 shrink-0">
           <ActionLog
             actions={currentActions}
             teamAName={match.teamA.name}
@@ -203,8 +203,8 @@ const LiveScoring: React.FC = () => {
         </div>
       </div>
 
-      {/* Input guide at bottom */}
-      <div className="px-4 pb-3 shrink-0">
+      {/* Input guide at bottom - larger */}
+      <div className="px-3 pb-2 shrink-0">
         <InputGuide
           phase={inputState.phase}
           buffer={inputState.buffer}
