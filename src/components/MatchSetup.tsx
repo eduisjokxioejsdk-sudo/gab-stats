@@ -194,7 +194,7 @@ const MatchSetup: React.FC = () => {
                       const posMap = [3, 2, 1, 4, 5, 0];
                       const posIdx = posMap[i];
                       return (
-                        <div key={i} className="text-center">
+                         <div key={i} className="text-center">
                           <label className={`${labelClass} text-[10px]`}>{label}</label>
                           <input
                             className={`${inputClass} text-center ${posIdx === 0 ? 'ring-2 ring-accent' : ''}`}
@@ -205,6 +205,16 @@ const MatchSetup: React.FC = () => {
                               team.setRotation(updated);
                             }}
                           />
+                          {(() => {
+                            const num = parseInt(team.rotation[posIdx]);
+                            const player = !isNaN(num) ? team.players.find(p => p.number === num) : null;
+                            const roleLabels: Record<string, string> = { passeur: '★ Passeur', central: 'Central', pointu: 'Pointu', r4: 'R4' };
+                            const roleColors: Record<string, string> = { passeur: 'text-primary', central: 'text-orange-400', pointu: 'text-purple-400', r4: 'text-blue-400' };
+                            if (player?.role) {
+                              return <p className={`text-[9px] font-semibold mt-0.5 ${roleColors[player.role] || 'text-muted-foreground'}`}>{roleLabels[player.role] || player.role}</p>;
+                            }
+                            return null;
+                          })()}
                         </div>
                       );
                     })}
