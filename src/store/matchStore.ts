@@ -846,7 +846,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           set({ match: updatedMatch });
 
           if (autoWinAttacker) {
-            const attackTeamId = pending?.teamId || receivingTeamId;
+            const attackTeamId = pending?.teamId || rallyTeamId;
             const s2 = get();
             const cs2 = s2.getCurrentSet();
             if (cs2) {
