@@ -641,8 +641,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
 
       case 'attack_position': {
         // Where the setter played
-        const team = receivingTeamId === match.teamA.id ? match.teamA : match.teamB;
-        const rotation = receivingTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
+        const team = rallyTeamId === match.teamA.id ? match.teamA : match.teamB;
+        const rotation = rallyTeamId === match.teamA.id ? currentSet.currentRotationA : currentSet.currentRotationB;
 
         if (key === sc.attackSecondeMain) {
           // Seconde main: setter attacks
