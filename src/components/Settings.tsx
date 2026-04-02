@@ -21,6 +21,8 @@ const shortcutLabels: Record<keyof ShortcutMap, { label: string; group: string }
   startEndPoint: { label: 'Fin de point', group: 'Point' },
   winnerLeft: { label: 'Gagnant Équipe A', group: 'Point' },
   winnerRight: { label: 'Gagnant Équipe B', group: 'Point' },
+  faultA: { label: 'Faute Équipe A', group: 'Point' },
+  faultB: { label: 'Faute Équipe B', group: 'Point' },
 };
 
 const displayKey = (key: string) => {
