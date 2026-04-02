@@ -731,7 +731,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           const positionIndexMap: Record<string, number> = { '1': 0, '2': 1, '3': 2, '4': 3, '5': 4, '6': 5 };
           targetRotIdx = positionIndexMap[pos];
           const playerNum = rotation[targetRotIdx];
-          const player = state.getPlayerByNumber(receivingTeamId, playerNum);
+          const player = state.getPlayerByNumber(rallyTeamId, playerNum);
 
           set({
             inputState: {
@@ -740,7 +740,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               buffer: '',
               pendingActions: [{
                 type: 'attack',
-                teamId: receivingTeamId,
+                teamId: rallyTeamId,
                 playerNumber: playerNum,
                 playerId: player?.id,
                 attackPosition: pos,
