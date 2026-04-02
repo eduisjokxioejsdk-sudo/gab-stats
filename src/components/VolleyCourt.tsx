@@ -230,14 +230,14 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
       </div>
 
       <svg
-        viewBox="0 0 220 100"
+        viewBox={`0 0 ${svgW} ${svgH}`}
         className="w-full cursor-crosshair court-shadow rounded-md"
         onClick={handleClick}
         preserveAspectRatio="xMidYMid meet"
       >
-        <rect x="0" y="0" width="220" height="100" fill="hsl(var(--background))" rx="2" />
-        <rect x="0" y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'left' ? 0.5 : 0.15} rx="1" />
-        <rect x="200" y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'right' ? 0.5 : 0.15} rx="1" />
+        <rect x="0" y="0" width={svgW} height={svgH} fill="hsl(var(--background))" rx="2" />
+        <rect x={courtLeft - 20} y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'left' ? 0.5 : 0.15} rx="1" />
+        <rect x={courtRight} y={courtTop} width="20" height={courtH} fill="hsl(var(--court))" opacity={servingSide === 'right' ? 0.5 : 0.15} rx="1" />
         
         {servingSide === 'left' && (
           <text x="10" y="55" textAnchor="middle" fontSize="5" fill="hsl(var(--accent))" fontWeight="bold" writingMode="tb" letterSpacing="2">SERVICE</text>
