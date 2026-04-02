@@ -43,7 +43,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     service_quality: {
       label: 'SERVICE — Qualité',
       hint: 'Qualité du service (# = ace)',
-      keys: `[${formatKey(shortcuts.qualityExcellent)}] # Ace  [${formatKey(shortcuts.qualityGood)}] + Bon  [${formatKey(shortcuts.qualityNeutral)}] - Neutre  [${formatKey(shortcuts.qualityBad)}] ! Mauvais  [${formatKey(shortcuts.qualityOverpass)}] / Over  [${formatKey(shortcuts.qualityTerrible)}] = Erreur`,
+      keys: `[${formatKey(shortcuts.qualityExcellent)}] # Ace  [${formatKey(shortcuts.qualityGood)}] + Bon  [${formatKey(shortcuts.qualityNeutral)}] - Neutre  [${formatKey(shortcuts.qualityTerrible)}] = Erreur`,
     },
     ace_receiver: {
       label: 'ACE — Réceptionneur',
