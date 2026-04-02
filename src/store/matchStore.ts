@@ -595,9 +595,9 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
               quality: qualityMap[lastChar], timestamp: Date.now(),
             };
-            if (inputState.currentPointId) {
-              const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-              set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '' } });
+              if (inputState.currentPointId) {
+                const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
             }
           }
         } else {
