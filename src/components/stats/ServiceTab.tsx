@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { Action, Point } from '@/types/volleyball';
+import type { Action, Point, Team } from '@/types/volleyball';
 import TrajectoryCourtMini from './TrajectoryCourtMini';
 import QualityTable, { buildQualityRows } from './QualityTable';
 
@@ -7,10 +7,16 @@ interface ServiceTabProps {
   actions: Action[];
   allPoints: Point[];
   teamId: string;
+  team?: Team;
 }
 
-const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId }) => {
-  const services = useMemo(() => actions.filter(a => a.type === 'service' && a.teamId === teamId), [actions, teamId]);
+const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId, team }) => {
+  const liberoNumbers = useMemo(() => team?.liberos.map(l => l.number) || [], [team]);
+
+  const services = useMemo(() =>
+    actions.filter(a => a.type === 'service' && a.teamId === teamId && !liberoNumbers.includes(a.playerNumber || 0)),
+    [actions, teamId, liberoNumbers]
+  );
 
   const floatServices = useMemo(() => services.filter(s => s.serviceType === 'float'), [services]);
   const smashServices = useMemo(() => services.filter(s => s.serviceType === 'smash'), [services]);
@@ -29,7 +35,6 @@ const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId }) =
   const floatRows = useMemo(() => buildQualityRows(floatServices), [floatServices]);
   const smashRows = useMemo(() => buildQualityRows(smashServices), [smashServices]);
 
-  // Per-player trajectories
   const playerNumbers = useMemo(() => {
     const nums = new Set<number>();
     services.forEach(s => { if (s.playerNumber != null) nums.add(s.playerNumber); });
@@ -38,11 +43,7 @@ const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId }) =
 
   return (
     <div className="space-y-4">
-      {/* All trajectories */}
-      <TrajectoryCourtMini
-        trajectories={trajectories}
-        title={`Toutes les trajectoires (${services.length} services)`}
-      />
+      <TrajectoryCourtMini trajectories={trajectories} title={`Toutes les trajectoires (${services.length} services)`} />
 
       <div className="flex gap-2 text-[10px] font-mono text-muted-foreground">
         <span className="flex items-center gap-1">
@@ -53,7 +54,6 @@ const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId }) =
         </span>
       </div>
 
-      {/* Per player trajectories */}
       <div className="grid grid-cols-2 gap-3">
         {playerNumbers.map(num => {
           const playerServices = services.filter(s => s.playerNumber === num);
@@ -66,22 +66,13 @@ const ServiceTab: React.FC<ServiceTabProps> = ({ actions, allPoints, teamId }) =
               opacity: 0.7,
             }));
           return (
-            <TrajectoryCourtMini
-              key={num}
-              trajectories={playerTrajs}
-              title={`N°${num} (${playerServices.length})`}
-            />
+            <TrajectoryCourtMini key={num} trajectories={playerTrajs} title={`N°${num} (${playerServices.length})`} />
           );
         })}
       </div>
 
-      {/* Quality tables */}
-      {floatRows.length > 0 && (
-        <QualityTable title="Service flottant" rows={floatRows} />
-      )}
-      {smashRows.length > 0 && (
-        <QualityTable title="Service smashé" rows={smashRows} />
-      )}
+      {floatRows.length > 0 && <QualityTable title="Service flottant" rows={floatRows} />}
+      {smashRows.length > 0 && <QualityTable title="Service smashé" rows={smashRows} />}
       {floatRows.length === 0 && smashRows.length === 0 && (
         <QualityTable title="Service (tous)" rows={buildQualityRows(services)} />
       )}

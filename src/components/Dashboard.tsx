@@ -32,7 +32,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen no-select flex flex-col">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-black tracking-tighter text-foreground">
@@ -40,15 +39,11 @@ const Dashboard: React.FC = () => {
           </h1>
           <span className="text-xs text-muted-foreground">📊 Statistiques</span>
         </div>
-        <button
-          onClick={() => setView('live')}
-          className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-md font-semibold hover:opacity-90 transition-opacity"
-        >
+        <button onClick={() => setView('live')} className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-md font-semibold hover:opacity-90 transition-opacity">
           ← Retour au live
         </button>
       </div>
 
-      {/* Score summary */}
       <div className="px-4 pt-3 pb-2 shrink-0">
         <div className="text-center">
           <div className="flex items-center justify-center gap-4">
@@ -56,59 +51,33 @@ const Dashboard: React.FC = () => {
             <span className="font-mono text-2xl font-black text-primary">{match.setsWonA} - {match.setsWonB}</span>
             <span className="text-lg font-bold text-foreground">{match.teamB.name}</span>
           </div>
-          <div className="flex justify-center gap-2 mt-1">
-            {match.sets.map((s, i) => (
-              <span key={i} className="font-mono text-xs text-muted-foreground">
-                ({s.scoreA}-{s.scoreB})
-              </span>
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Team selector */}
       {!selectedTeam ? (
         <div className="flex-1 flex items-center justify-center px-4">
           <div className="grid grid-cols-2 gap-4 max-w-md w-full">
-            <button
-              onClick={() => setSelectedTeamId(match.teamA.id)}
-              className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:bg-primary/5 transition-all text-center"
-            >
-              <p className="text-xl font-bold text-foreground">{match.teamA.name}</p>
-              <p className="text-xs text-muted-foreground mt-1">Voir les statistiques</p>
-            </button>
-            <button
-              onClick={() => setSelectedTeamId(match.teamB.id)}
-              className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:bg-primary/5 transition-all text-center"
-            >
-              <p className="text-xl font-bold text-foreground">{match.teamB.name}</p>
-              <p className="text-xs text-muted-foreground mt-1">Voir les statistiques</p>
-            </button>
+            {[match.teamA, match.teamB].map(t => (
+              <button key={t.id} onClick={() => setSelectedTeamId(t.id)} className="bg-card border border-border rounded-xl p-8 hover:border-primary/50 hover:bg-primary/5 transition-all text-center">
+                <p className="text-xl font-bold text-foreground">{t.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">Voir les statistiques</p>
+              </button>
+            ))}
           </div>
         </div>
       ) : (
         <>
-          {/* Team name + back */}
           <div className="px-4 pb-2 flex items-center gap-3 shrink-0">
-            <button
-              onClick={() => setSelectedTeamId(null)}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              ← Équipes
-            </button>
+            <button onClick={() => setSelectedTeamId(null)} className="text-xs text-muted-foreground hover:text-foreground transition-colors">← Équipes</button>
             <span className="text-sm font-bold text-primary">{selectedTeam.name}</span>
-            {/* Switch team */}
             <button
-              onClick={() => setSelectedTeamId(
-                selectedTeamId === match.teamA.id ? match.teamB.id : match.teamA.id
-              )}
+              onClick={() => setSelectedTeamId(selectedTeamId === match.teamA.id ? match.teamB.id : match.teamA.id)}
               className="text-[10px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded font-mono hover:bg-secondary/80 transition-colors"
             >
               ↔ {selectedTeamId === match.teamA.id ? match.teamB.name : match.teamA.name}
             </button>
           </div>
 
-          {/* Tabs */}
           <div className="px-4 shrink-0">
             <div className="flex border-b border-border">
               {tabs.map(tab => (
@@ -117,11 +86,9 @@ const Dashboard: React.FC = () => {
                   onClick={() => tab.enabled && setActiveTab(tab.id)}
                   disabled={!tab.enabled}
                   className={`px-4 py-2 text-xs font-semibold transition-colors border-b-2 -mb-px ${
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : tab.enabled
-                        ? 'border-transparent text-muted-foreground hover:text-foreground'
-                        : 'border-transparent text-muted-foreground/40 cursor-not-allowed'
+                    activeTab === tab.id ? 'border-primary text-primary'
+                      : tab.enabled ? 'border-transparent text-muted-foreground hover:text-foreground'
+                      : 'border-transparent text-muted-foreground/40 cursor-not-allowed'
                   }`}
                 >
                   {tab.label}
@@ -130,22 +97,11 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Tab content */}
           <div className="flex-1 overflow-y-auto px-4 py-3">
-            {activeTab === 'service' && (
-              <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} />
-            )}
-            {activeTab === 'reception' && (
-              <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} />
-            )}
-            {activeTab === 'attack' && (
-              <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} />
-            )}
-            {activeTab === 'distribution' && (
-              <div className="text-center text-muted-foreground text-sm py-12">
-                À venir...
-              </div>
-            )}
+            {activeTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {activeTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {activeTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {activeTab === 'distribution' && <div className="text-center text-muted-foreground text-sm py-12">À venir...</div>}
           </div>
         </>
       )}

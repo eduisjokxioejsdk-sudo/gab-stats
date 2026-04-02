@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import type { Action, Point } from '@/types/volleyball';
+import type { Action, Point, Team } from '@/types/volleyball';
 import TrajectoryCourtMini from './TrajectoryCourtMini';
 import QualityTable, { buildQualityRows } from './QualityTable';
 
@@ -7,10 +7,17 @@ interface AttackTabProps {
   actions: Action[];
   allPoints: Point[];
   teamId: string;
+  team?: Team;
 }
 
-const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId }) => {
-  const attacks = useMemo(() => actions.filter(a => a.type === 'attack' && a.teamId === teamId), [actions, teamId]);
+const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId, team }) => {
+  const liberoNumbers = useMemo(() => team?.liberos.map(l => l.number) || [], [team]);
+
+  // Include all attacks except liberos
+  const attacks = useMemo(() =>
+    actions.filter(a => a.type === 'attack' && a.teamId === teamId && !liberoNumbers.includes(a.playerNumber || 0)),
+    [actions, teamId, liberoNumbers]
+  );
 
   const trajectories = useMemo(() => {
     return attacks
@@ -27,20 +34,17 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId }) => 
       }));
   }, [attacks]);
 
-  // Stats
   const kills = attacks.filter(a => a.attackResult === 'kill').length;
   const errors = attacks.filter(a => a.attackResult === 'error').length;
   const total = attacks.length;
   const eff = total > 0 ? ((kills - errors) / total) * 100 : 0;
 
-  // Per player
   const playerNumbers = useMemo(() => {
     const nums = new Set<number>();
     attacks.forEach(a => { if (a.playerNumber != null) nums.add(a.playerNumber); });
     return Array.from(nums).sort((a, b) => a - b);
   }, [attacks]);
 
-  // Build quality rows from attack result mapping
   const attackQualityRows = useMemo(() => {
     const mapped = attacks.map(a => ({
       playerNumber: a.playerNumber,
@@ -53,7 +57,6 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId }) => 
 
   return (
     <div className="space-y-4">
-      {/* Global stats */}
       <div className="bg-card border border-border rounded-lg p-4">
         <div className="grid grid-cols-4 gap-3 text-center">
           <div>
@@ -75,11 +78,7 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId }) => 
         </div>
       </div>
 
-      {/* All trajectories */}
-      <TrajectoryCourtMini
-        trajectories={trajectories}
-        title={`Toutes les trajectoires (${attacks.length} attaques)`}
-      />
+      <TrajectoryCourtMini trajectories={trajectories} title={`Toutes les trajectoires (${attacks.length} attaques)`} />
       <div className="flex gap-2 text-[10px] font-mono text-muted-foreground">
         <span className="flex items-center gap-1">
           <span className="w-3 h-0.5 bg-score-win inline-block rounded" /> Kill
@@ -92,7 +91,6 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId }) => 
         </span>
       </div>
 
-      {/* Per player trajectories */}
       <div className="grid grid-cols-2 gap-3">
         {playerNumbers.map(num => {
           const playerAttacks = attacks.filter(a => a.playerNumber === num);
@@ -111,11 +109,12 @@ const AttackTab: React.FC<AttackTabProps> = ({ actions, allPoints, teamId }) => 
           const pKills = playerAttacks.filter(a => a.attackResult === 'kill').length;
           const pErrors = playerAttacks.filter(a => a.attackResult === 'error').length;
           const pEff = playerAttacks.length > 0 ? ((pKills - pErrors) / playerAttacks.length * 100).toFixed(0) : '0';
+          const isSecondeMain = playerAttacks.some(a => a.attackPosition === 'seconde_main');
           return (
             <TrajectoryCourtMini
               key={num}
               trajectories={playerTrajs}
-              title={`N°${num} — ${pKills}K/${pErrors}E/${playerAttacks.length}T (${pEff}%)`}
+              title={`N°${num}${isSecondeMain ? ' (2nde main)' : ''} — ${pKills}K/${pErrors}E/${playerAttacks.length}T (${pEff}%)`}
             />
           );
         })}

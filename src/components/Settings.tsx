@@ -17,7 +17,8 @@ const shortcutLabels: Record<keyof ShortcutMap, { label: string; group: string }
   attackKill: { label: 'Kill / Point', group: 'Attaque' },
   attackError: { label: 'Erreur', group: 'Attaque' },
   attackContinue: { label: 'Continu / Défendu', group: 'Attaque' },
-  startEndPoint: { label: 'Début / Fin de point', group: 'Point' },
+  attackSecondeMain: { label: 'Seconde main', group: 'Attaque' },
+  startEndPoint: { label: 'Fin de point', group: 'Point' },
   winnerLeft: { label: 'Gagnant Équipe A', group: 'Point' },
   winnerRight: { label: 'Gagnant Équipe B', group: 'Point' },
 };
@@ -33,7 +34,7 @@ const displayKey = (key: string) => {
 
 const Settings: React.FC = () => {
   const { shortcuts, updateShortcut, resetShortcuts } = useShortcutsStore();
-  const { setView } = useMatchStore();
+  const { setView, match } = useMatchStore();
   const [editingKey, setEditingKey] = useState<keyof ShortcutMap | null>(null);
 
   const handleKeyCapture = useCallback((e: React.KeyboardEvent) => {
@@ -45,7 +46,6 @@ const Settings: React.FC = () => {
     setEditingKey(null);
   }, [editingKey, updateShortcut]);
 
-  // Group shortcuts
   const groups: Record<string, (keyof ShortcutMap)[]> = {};
   (Object.keys(shortcutLabels) as (keyof ShortcutMap)[]).forEach((k) => {
     const g = shortcutLabels[k].group;
@@ -55,7 +55,6 @@ const Settings: React.FC = () => {
 
   return (
     <div className="min-h-screen no-select">
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card">
         <div className="flex items-center gap-3">
           <h1 className="text-lg font-black tracking-tighter text-foreground">
@@ -64,7 +63,7 @@ const Settings: React.FC = () => {
           <span className="text-xs text-muted-foreground">⚙️ Paramètres</span>
         </div>
         <button
-          onClick={() => setView('live')}
+          onClick={() => setView(match ? 'live' : 'home')}
           className="text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-md font-semibold hover:opacity-90 transition-opacity"
         >
           ← Retour
