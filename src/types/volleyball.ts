@@ -1,4 +1,4 @@
-export type PlayerRole = 'pointu' | 'recepteur' | 'central' | 'passeur' | 'libero';
+export type PlayerRole = 'pointu' | 'r4' | 'central' | 'passeur' | 'libero';
 
 export interface Player {
   id: string;

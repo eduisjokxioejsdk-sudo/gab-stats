@@ -221,13 +221,13 @@ const TeamManager: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-1">
                 {team.players.map((p, i) => {
-                  const roleLabel = p.role === 'passeur' ? '★' : p.role === 'central' ? 'C' : p.role === 'pointu' ? 'P' : p.role === 'recepteur' ? 'R' : '';
+                  const roleLabel = p.role === 'passeur' ? '★' : p.role === 'central' ? 'C' : p.role === 'pointu' ? 'P' : p.role === 'r4' ? 'R4' : '';
                   return (
                     <span key={i} className={`text-xs font-mono px-1.5 py-0.5 rounded ${
                       p.role === 'passeur' ? 'bg-primary/20 text-primary'
                         : p.role === 'central' ? 'bg-orange-500/20 text-orange-400'
                         : p.role === 'pointu' ? 'bg-purple-500/20 text-purple-400'
-                        : p.role === 'recepteur' ? 'bg-blue-500/20 text-blue-400'
+                        : p.role === 'r4' ? 'bg-blue-500/20 text-blue-400'
                         : 'bg-secondary text-muted-foreground'
                     }`}>
                       {p.number}{roleLabel}
