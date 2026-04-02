@@ -457,6 +457,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           [sc.qualityGood]: '+',
           [sc.qualityNeutral]: '0',
           [sc.qualityBad]: '-',
+          [sc.qualityOverpass]: '/',
           [sc.qualityTerrible]: '--',
         };
         const quality = qualityMap[key];
@@ -562,7 +563,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             const qualityChar = parts[2];
             const qualityMap: Record<string, Quality> = {
               [sc.qualityExcellent]: '++', [sc.qualityGood]: '+', [sc.qualityNeutral]: '0',
-              [sc.qualityBad]: '-', [sc.qualityTerrible]: '--',
+              [sc.qualityBad]: '-', [sc.qualityOverpass]: '/', [sc.qualityTerrible]: '--',
             };
             if (qualityChar && qualityMap[qualityChar]) {
               const action: Action = {
@@ -582,7 +583,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const buffer = inputState.buffer + key;
         const qualityMap: Record<string, Quality> = {
           [sc.qualityExcellent]: '++', [sc.qualityGood]: '+', [sc.qualityNeutral]: '0',
-          [sc.qualityBad]: '-', [sc.qualityTerrible]: '--',
+          [sc.qualityBad]: '-', [sc.qualityOverpass]: '/', [sc.qualityTerrible]: '--',
         };
 
         const lastChar = buffer[buffer.length - 1];

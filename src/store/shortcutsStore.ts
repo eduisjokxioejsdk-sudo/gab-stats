@@ -4,11 +4,12 @@ import { persist } from 'zustand/middleware';
 export interface ShortcutMap {
   serviceSmash: string;
   serviceFloat: string;
-  qualityExcellent: string;
-  qualityGood: string;
-  qualityNeutral: string;
-  qualityBad: string;
-  qualityTerrible: string;
+  qualityExcellent: string;  // # Perfect pass (3 pass)
+  qualityGood: string;      // + Good pass (2 pass)
+  qualityNeutral: string;   // - Bad pass (1 pass)
+  qualityBad: string;       // ! Freeball
+  qualityOverpass: string;  // / Over pass
+  qualityTerrible: string;  // = Error (0 pass)
   setAvant: string;
   setArriere: string;
   setDecalee: string;
@@ -30,11 +31,12 @@ export interface ShortcutMap {
 export const defaultShortcuts: ShortcutMap = {
   serviceSmash: 's',
   serviceFloat: 'f',
-  qualityExcellent: '+',
-  qualityGood: '=',
-  qualityNeutral: '0',
-  qualityBad: '-',
-  qualityTerrible: '_',
+  qualityExcellent: '#',
+  qualityGood: '+',
+  qualityNeutral: '-',
+  qualityBad: '!',
+  qualityOverpass: '/',
+  qualityTerrible: '=',
   setAvant: 'a',
   setArriere: 'z',
   setDecalee: 'e',

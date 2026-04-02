@@ -42,8 +42,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     },
     service_quality: {
       label: 'SERVICE — Qualité',
-      hint: 'Qualité du service (++ = ace, point direct)',
-      keys: `[${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --`,
+      hint: 'Qualité du service (# = ace)',
+      keys: `[${formatKey(shortcuts.qualityExcellent)}] # Ace  [${formatKey(shortcuts.qualityGood)}] + Bon  [${formatKey(shortcuts.qualityNeutral)}] - Neutre  [${formatKey(shortcuts.qualityBad)}] ! Mauvais  [${formatKey(shortcuts.qualityOverpass)}] / Over  [${formatKey(shortcuts.qualityTerrible)}] = Erreur`,
     },
     ace_receiver: {
       label: 'ACE — Réceptionneur',
@@ -52,8 +52,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     },
     reception: {
       label: 'RÉCEPTION',
-      hint: 'N° joueur + qualité — 2 chiffres : auto, 1 chiffre : ENTRÉE pour valider',
-      keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --  [ENTRÉE]`,
+      hint: 'N° joueur + qualité',
+      keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] # 3pass  [${formatKey(shortcuts.qualityGood)}] + 2pass  [${formatKey(shortcuts.qualityNeutral)}] - 1pass  [${formatKey(shortcuts.qualityBad)}] ! Free  [${formatKey(shortcuts.qualityOverpass)}] / Over  [${formatKey(shortcuts.qualityTerrible)}] = Err`,
     },
     set_call: {
       label: `PASSE${rallyTeamName ? ` — ${rallyTeamName}` : ''}`,
