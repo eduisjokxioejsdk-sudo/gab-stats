@@ -81,8 +81,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     },
     attack_result: {
       label: 'ATTAQUE — Résultat',
-      hint: "Résultat de l'attaque (++ = kill, point direct)",
-      keys: `[${formatKey(shortcuts.qualityExcellent)}] Kill/++  [${formatKey(shortcuts.attackError)}] Erreur  [${formatKey(shortcuts.attackContinue)}] Continu`,
+      hint: "Résultat de l'attaque",
+      keys: `[${formatKey(shortcuts.attackKill)}] # Kill  [${formatKey(shortcuts.attackGood)}] + Bon  [${formatKey(shortcuts.attackTouched)}] - Bloc  [${formatKey(shortcuts.attackBad)}] ! Mauvais  [${formatKey(shortcuts.attackBlocked)}] / Contré  [${formatKey(shortcuts.attackError)}] = Erreur`,
     },
     point_winner: {
       label: 'QUI A GAGNÉ LE POINT ?',
