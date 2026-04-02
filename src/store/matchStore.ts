@@ -830,7 +830,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         const action: Action = {
           id: generateId(),
           type: 'attack',
-          teamId: pending?.teamId || receivingTeamId,
+          teamId: pending?.teamId || rallyTeamId,
           playerNumber: pending?.playerNumber,
           playerId: pending?.playerId,
           blockersCount: pending?.blockersCount,
