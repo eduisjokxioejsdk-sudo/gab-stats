@@ -337,8 +337,11 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
           <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
             <path d="M0,0 L8,4 L0,8 Z" fill="hsl(var(--accent))" />
           </marker>
-          <marker id="arrow-ghost" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(var(--accent))" opacity="0.4" />
+          <marker id="arrow-ghost-smash" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(0, 80%, 55%)" opacity="0.4" />
+          </marker>
+          <marker id="arrow-ghost-float" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="hsl(210, 80%, 55%)" opacity="0.4" />
           </marker>
         </defs>
       </svg>
