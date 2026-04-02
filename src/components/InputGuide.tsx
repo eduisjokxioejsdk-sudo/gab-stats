@@ -56,8 +56,8 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
       keys: `[N°] + [${formatKey(shortcuts.qualityExcellent)}] ++  [${formatKey(shortcuts.qualityGood)}] +  [${formatKey(shortcuts.qualityNeutral)}] 0  [${formatKey(shortcuts.qualityBad)}] -  [${formatKey(shortcuts.qualityTerrible)}] --  [ENTRÉE]`,
     },
     set_call: {
-      label: 'APPEL DU CENTRAL',
-      hint: 'Type de passe',
+      label: `PASSE${rallyTeamName ? ` — ${rallyTeamName}` : ''}`,
+      hint: 'Appel du central',
       keys: `[${formatKey(shortcuts.setAvant)}] Avant  [${formatKey(shortcuts.setArriere)}] Arrière  [${formatKey(shortcuts.setDecalee)}] Décalée  [${formatKey(shortcuts.setNone)}] Pas d'appel`,
     },
     attack_position: {
