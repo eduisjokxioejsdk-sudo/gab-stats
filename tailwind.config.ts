@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -47,6 +51,19 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        court: "hsl(var(--court))",
+        "court-line": "hsl(var(--court-line))",
+        "court-attack": "hsl(var(--court-attack-zone))",
+        "score-win": "hsl(var(--score-win))",
+        "score-lose": "hsl(var(--score-lose))",
+        "quality-excellent": "hsl(var(--quality-excellent))",
+        "quality-good": "hsl(var(--quality-good))",
+        "quality-neutral": "hsl(var(--quality-neutral))",
+        "quality-bad": "hsl(var(--quality-bad))",
+        "quality-terrible": "hsl(var(--quality-terrible))",
+        "action-active": "hsl(var(--action-active))",
+        "action-pending": "hsl(var(--action-pending))",
+        hint: "hsl(var(--hint))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -65,25 +82,27 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.6" },
+        },
+        "slide-in": {
+          from: { transform: "translateY(10px)", opacity: "0" },
+          to: { transform: "translateY(0)", opacity: "1" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-glow": "pulse-glow 1.5s ease-in-out infinite",
+        "slide-in": "slide-in 0.2s ease-out",
       },
     },
   },
