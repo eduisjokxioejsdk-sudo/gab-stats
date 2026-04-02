@@ -566,14 +566,20 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               [sc.qualityBad]: '-', [sc.qualityOverpass]: '/', [sc.qualityTerrible]: '--',
             };
             if (qualityChar && qualityMap[qualityChar]) {
+              const recQuality = qualityMap[qualityChar];
               const action: Action = {
                 id: generateId(), type: 'reception', teamId: receivingTeamId,
                 playerNumber: playerNum, playerId: state.getPlayerByNumber(receivingTeamId, playerNum)?.id,
-                quality: qualityMap[qualityChar], timestamp: Date.now(),
+                quality: recQuality, timestamp: Date.now(),
               };
               if (inputState.currentPointId) {
                 const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
-                set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
+                // Over pass: ball goes back to serving team side, they attack
+                if (recQuality === '/') {
+                  set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: servingTeamId } });
+                } else {
+                  set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: receivingTeamId } });
+                }
               }
             }
           }
