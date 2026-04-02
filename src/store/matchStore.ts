@@ -332,6 +332,14 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     const receivingTeamId = servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id;
     const sc = useShortcutsStore.getState().shortcuts;
 
+    // Handle backspace globally for any phase with a buffer
+    if (key === 'backspace') {
+      if (inputState.buffer.length > 0) {
+        set({ inputState: { ...inputState, buffer: inputState.buffer.slice(0, -1) } });
+      }
+      return;
+    }
+
     switch (inputState.phase) {
       case 'service_type': {
         const serviceType: ServiceType | null = key === sc.serviceSmash ? 'smash' : key === sc.serviceFloat ? 'float' : null;

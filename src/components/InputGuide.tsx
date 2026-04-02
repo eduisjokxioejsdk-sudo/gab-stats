@@ -98,7 +98,7 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
           {config.label}
         </span>
         {buffer && (
-          <span className="font-mono text-accent text-sm font-bold bg-secondary px-2 py-0.5 rounded">
+          <span className="font-mono text-accent text-xl font-black bg-secondary px-4 py-1 rounded-md tracking-widest border border-accent/30">
             {buffer}
           </span>
         )}
