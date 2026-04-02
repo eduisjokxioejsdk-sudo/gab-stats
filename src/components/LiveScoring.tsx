@@ -18,13 +18,11 @@ const LiveScoring: React.FC = () => {
     addCourtClick,
     setView,
     getCurrentSet,
-    getCurrentPointActions,
     isSetterFront,
   } = useMatchStore();
 
   const currentSet = getCurrentSet();
   const { shortcuts } = useShortcutsStore();
-  const currentActions = getCurrentPointActions();
   const [showSub, setShowSub] = useState(false);
 
   const servingTeamId = useMatchStore.getState().getServingTeamId();
