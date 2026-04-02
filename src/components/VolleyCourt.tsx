@@ -11,6 +11,8 @@ interface VolleyCourtProps {
   teamRightName?: string;
   liberoLeft?: number[];
   liberoRight?: number[];
+  setterLeft?: number;
+  setterRight?: number;
 }
 
 const VolleyCourt: React.FC<VolleyCourtProps> = ({
@@ -23,6 +25,8 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
   teamRightName,
   liberoLeft = [],
   liberoRight = [],
+  setterLeft,
+  setterRight,
 }) => {
   // Court: 18m x 9m = 2:1. ViewBox 220x100 with service zones on sides.
   // Court area: x=20..110 (left), x=110..200 (right), y=5..95
@@ -132,30 +136,36 @@ const VolleyCourt: React.FC<VolleyCourtProps> = ({
         <line x1={courtMidX + attackLineOffset} y1={courtTop} x2={courtMidX + attackLineOffset} y2={courtBottom}
           stroke="hsl(var(--court-line))" strokeWidth="0.5" strokeDasharray="3,1.5" opacity="0.6" />
 
-        {/* Player numbers - Left team */}
+        {/* Player numbers - Left team (blue, setter yellow) */}
         {leftPositions.map((zone) => {
           const playerNum = getPlayerAtPosition(rotationLeft, zone.pos);
           if (!playerNum) return null;
+          const isSetter = playerNum === setterLeft;
+          const fill = isSetter ? 'hsl(45, 90%, 50%)' : 'hsl(210, 80%, 55%)';
+          const stroke = isSetter ? 'hsl(45, 90%, 40%)' : 'hsl(210, 80%, 40%)';
           return (
             <g key={`l-${zone.pos}`}>
-              <circle cx={zone.x} cy={zone.y} r="6" fill="hsl(var(--card))" stroke="hsl(var(--primary))" strokeWidth="0.6" opacity="0.7" />
+              <circle cx={zone.x} cy={zone.y} r="6" fill={fill} opacity="0.9" />
               <text x={zone.x} y={zone.y + 3.5} textAnchor="middle"
-                fontSize="8" fill="hsl(var(--foreground))" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
+                fontSize="8" fill="hsl(0, 0%, 100%)" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
                 {playerNum}
               </text>
             </g>
           );
         })}
 
-        {/* Player numbers - Right team */}
+        {/* Player numbers - Right team (red, setter yellow) */}
         {rightPositions.map((zone) => {
           const playerNum = getPlayerAtPosition(rotationRight, zone.pos);
           if (!playerNum) return null;
+          const isSetter = playerNum === setterRight;
+          const fill = isSetter ? 'hsl(45, 90%, 50%)' : 'hsl(0, 70%, 50%)';
+          const stroke = isSetter ? 'hsl(45, 90%, 40%)' : 'hsl(0, 70%, 40%)';
           return (
             <g key={`r-${zone.pos}`}>
-              <circle cx={zone.x} cy={zone.y} r="6" fill="hsl(var(--card))" stroke="hsl(var(--primary))" strokeWidth="0.6" opacity="0.7" />
+              <circle cx={zone.x} cy={zone.y} r="6" fill={fill} opacity="0.9" />
               <text x={zone.x} y={zone.y + 3.5} textAnchor="middle"
-                fontSize="8" fill="hsl(var(--foreground))" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
+                fontSize="8" fill="hsl(0, 0%, 100%)" fontWeight="bold" fontFamily="'JetBrains Mono', monospace">
                 {playerNum}
               </text>
             </g>

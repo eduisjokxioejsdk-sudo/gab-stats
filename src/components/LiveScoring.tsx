@@ -150,6 +150,8 @@ const LiveScoring: React.FC = () => {
               teamRightName={match.teamB.name}
               liberoLeft={match.teamA.liberos.map(l => l.number)}
               liberoRight={match.teamB.liberos.map(l => l.number)}
+              setterLeft={match.teamA.setterNumber}
+              setterRight={match.teamB.setterNumber}
             />
           </div>
         </div>
