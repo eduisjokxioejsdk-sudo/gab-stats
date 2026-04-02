@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState } from 'react';
+import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { useMatchStore } from '@/store/matchStore';
 import { useShortcutsStore } from '@/store/shortcutsStore';
 import VolleyCourt from '@/components/VolleyCourt';
@@ -29,6 +29,20 @@ const LiveScoring: React.FC = () => {
   const servingTeamId = useMatchStore.getState().getServingTeamId();
   const receivingTeamId = match && servingTeamId ? (servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id) : null;
   const setterFront = receivingTeamId ? isSetterFront(receivingTeamId) : false;
+
+  const rolesLeft = useMemo(() => {
+    if (!match) return {};
+    const map: Record<number, any> = {};
+    match.teamA.players.forEach(p => { if (p.role) map[p.number] = p.role; });
+    return map;
+  }, [match]);
+
+  const rolesRight = useMemo(() => {
+    if (!match) return {};
+    const map: Record<number, any> = {};
+    match.teamB.players.forEach(p => { if (p.role) map[p.number] = p.role; });
+    return map;
+  }, [match]);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (showSub) return;
@@ -152,6 +166,8 @@ const LiveScoring: React.FC = () => {
               liberoRight={match.teamB.liberos.map(l => l.number)}
               setterLeft={match.teamA.setterNumber}
               setterRight={match.teamB.setterNumber}
+              rolesLeft={rolesLeft}
+              rolesRight={rolesRight}
             />
           </div>
         </div>

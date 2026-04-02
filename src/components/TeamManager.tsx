@@ -27,7 +27,6 @@ const TeamManager: React.FC = () => {
   };
 
   const fastStart = () => {
-    // Generate 10 unique random jersey numbers (1-20)
     const allNums: number[] = [];
     while (allNums.length < 11) {
       const n = Math.floor(Math.random() * 20) + 1;
@@ -35,12 +34,15 @@ const TeamManager: React.FC = () => {
     }
     const playerNums = allNums.slice(0, 10);
     const liberoNum = allNums[10];
-    const setterNum = playerNums[Math.floor(Math.random() * playerNums.length)];
+
+    // Assign roles: 1 passeur, 1 pointu, 2 centraux, 2 R4, 4 remplaçants (no role)
+    const roles: (PlayerRole | undefined)[] = ['passeur', 'pointu', 'central', 'central', 'r4', 'r4', undefined, undefined, undefined, undefined];
+    const setterNum = playerNums[0]; // first player is setter
 
     const team: SavedTeam = {
       id: generateId(),
       name: `Équipe ${teams.length + 1}`,
-      players: playerNums.map(n => ({ number: n, name: `Joueur ${n}` })),
+      players: playerNums.map((n, i) => ({ number: n, name: `Joueur ${n}`, role: roles[i] })),
       liberos: [{ number: liberoNum, name: `Libéro ${liberoNum}` }],
       setterNumber: setterNum,
     };
@@ -115,7 +117,6 @@ const TeamManager: React.FC = () => {
                         const updated = [...editing.players];
                         const role = e.target.value as PlayerRole | '';
                         updated[i] = { ...updated[i], role: role || undefined };
-                        // If setting as passeur, also set setterNumber
                         if (role === 'passeur') {
                           setEditing({ ...editing, players: updated, setterNumber: updated[i].number });
                         } else {
@@ -125,7 +126,7 @@ const TeamManager: React.FC = () => {
                     >
                       <option value="">Rôle...</option>
                       <option value="pointu">Pointu</option>
-                      <option value="recepteur">Récepteur</option>
+                      <option value="r4">R4</option>
                       <option value="central">Central</option>
                       <option value="passeur">Passeur</option>
                     </select>
@@ -222,13 +223,13 @@ const TeamManager: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-1">
                 {team.players.map((p, i) => {
-                  const roleLabel = p.role === 'passeur' ? '★' : p.role === 'central' ? 'C' : p.role === 'pointu' ? 'P' : p.role === 'recepteur' ? 'R' : '';
+                  const roleLabel = p.role === 'passeur' ? '★' : p.role === 'central' ? 'C' : p.role === 'pointu' ? 'P' : p.role === 'r4' ? 'R4' : '';
                   return (
                     <span key={i} className={`text-xs font-mono px-1.5 py-0.5 rounded ${
                       p.role === 'passeur' ? 'bg-primary/20 text-primary'
                         : p.role === 'central' ? 'bg-orange-500/20 text-orange-400'
                         : p.role === 'pointu' ? 'bg-purple-500/20 text-purple-400'
-                        : p.role === 'recepteur' ? 'bg-blue-500/20 text-blue-400'
+                        : p.role === 'r4' ? 'bg-blue-500/20 text-blue-400'
                         : 'bg-secondary text-muted-foreground'
                     }`}>
                       {p.number}{roleLabel}
