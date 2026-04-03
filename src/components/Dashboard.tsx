@@ -33,8 +33,8 @@ const Dashboard: React.FC = () => {
   const showReception = config.receiverNumber || config.receptionQuality;
   // Show attack tab if attackTrajectory or attackQuality is enabled
   const showAttack = config.attackTrajectory || config.attackQuality || config.blockersCount;
-  // Show centraux tab if centralCall is enabled
-  const showCentraux = config.centralCall;
+  // Show centraux — removed
+
   // Show distribution tab if passDistribution is enabled
   const showDistribution = config.passDistribution;
 
