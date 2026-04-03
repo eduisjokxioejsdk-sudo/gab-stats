@@ -631,9 +631,34 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           [sc.setArriere]: 'arriere',
           [sc.setDecalee]: 'decalee',
           [sc.setNone]: 'none',
+          [sc.setTransition]: 'transition',
         };
         const call = callMap[key];
         if (!call) return;
+
+        if (call === 'transition') {
+          // Transition pass: need to ask which player makes the pass
+          const action: Action = {
+            id: generateId(),
+            type: 'set',
+            teamId: rallyTeamId,
+            timestamp: Date.now(),
+            setCall: 'transition',
+          };
+          if (inputState.currentPointId) {
+            const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+            set({
+              match: updatedMatch,
+              inputState: {
+                ...inputState,
+                phase: 'transition_player',
+                pendingActions: [action],
+                buffer: '',
+              },
+            });
+          }
+          break;
+        }
 
         const action: Action = {
           id: generateId(),
@@ -654,6 +679,50 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
               buffer: '',
             },
           });
+        }
+        break;
+      }
+
+      case 'transition_player': {
+        // Player number who makes the transition pass
+        if (key === 'Enter' && inputState.buffer.length > 0) {
+          const num = parseInt(inputState.buffer, 10);
+          if (!isNaN(num)) {
+            // Update the last set action with the player number
+            if (inputState.currentPointId) {
+              const point = currentSet.points.find(p => p.id === inputState.currentPointId);
+              if (point) {
+                const lastSetAction = [...point.actions].reverse().find(a => a.type === 'set' && a.setCall === 'transition');
+                if (lastSetAction) {
+                  state.updateAction(match.currentSetIndex, currentSet.points.indexOf(point), lastSetAction.id, { playerNumber: num });
+                }
+              }
+            }
+            set({
+              inputState: { ...inputState, phase: 'attack_position', buffer: '', pendingActions: [] },
+            });
+          }
+          break;
+        }
+        if (/^\d$/.test(key)) {
+          const newBuf = inputState.buffer + key;
+          if (newBuf.length >= 2) {
+            const num = parseInt(newBuf, 10);
+            if (inputState.currentPointId) {
+              const point = currentSet.points.find(p => p.id === inputState.currentPointId);
+              if (point) {
+                const lastSetAction = [...point.actions].reverse().find(a => a.type === 'set' && a.setCall === 'transition');
+                if (lastSetAction) {
+                  state.updateAction(match.currentSetIndex, currentSet.points.indexOf(point), lastSetAction.id, { playerNumber: num });
+                }
+              }
+            }
+            set({
+              inputState: { ...inputState, phase: 'attack_position', buffer: '', pendingActions: [] },
+            });
+          } else {
+            set({ inputState: { ...inputState, buffer: newBuf } });
+          }
         }
         break;
       }

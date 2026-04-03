@@ -18,6 +18,7 @@ const shortcutLabels: Record<keyof ShortcutMap, { label: string; group: string }
   setArriere: { label: 'Arrière', group: 'Passe' },
   setDecalee: { label: 'Décalée', group: 'Passe' },
   setNone: { label: 'Pas d\'appel', group: 'Passe' },
+  setTransition: { label: 'Passe de transition', group: 'Passe' },
   attackSecondeMain: { label: 'Seconde main', group: 'Attaque' },
   attackPos4: { label: 'Poste 4', group: 'Attaque' },
   attackPos3: { label: 'Centre (3)', group: 'Attaque' },

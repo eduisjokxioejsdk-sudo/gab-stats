@@ -14,6 +14,7 @@ export interface ShortcutMap {
   setArriere: string;
   setDecalee: string;
   setNone: string;
+  setTransition: string;
   attackSecondeMain: string;
   attackPos4: string;
   attackPos3: string;
@@ -45,6 +46,7 @@ export const defaultShortcuts: ShortcutMap = {
   setArriere: 'z',
   setDecalee: 'e',
   setNone: '0',
+  setTransition: 't',
   attackSecondeMain: 'm',
   attackPos4: '4',
   attackPos3: '3',
