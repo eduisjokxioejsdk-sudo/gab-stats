@@ -81,6 +81,6 @@ export const useShortcutsStore = create<ShortcutsStore>()(
         set((state) => ({ shortcuts: { ...state.shortcuts, [key]: value } })),
       resetShortcuts: () => set({ shortcuts: { ...defaultShortcuts } }),
     }),
-    { name: 'purevolley-shortcuts' }
+    { name: 'gabstats-shortcuts' }
   )
 );

@@ -87,7 +87,7 @@ const MatchSetup: React.FC = () => {
       <div className="w-full max-w-2xl">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black tracking-tighter text-foreground">
-            pure<span className="text-primary">volley</span>
+            gab<span className="text-primary">stats</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Nouveau match</p>
           <button

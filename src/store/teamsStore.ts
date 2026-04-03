@@ -32,6 +32,6 @@ export const useTeamsStore = create<TeamsStore>()(
       })),
       deleteTeam: (id) => set(s => ({ teams: s.teams.filter(t => t.id !== id) })),
     }),
-    { name: 'purevolley-teams' }
+    { name: 'gabstats-teams' }
   )
 );

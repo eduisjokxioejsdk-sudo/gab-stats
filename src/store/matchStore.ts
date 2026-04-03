@@ -78,7 +78,7 @@ interface MatchStore {
 
 export const useMatchStore = create<MatchStore>((set, get) => ({
   match: null,
-  matchHistory: JSON.parse(localStorage.getItem('purevolley-match-history') || '[]'),
+  matchHistory: JSON.parse(localStorage.getItem('gabstats-match-history') || '[]'),
   inputState: {
     phase: 'idle',
     pendingActions: [],
@@ -122,7 +122,7 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
     } else {
       updated = [...matchHistory, match];
     }
-    localStorage.setItem('purevolley-match-history', JSON.stringify(updated));
+    localStorage.setItem('gabstats-match-history', JSON.stringify(updated));
     set({ matchHistory: updated });
   },
 

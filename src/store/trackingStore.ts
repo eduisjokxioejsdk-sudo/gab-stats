@@ -53,6 +53,6 @@ export const useTrackingStore = create<TrackingStore>()(
         })),
       resetConfig: () => set({ config: { ...defaultTracking } }),
     }),
-    { name: 'purevolley-tracking-config' }
+    { name: 'gabstats-tracking-config' }
   )
 );

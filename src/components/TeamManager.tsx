@@ -189,7 +189,7 @@ const TeamManager: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-black tracking-tighter text-foreground">
-              pure<span className="text-primary">volley</span>
+              gab<span className="text-primary">stats</span>
             </h1>
             <span className="text-xs text-muted-foreground">👥 Équipes</span>
           </div>
