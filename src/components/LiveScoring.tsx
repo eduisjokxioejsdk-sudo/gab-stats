@@ -258,6 +258,22 @@ const LiveScoring: React.FC = () => {
         </div>
       )}
 
+      {/* Share code modal */}
+      {showShareCode && shareCode && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center" onClick={() => setShowShareCode(false)}>
+          <div className="bg-card border border-primary/30 rounded-xl p-8 animate-slide-in max-w-sm w-full mx-4 text-center" onClick={e => e.stopPropagation()}>
+            <h2 className="text-sm font-bold text-muted-foreground mb-2">Code pour le coach</h2>
+            <div className="text-4xl font-mono font-black tracking-[0.4em] text-primary py-4">
+              {shareCode}
+            </div>
+            <p className="text-muted-foreground text-xs font-mono mt-2">Le coach entre ce code dans "Mode Banc"</p>
+            <button onClick={() => setShowShareCode(false)} className="mt-4 bg-secondary text-secondary-foreground font-bold py-2 px-6 rounded-lg text-sm hover:bg-secondary/80 transition-colors">
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Substitution dialog */}
       <SubstitutionDialog isOpen={showSub} onClose={() => setShowSub(false)} />
     </div>
