@@ -5,7 +5,7 @@ import type { Action, Point } from '@/types/volleyball';
 import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
 import AttackTab from './stats/AttackTab';
-import CentrauxTab from './stats/CentrauxTab';
+
 import DistributionTab from './stats/DistributionTab';
 
 type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution';
