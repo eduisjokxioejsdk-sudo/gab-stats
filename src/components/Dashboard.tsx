@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMatchStore } from '@/store/matchStore';
+import { useTrackingStore } from '@/store/trackingStore';
 import type { Action, Point } from '@/types/volleyball';
 import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
@@ -11,6 +12,7 @@ type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution'
 
 const Dashboard: React.FC = () => {
   const { match, setView } = useMatchStore();
+  const { config } = useTrackingStore();
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<StatsTab>('service');
 
@@ -25,12 +27,23 @@ const Dashboard: React.FC = () => {
   const selectedTeam = selectedTeamId === match.teamA.id ? match.teamA
     : selectedTeamId === match.teamB.id ? match.teamB : null;
 
+  // Show service tab if serviceZone or serviceType is enabled
+  const showService = config.serviceZone || config.serviceType;
+  // Show reception tab if receiverNumber or receptionQuality is enabled
+  const showReception = config.receiverNumber || config.receptionQuality;
+  // Show attack tab if attackTrajectory or attackQuality is enabled
+  const showAttack = config.attackTrajectory || config.attackQuality || config.blockersCount;
+  // Show centraux tab if centralCall is enabled
+  const showCentraux = config.centralCall;
+  // Show distribution tab if passDistribution is enabled
+  const showDistribution = config.passDistribution;
+
   const tabs: { id: StatsTab; label: string; enabled: boolean }[] = [
-    { id: 'service', label: '🏐 Service', enabled: true },
-    { id: 'reception', label: '🤲 Réception', enabled: true },
-    { id: 'attack', label: '💥 Attaque', enabled: true },
-    { id: 'centraux', label: '🔶 Centraux', enabled: true },
-    { id: 'distribution', label: '📊 Distribution', enabled: true },
+    ...(showService ? [{ id: 'service' as StatsTab, label: '🏐 Service', enabled: true }] : []),
+    ...(showReception ? [{ id: 'reception' as StatsTab, label: '🤲 Réception', enabled: true }] : []),
+    ...(showAttack ? [{ id: 'attack' as StatsTab, label: '💥 Attaque', enabled: true }] : []),
+    ...(showCentraux ? [{ id: 'centraux' as StatsTab, label: '🔶 Centraux', enabled: true }] : []),
+    ...(showDistribution ? [{ id: 'distribution' as StatsTab, label: '📊 Distribution', enabled: true }] : []),
   ];
 
   return (
