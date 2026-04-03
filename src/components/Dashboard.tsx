@@ -113,7 +113,7 @@ const Dashboard: React.FC = () => {
             {activeTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {activeTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {activeTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
-            {activeTab === 'distribution' && <div className="text-center text-muted-foreground text-sm py-12">À venir...</div>}
+            {activeTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
           </div>
         </>
       )}
