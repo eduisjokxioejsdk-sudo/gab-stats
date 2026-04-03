@@ -33,9 +33,11 @@ export function useLiveSync() {
     shareCodeRef.current = code;
 
     const createLive = async () => {
+      const config = useTrackingStore.getState().config;
+      const matchWithConfig = { ...JSON.parse(JSON.stringify(match)), trackingConfig: config };
       const { data, error } = await supabase
         .from('live_matches')
-        .insert({ share_code: code, match_data: JSON.parse(JSON.stringify(match)) })
+        .insert({ share_code: code, match_data: matchWithConfig })
         .select('id')
         .single();
 
