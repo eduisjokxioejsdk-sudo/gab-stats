@@ -19,7 +19,7 @@ export interface Team {
 export type ActionType = 'service' | 'reception' | 'set' | 'attack' | 'defense';
 export type ServiceType = 'smash' | 'float';
 export type Quality = '++' | '+' | '0' | '-' | '--' | '/';
-export type SetCall = 'avant' | 'arriere' | 'decalee' | 'none';
+export type SetCall = 'avant' | 'arriere' | 'decalee' | 'none' | 'transition';
 export type AttackResult = 'kill' | 'good' | 'touched' | 'bad' | 'blocked' | 'error';
 export type AttackPosition = 'seconde_main' | '4' | '3' | '6' | '2' | '1';
 

@@ -46,6 +46,7 @@ export const defaultShortcuts: ShortcutMap = {
   setArriere: 'z',
   setDecalee: 'e',
   setNone: '0',
+  setTransition: 't',
   attackSecondeMain: 'm',
   attackPos4: '4',
   attackPos3: '3',
