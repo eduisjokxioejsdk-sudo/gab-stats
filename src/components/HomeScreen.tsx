@@ -78,6 +78,13 @@ const HomeScreen: React.FC = () => {
               👥 Gérer les équipes
             </button>
 
+            <button
+              onClick={() => setShowBench(true)}
+              className="w-full bg-card border border-border text-foreground font-bold py-4 rounded-lg hover:border-primary/50 transition-colors"
+            >
+              📺 Mode Banc
+            </button>
+
             <div className="flex gap-3">
               <button
                 onClick={loadDemoMatch}
