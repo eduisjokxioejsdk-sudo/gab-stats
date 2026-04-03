@@ -46,6 +46,9 @@ const Dashboard: React.FC = () => {
     ...(showDistribution ? [{ id: 'distribution' as StatsTab, label: '📊 Distribution', enabled: true }] : []),
   ];
 
+  // If active tab is hidden, switch to first available
+  const validTab = tabs.find(t => t.id === activeTab) ? activeTab : (tabs[0]?.id ?? 'service');
+
   return (
     <div className="min-h-screen no-select flex flex-col">
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
