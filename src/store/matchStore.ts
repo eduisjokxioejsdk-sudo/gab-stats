@@ -631,9 +631,34 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
           [sc.setArriere]: 'arriere',
           [sc.setDecalee]: 'decalee',
           [sc.setNone]: 'none',
+          [sc.setTransition]: 'transition',
         };
         const call = callMap[key];
         if (!call) return;
+
+        if (call === 'transition') {
+          // Transition pass: need to ask which player makes the pass
+          const action: Action = {
+            id: generateId(),
+            type: 'set',
+            teamId: rallyTeamId,
+            timestamp: Date.now(),
+            setCall: 'transition',
+          };
+          if (inputState.currentPointId) {
+            const updatedMatch = addActionToCurrentPoint(match, match.currentSetIndex, currentSet, inputState.currentPointId, action);
+            set({
+              match: updatedMatch,
+              inputState: {
+                ...inputState,
+                phase: 'transition_player',
+                pendingActions: [action],
+                buffer: '',
+              },
+            });
+          }
+          break;
+        }
 
         const action: Action = {
           id: generateId(),

@@ -106,6 +106,7 @@ export type InputPhase =
   | 'ace_receiver'
   | 'reception'
   | 'set_call'
+  | 'transition_player'
   | 'attack_position'
   | 'attack_player'
   | 'attack_blockers'

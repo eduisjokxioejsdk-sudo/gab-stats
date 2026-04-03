@@ -58,7 +58,12 @@ const InputGuide: React.FC<InputGuideProps> = ({ phase, buffer, teamAName = 'Éq
     set_call: {
       label: `PASSE${rallyTeamName ? ` — ${rallyTeamName}` : ''}`,
       hint: 'Appel du central',
-      keys: `[${formatKey(shortcuts.setAvant)}] Avant  [${formatKey(shortcuts.setArriere)}] Arrière  [${formatKey(shortcuts.setDecalee)}] Décalée  [${formatKey(shortcuts.setNone)}] Pas d'appel`,
+      keys: `[${formatKey(shortcuts.setAvant)}] Avant  [${formatKey(shortcuts.setArriere)}] Arrière  [${formatKey(shortcuts.setDecalee)}] Décalée  [${formatKey(shortcuts.setNone)}] Pas d'appel  [${formatKey(shortcuts.setTransition)}] Transition`,
+    },
+    transition_player: {
+      label: `TRANSITION${rallyTeamName ? ` — ${rallyTeamName}` : ''}`,
+      hint: 'N° du joueur qui fait la passe de transition',
+      keys: '[N°] Numéro du joueur (2 chiffres : auto, 1 chiffre : ENTRÉE)',
     },
     attack_position: {
       label: `PASSE — Direction${rallyTeamName ? ` (${rallyTeamName})` : ''}`,
