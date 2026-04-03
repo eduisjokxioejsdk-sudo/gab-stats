@@ -236,13 +236,13 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
   const renderZoneBox = (
     x: number, y: number, w: number, h: number,
     label: string, data: ZoneStats | null, isSetterZone: boolean,
-    sublabel?: string
+    sublabel?: string, isSecondeMain?: boolean
   ) => (
     <g key={`${label}-${sublabel || ''}`}>
       <rect
         x={x} y={y} width={w} height={h}
-        fill={isSetterZone ? 'hsl(var(--muted))' : data && data.count > 0 ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--secondary) / 0.3)'}
-        stroke="hsl(var(--border))"
+        fill={isSetterZone ? 'hsl(var(--muted))' : isSecondeMain && data && data.count > 0 ? 'hsl(var(--accent) / 0.25)' : data && data.count > 0 ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--secondary) / 0.3)'}
+        stroke={isSecondeMain && data && data.count > 0 ? 'hsl(var(--accent) / 0.5)' : 'hsl(var(--border))'}
         strokeWidth="1"
         rx="2"
       />
@@ -254,7 +254,7 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
       ) : data ? (
         <>
           <text x={x + w / 2} y={y + h * 0.25} textAnchor="middle" dominantBaseline="central"
-            fill="hsl(var(--muted-foreground))" fontSize="8" fontWeight="500">
+            fill={isSecondeMain ? 'hsl(var(--accent))' : 'hsl(var(--muted-foreground))'} fontSize="8" fontWeight="500">
             {sublabel || label}
           </text>
           <text x={x + w / 2} y={y + h * 0.55} textAnchor="middle" dominantBaseline="central"
@@ -262,7 +262,7 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
             {data.count}
           </text>
           <text x={x + w / 2} y={y + h * 0.8} textAnchor="middle" dominantBaseline="central"
-            fill="hsl(var(--primary))" fontSize="10" fontWeight="700" fontFamily="JetBrains Mono, monospace">
+            fill={isSecondeMain ? 'hsl(var(--accent))' : 'hsl(var(--primary))'} fontSize="10" fontWeight="700" fontFamily="JetBrains Mono, monospace">
             {data.pct}%
           </text>
         </>
