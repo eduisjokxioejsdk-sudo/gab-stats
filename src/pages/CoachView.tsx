@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { useTrackingStore, defaultTracking } from '@/store/trackingStore';
+import { useTrackingStore } from '@/store/trackingStore';
 import type { Match, Action, Point } from '@/types/volleyball';
 import ServiceTab from '@/components/stats/ServiceTab';
 import ReceptionTab from '@/components/stats/ReceptionTab';
