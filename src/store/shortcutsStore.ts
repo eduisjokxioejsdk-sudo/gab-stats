@@ -64,6 +64,7 @@ export const defaultShortcuts: ShortcutMap = {
   faultB: 'w',
   openSubstitution: 'c',
   openStats: 'd',
+  openSettings: 'p',
 };
 
 interface ShortcutsStore {
