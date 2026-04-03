@@ -683,6 +683,50 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
         break;
       }
 
+      case 'transition_player': {
+        // Player number who makes the transition pass
+        if (key === 'Enter' && inputState.buffer.length > 0) {
+          const num = parseInt(inputState.buffer, 10);
+          if (!isNaN(num)) {
+            // Update the last set action with the player number
+            if (inputState.currentPointId) {
+              const point = currentSet.points.find(p => p.id === inputState.currentPointId);
+              if (point) {
+                const lastSetAction = [...point.actions].reverse().find(a => a.type === 'set' && a.setCall === 'transition');
+                if (lastSetAction) {
+                  state.updateAction(match.currentSetIndex, currentSet.points.indexOf(point), lastSetAction.id, { playerNumber: num });
+                }
+              }
+            }
+            set({
+              inputState: { ...inputState, phase: 'attack_position', buffer: '', pendingActions: [] },
+            });
+          }
+          break;
+        }
+        if (/^\d$/.test(key)) {
+          const newBuf = inputState.buffer + key;
+          if (newBuf.length >= 2) {
+            const num = parseInt(newBuf, 10);
+            if (inputState.currentPointId) {
+              const point = currentSet.points.find(p => p.id === inputState.currentPointId);
+              if (point) {
+                const lastSetAction = [...point.actions].reverse().find(a => a.type === 'set' && a.setCall === 'transition');
+                if (lastSetAction) {
+                  state.updateAction(match.currentSetIndex, currentSet.points.indexOf(point), lastSetAction.id, { playerNumber: num });
+                }
+              }
+            }
+            set({
+              inputState: { ...inputState, phase: 'attack_position', buffer: '', pendingActions: [] },
+            });
+          } else {
+            set({ inputState: { ...inputState, buffer: newBuf } });
+          }
+        }
+        break;
+      }
+
       case 'attack_position': {
         // Where the setter played
         const team = rallyTeamId === match.teamA.id ? match.teamA : match.teamB;
