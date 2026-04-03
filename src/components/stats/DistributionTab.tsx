@@ -103,9 +103,7 @@ const DistributionTab: React.FC<DistributionTabProps> = ({ actions, allPoints, t
               else if (call === 'decalee') zone = '3-deca';
               else zone = '3-avant'; // default
             } else if (attackPos === 'seconde_main') {
-              // Setter attack — count as zone where setter is
-              if (isSetterFrontRow(setterIdx)) zone = '2';
-              else zone = '1';
+              zone = '5';
             }
 
             if (zone) {
