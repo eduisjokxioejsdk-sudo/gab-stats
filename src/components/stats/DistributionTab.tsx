@@ -13,7 +13,7 @@ interface DistributionTabProps {
 // Front row: P2(idx1), P3(idx2), P4(idx3)
 // Back row: P1(idx0), P6(idx5), P5(idx4)
 
-type ZoneId = '1' | '2' | '3-avant' | '3-arriere' | '3-deca' | '4' | '6';
+type ZoneId = '1' | '2' | '3-avant' | '3-arriere' | '3-deca' | '4' | '5' | '6';
 
 interface ZoneStats {
   count: number;
@@ -52,6 +52,7 @@ const DistributionTab: React.FC<DistributionTabProps> = ({ actions, allPoints, t
         '3-arriere': { count: 0, pct: 0 },
         '3-deca': { count: 0, pct: 0 },
         '4': { count: 0, pct: 0 },
+        '5': { count: 0, pct: 0 },
         '6': { count: 0, pct: 0 },
       };
       results.push({ rotIdx, setterFront, zones });
@@ -102,9 +103,7 @@ const DistributionTab: React.FC<DistributionTabProps> = ({ actions, allPoints, t
               else if (call === 'decalee') zone = '3-deca';
               else zone = '3-avant'; // default
             } else if (attackPos === 'seconde_main') {
-              // Setter attack — count as zone where setter is
-              if (isSetterFrontRow(setterIdx)) zone = '2';
-              else zone = '1';
+              zone = '5';
             }
 
             if (zone) {
@@ -223,12 +222,12 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
   const z1Left = z6Right;
   const z1Right = pad + courtW;
 
-  // Zone 3 subdivisions: K1 (fixe avant) left, K7 (déca) center, K2 (fixe arrière) right
-  const k1Left = z3Left;
-  const k1Right = z3Left + (z3Right - z3Left) / 3;
-  const k7Left = k1Right;
-  const k7Right = z3Left + (z3Right - z3Left) * 2 / 3;
-  const k2Left = k7Right;
+  // Zone 3 subdivisions: K7 (déca) left, K1 (fixe avant) center, K2 (fixe arrière) right
+  const k7Left = z3Left;
+  const k7Right = z3Left + (z3Right - z3Left) / 3;
+  const k1Left = k7Right;
+  const k1Right = z3Left + (z3Right - z3Left) * 2 / 3;
+  const k2Left = k1Right;
   const k2Right = z3Right;
 
   // Determine which back zone is the setter's (empty)
@@ -237,13 +236,13 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
   const renderZoneBox = (
     x: number, y: number, w: number, h: number,
     label: string, data: ZoneStats | null, isSetterZone: boolean,
-    sublabel?: string
+    sublabel?: string, isSecondeMain?: boolean
   ) => (
     <g key={`${label}-${sublabel || ''}`}>
       <rect
         x={x} y={y} width={w} height={h}
-        fill={isSetterZone ? 'hsl(var(--muted))' : data && data.count > 0 ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--secondary) / 0.3)'}
-        stroke="hsl(var(--border))"
+        fill={isSetterZone ? 'hsl(var(--muted))' : isSecondeMain && data && data.count > 0 ? 'hsl(var(--accent) / 0.25)' : data && data.count > 0 ? 'hsl(var(--primary) / 0.15)' : 'hsl(var(--secondary) / 0.3)'}
+        stroke={isSecondeMain && data && data.count > 0 ? 'hsl(var(--accent) / 0.5)' : 'hsl(var(--border))'}
         strokeWidth="1"
         rx="2"
       />
@@ -255,7 +254,7 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
       ) : data ? (
         <>
           <text x={x + w / 2} y={y + h * 0.25} textAnchor="middle" dominantBaseline="central"
-            fill="hsl(var(--muted-foreground))" fontSize="8" fontWeight="500">
+            fill={isSecondeMain ? 'hsl(var(--accent))' : 'hsl(var(--muted-foreground))'} fontSize="8" fontWeight="500">
             {sublabel || label}
           </text>
           <text x={x + w / 2} y={y + h * 0.55} textAnchor="middle" dominantBaseline="central"
@@ -263,7 +262,7 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
             {data.count}
           </text>
           <text x={x + w / 2} y={y + h * 0.8} textAnchor="middle" dominantBaseline="central"
-            fill="hsl(var(--primary))" fontSize="10" fontWeight="700" fontFamily="JetBrains Mono, monospace">
+            fill={isSecondeMain ? 'hsl(var(--accent))' : 'hsl(var(--primary))'} fontSize="10" fontWeight="700" fontFamily="JetBrains Mono, monospace">
             {data.pct}%
           </text>
         </>
@@ -285,19 +284,17 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
       {/* Front row zones */}
       {renderZoneBox(z4Left, netY, z4Right - z4Left, midY - netY, 'Z4', zones['4'], false, 'Z4')}
 
-      {/* Zone 3 subdivided */}
-      {renderZoneBox(k1Left, netY, k1Right - k1Left, midY - netY, 'K1', zones['3-avant'], false, 'K1')}
+      {/* Zone 3 subdivided: K7 (déca) | K1 (fixe) | K2 (fixe arrière) */}
       {renderZoneBox(k7Left, netY, k7Right - k7Left, midY - netY, 'K7', zones['3-deca'], false, 'K7')}
+      {renderZoneBox(k1Left, netY, k1Right - k1Left, midY - netY, 'K1', zones['3-avant'], false, 'K1')}
       {renderZoneBox(k2Left, netY, k2Right - k2Left, midY - netY, 'K2', zones['3-arriere'], false, 'K2')}
 
       {/* Zone 2 — only if setter is back */}
       {renderZoneBox(z2Left, netY, z2Right - z2Left, midY - netY, 'Z2', setterFront ? null : zones['2'], setterFront, setterFront ? 'P' : 'Z2')}
 
       {/* Back row */}
-      {/* Zone 5 — always empty */}
-      {renderZoneBox(z5Left, midY, z5Right - z5Left, botY - midY, 'Z5', null, false)}
-      <text x={(z5Left + z5Right) / 2} y={(midY + botY) / 2} textAnchor="middle" dominantBaseline="central"
-        fill="hsl(var(--muted-foreground))" fontSize="8" opacity="0.4">Z5</text>
+      {/* Zone 5 — secondes mains */}
+      {renderZoneBox(z5Left, midY, z5Right - z5Left, botY - midY, 'Z5', zones['5'], false, '2M', true)}
 
       {/* Zone 6 — pipe */}
       {renderZoneBox(z6Left, midY, z6Right - z6Left, botY - midY, 'Z6', zones['6'], false, 'Pipe')}
