@@ -113,7 +113,7 @@ const Dashboard: React.FC = () => {
                   onClick={() => tab.enabled && setActiveTab(tab.id)}
                   disabled={!tab.enabled}
                   className={`px-4 py-2 text-xs font-semibold transition-colors border-b-2 -mb-px ${
-                    activeTab === tab.id ? 'border-primary text-primary'
+                    validTab === tab.id ? 'border-primary text-primary'
                       : tab.enabled ? 'border-transparent text-muted-foreground hover:text-foreground'
                       : 'border-transparent text-muted-foreground/40 cursor-not-allowed'
                   }`}
@@ -125,11 +125,11 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-3">
-            {activeTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {activeTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {activeTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {activeTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
-            {activeTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
+            {validTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {validTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {validTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {validTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
+            {validTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
           </div>
         </>
       )}
