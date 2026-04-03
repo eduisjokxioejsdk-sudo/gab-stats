@@ -293,10 +293,8 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
       {renderZoneBox(z2Left, netY, z2Right - z2Left, midY - netY, 'Z2', setterFront ? null : zones['2'], setterFront, setterFront ? 'P' : 'Z2')}
 
       {/* Back row */}
-      {/* Zone 5 — always empty */}
-      {renderZoneBox(z5Left, midY, z5Right - z5Left, botY - midY, 'Z5', null, false)}
-      <text x={(z5Left + z5Right) / 2} y={(midY + botY) / 2} textAnchor="middle" dominantBaseline="central"
-        fill="hsl(var(--muted-foreground))" fontSize="8" opacity="0.4">Z5</text>
+      {/* Zone 5 — secondes mains */}
+      {renderZoneBox(z5Left, midY, z5Right - z5Left, botY - midY, 'Z5', zones['5'], false, '2M', true)}
 
       {/* Zone 6 — pipe */}
       {renderZoneBox(z6Left, midY, z6Right - z6Left, botY - midY, 'Z6', zones['6'], false, 'Pipe')}
