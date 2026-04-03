@@ -52,6 +52,7 @@ const DistributionTab: React.FC<DistributionTabProps> = ({ actions, allPoints, t
         '3-arriere': { count: 0, pct: 0 },
         '3-deca': { count: 0, pct: 0 },
         '4': { count: 0, pct: 0 },
+        '5': { count: 0, pct: 0 },
         '6': { count: 0, pct: 0 },
       };
       results.push({ rotIdx, setterFront, zones });
