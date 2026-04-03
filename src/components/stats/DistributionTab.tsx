@@ -13,7 +13,7 @@ interface DistributionTabProps {
 // Front row: P2(idx1), P3(idx2), P4(idx3)
 // Back row: P1(idx0), P6(idx5), P5(idx4)
 
-type ZoneId = '1' | '2' | '3-avant' | '3-arriere' | '3-deca' | '4' | '6';
+type ZoneId = '1' | '2' | '3-avant' | '3-arriere' | '3-deca' | '4' | '5' | '6';
 
 interface ZoneStats {
   count: number;
