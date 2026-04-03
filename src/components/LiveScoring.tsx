@@ -97,6 +97,11 @@ const LiveScoring: React.FC = () => {
       setView('dashboard');
       return;
     }
+    if (key === shortcuts.openSettings) {
+      e.preventDefault();
+      setView('settings');
+      return;
+    }
 
     if (key === shortcuts.startEndPoint) {
       e.preventDefault();

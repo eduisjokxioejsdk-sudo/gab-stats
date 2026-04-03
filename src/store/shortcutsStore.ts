@@ -31,6 +31,7 @@ export interface ShortcutMap {
   faultB: string;
   openSubstitution: string;
   openStats: string;
+  openSettings: string;
 }
 
 export const defaultShortcuts: ShortcutMap = {
@@ -63,6 +64,7 @@ export const defaultShortcuts: ShortcutMap = {
   faultB: 'w',
   openSubstitution: 'c',
   openStats: 'd',
+  openSettings: 'p',
 };
 
 interface ShortcutsStore {
