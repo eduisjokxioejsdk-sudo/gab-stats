@@ -17,7 +17,8 @@ const CoachView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<StatsTab>('scoreboard');
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
-  const { config } = useTrackingStore();
+  // Use tracking config from the synced match data (statistician's config), fallback to local
+  const config = match?.trackingConfig ?? useTrackingStore.getState().config;
 
   // Initial fetch
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useMatchStore } from '@/store/matchStore';
+import { useTrackingStore } from '@/store/trackingStore';
 import type { Match } from '@/types/volleyball';
 
 function generateShareCode(): string {
@@ -32,9 +33,11 @@ export function useLiveSync() {
     shareCodeRef.current = code;
 
     const createLive = async () => {
+      const config = useTrackingStore.getState().config;
+      const matchWithConfig = { ...JSON.parse(JSON.stringify(match)), trackingConfig: config };
       const { data, error } = await supabase
         .from('live_matches')
-        .insert({ share_code: code, match_data: JSON.parse(JSON.stringify(match)) })
+        .insert({ share_code: code, match_data: matchWithConfig })
         .select('id')
         .single();
 
@@ -56,9 +59,11 @@ export function useLiveSync() {
     const id = liveIdRef.current;
 
     const sync = async () => {
+      const config = useTrackingStore.getState().config;
+      const matchWithConfig = { ...JSON.parse(JSON.stringify(match)), trackingConfig: config };
       await supabase
         .from('live_matches')
-        .update({ match_data: JSON.parse(JSON.stringify(match)) })
+        .update({ match_data: matchWithConfig })
         .eq('id', id);
       syncingRef.current = false;
     };
