@@ -5,10 +5,10 @@ import type { Action, Point } from '@/types/volleyball';
 import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
 import AttackTab from './stats/AttackTab';
-import CentrauxTab from './stats/CentrauxTab';
+
 import DistributionTab from './stats/DistributionTab';
 
-type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution';
+type StatsTab = 'service' | 'reception' | 'attack' | 'distribution';
 
 const Dashboard: React.FC = () => {
   const { match, setView } = useMatchStore();
@@ -33,8 +33,8 @@ const Dashboard: React.FC = () => {
   const showReception = config.receiverNumber || config.receptionQuality;
   // Show attack tab if attackTrajectory or attackQuality is enabled
   const showAttack = config.attackTrajectory || config.attackQuality || config.blockersCount;
-  // Show centraux tab if centralCall is enabled
-  const showCentraux = config.centralCall;
+  // Show centraux — removed
+
   // Show distribution tab if passDistribution is enabled
   const showDistribution = config.passDistribution;
 
@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
     ...(showService ? [{ id: 'service' as StatsTab, label: '🏐 Service', enabled: true }] : []),
     ...(showReception ? [{ id: 'reception' as StatsTab, label: '🤲 Réception', enabled: true }] : []),
     ...(showAttack ? [{ id: 'attack' as StatsTab, label: '💥 Attaque', enabled: true }] : []),
-    ...(showCentraux ? [{ id: 'centraux' as StatsTab, label: '🔶 Centraux', enabled: true }] : []),
+    
     ...(showDistribution ? [{ id: 'distribution' as StatsTab, label: '📊 Distribution', enabled: true }] : []),
   ];
 
@@ -128,7 +128,7 @@ const Dashboard: React.FC = () => {
             {validTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {validTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {validTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {validTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
+            
             {validTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
           </div>
         </>
