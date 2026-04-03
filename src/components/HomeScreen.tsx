@@ -6,6 +6,8 @@ import type { Match } from '@/types/volleyball';
 const HomeScreen: React.FC = () => {
   const { setView, match, matchHistory, loadMatch } = useMatchStore();
   const [tab, setTab] = useState<'home' | 'matches'>('home');
+  const [showBench, setShowBench] = useState(false);
+  const [benchCode, setBenchCode] = useState('');
 
   const isMatchInProgress = match && !match.winnerTeamId && match.currentSetIndex >= 0;
 
