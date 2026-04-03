@@ -284,9 +284,9 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
       {/* Front row zones */}
       {renderZoneBox(z4Left, netY, z4Right - z4Left, midY - netY, 'Z4', zones['4'], false, 'Z4')}
 
-      {/* Zone 3 subdivided */}
-      {renderZoneBox(k1Left, netY, k1Right - k1Left, midY - netY, 'K1', zones['3-avant'], false, 'K1')}
+      {/* Zone 3 subdivided: K7 (déca) | K1 (fixe) | K2 (fixe arrière) */}
       {renderZoneBox(k7Left, netY, k7Right - k7Left, midY - netY, 'K7', zones['3-deca'], false, 'K7')}
+      {renderZoneBox(k1Left, netY, k1Right - k1Left, midY - netY, 'K1', zones['3-avant'], false, 'K1')}
       {renderZoneBox(k2Left, netY, k2Right - k2Left, midY - netY, 'K2', zones['3-arriere'], false, 'K2')}
 
       {/* Zone 2 — only if setter is back */}
