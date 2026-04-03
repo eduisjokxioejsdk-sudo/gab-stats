@@ -222,12 +222,12 @@ const HalfCourt: React.FC<HalfCourtProps> = ({ zones, setterFront, setterRotIdx 
   const z1Left = z6Right;
   const z1Right = pad + courtW;
 
-  // Zone 3 subdivisions: K1 (fixe avant) left, K7 (déca) center, K2 (fixe arrière) right
-  const k1Left = z3Left;
-  const k1Right = z3Left + (z3Right - z3Left) / 3;
-  const k7Left = k1Right;
-  const k7Right = z3Left + (z3Right - z3Left) * 2 / 3;
-  const k2Left = k7Right;
+  // Zone 3 subdivisions: K7 (déca) left, K1 (fixe avant) center, K2 (fixe arrière) right
+  const k7Left = z3Left;
+  const k7Right = z3Left + (z3Right - z3Left) / 3;
+  const k1Left = k7Right;
+  const k1Right = z3Left + (z3Right - z3Left) * 2 / 3;
+  const k2Left = k1Right;
   const k2Right = z3Right;
 
   // Determine which back zone is the setter's (empty)
