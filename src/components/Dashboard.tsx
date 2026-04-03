@@ -8,7 +8,7 @@ import AttackTab from './stats/AttackTab';
 
 import DistributionTab from './stats/DistributionTab';
 
-type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution';
+type StatsTab = 'service' | 'reception' | 'attack' | 'distribution';
 
 const Dashboard: React.FC = () => {
   const { match, setView } = useMatchStore();
