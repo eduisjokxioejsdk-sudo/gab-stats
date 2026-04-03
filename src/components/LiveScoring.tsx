@@ -1,12 +1,14 @@
 import React, { useEffect, useCallback, useState, useMemo } from 'react';
 import { useMatchStore } from '@/store/matchStore';
 import { useShortcutsStore } from '@/store/shortcutsStore';
+import { useLiveSync } from '@/hooks/useLiveSync';
 import VolleyCourt from '@/components/VolleyCourt';
 import type { PreviousService } from '@/components/VolleyCourt';
 import InputGuide from '@/components/InputGuide';
 import ScoreBoard from '@/components/ScoreBoard';
 import ActionLog from '@/components/ActionLog';
 import SubstitutionDialog from '@/components/SubstitutionDialog';
+import { toast } from 'sonner';
 
 const LiveScoring: React.FC = () => {
   const {
@@ -24,6 +26,15 @@ const LiveScoring: React.FC = () => {
   const currentSet = getCurrentSet();
   const { shortcuts } = useShortcutsStore();
   const [showSub, setShowSub] = useState(false);
+  const { shareCode } = useLiveSync();
+
+  const handleShareLink = useCallback(() => {
+    if (!shareCode) return;
+    const url = `${window.location.origin}/coach?code=${shareCode}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(`Lien copié ! Code : ${shareCode}`);
+    });
+  }, [shareCode]);
 
   const servingTeamId = useMatchStore.getState().getServingTeamId();
   const receivingTeamId = match && servingTeamId ? (servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id) : null;
@@ -164,6 +175,7 @@ const LiveScoring: React.FC = () => {
         />
 
         <div className="flex gap-1">
+          <button onClick={handleShareLink} title={shareCode ? `Code: ${shareCode}` : 'Partage en cours…'} className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded font-semibold hover:bg-primary/30 transition-colors">📡</button>
           <button onClick={() => setShowSub(true)} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">🔄</button>
           <button onClick={() => setView('dashboard')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">📊</button>
           <button onClick={() => setView('settings')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">⚙️</button>
