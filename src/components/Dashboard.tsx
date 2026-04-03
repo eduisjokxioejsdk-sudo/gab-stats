@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useMatchStore } from '@/store/matchStore';
+import { useTrackingStore } from '@/store/trackingStore';
 import type { Action, Point } from '@/types/volleyball';
 import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
@@ -11,6 +12,7 @@ type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution'
 
 const Dashboard: React.FC = () => {
   const { match, setView } = useMatchStore();
+  const { config } = useTrackingStore();
   const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<StatsTab>('service');
 
@@ -25,13 +27,27 @@ const Dashboard: React.FC = () => {
   const selectedTeam = selectedTeamId === match.teamA.id ? match.teamA
     : selectedTeamId === match.teamB.id ? match.teamB : null;
 
+  // Show service tab if serviceZone or serviceType is enabled
+  const showService = config.serviceZone || config.serviceType;
+  // Show reception tab if receiverNumber or receptionQuality is enabled
+  const showReception = config.receiverNumber || config.receptionQuality;
+  // Show attack tab if attackTrajectory or attackQuality is enabled
+  const showAttack = config.attackTrajectory || config.attackQuality || config.blockersCount;
+  // Show centraux tab if centralCall is enabled
+  const showCentraux = config.centralCall;
+  // Show distribution tab if passDistribution is enabled
+  const showDistribution = config.passDistribution;
+
   const tabs: { id: StatsTab; label: string; enabled: boolean }[] = [
-    { id: 'service', label: '🏐 Service', enabled: true },
-    { id: 'reception', label: '🤲 Réception', enabled: true },
-    { id: 'attack', label: '💥 Attaque', enabled: true },
-    { id: 'centraux', label: '🔶 Centraux', enabled: true },
-    { id: 'distribution', label: '📊 Distribution', enabled: true },
+    ...(showService ? [{ id: 'service' as StatsTab, label: '🏐 Service', enabled: true }] : []),
+    ...(showReception ? [{ id: 'reception' as StatsTab, label: '🤲 Réception', enabled: true }] : []),
+    ...(showAttack ? [{ id: 'attack' as StatsTab, label: '💥 Attaque', enabled: true }] : []),
+    ...(showCentraux ? [{ id: 'centraux' as StatsTab, label: '🔶 Centraux', enabled: true }] : []),
+    ...(showDistribution ? [{ id: 'distribution' as StatsTab, label: '📊 Distribution', enabled: true }] : []),
   ];
+
+  // If active tab is hidden, switch to first available
+  const validTab = tabs.find(t => t.id === activeTab) ? activeTab : (tabs[0]?.id ?? 'service');
 
   return (
     <div className="min-h-screen no-select flex flex-col">
@@ -97,7 +113,7 @@ const Dashboard: React.FC = () => {
                   onClick={() => tab.enabled && setActiveTab(tab.id)}
                   disabled={!tab.enabled}
                   className={`px-4 py-2 text-xs font-semibold transition-colors border-b-2 -mb-px ${
-                    activeTab === tab.id ? 'border-primary text-primary'
+                    validTab === tab.id ? 'border-primary text-primary'
                       : tab.enabled ? 'border-transparent text-muted-foreground hover:text-foreground'
                       : 'border-transparent text-muted-foreground/40 cursor-not-allowed'
                   }`}
@@ -109,11 +125,11 @@ const Dashboard: React.FC = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto px-4 py-3">
-            {activeTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {activeTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {activeTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
-            {activeTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
-            {activeTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
+            {validTab === 'service' && <ServiceTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {validTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {validTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
+            {validTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
+            {validTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
           </div>
         </>
       )}
