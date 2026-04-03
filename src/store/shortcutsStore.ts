@@ -14,6 +14,7 @@ export interface ShortcutMap {
   setArriere: string;
   setDecalee: string;
   setNone: string;
+  setTransition: string;
   attackSecondeMain: string;
   attackPos4: string;
   attackPos3: string;
