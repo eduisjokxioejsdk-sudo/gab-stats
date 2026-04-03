@@ -147,7 +147,7 @@ const LiveScoring: React.FC = () => {
       <div className="flex items-center justify-between px-3 py-1 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-2">
           <h1 className="text-sm font-black tracking-tighter text-foreground">
-            pure<span className="text-primary">volley</span>
+            gab<span className="text-primary">stats</span>
           </h1>
           <span className="text-[10px] text-muted-foreground font-mono">{match.name}</span>
         </div>
