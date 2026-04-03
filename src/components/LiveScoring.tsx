@@ -26,6 +26,15 @@ const LiveScoring: React.FC = () => {
   const currentSet = getCurrentSet();
   const { shortcuts } = useShortcutsStore();
   const [showSub, setShowSub] = useState(false);
+  const { shareCode } = useLiveSync();
+
+  const handleShareLink = useCallback(() => {
+    if (!shareCode) return;
+    const url = `${window.location.origin}/coach?code=${shareCode}`;
+    navigator.clipboard.writeText(url).then(() => {
+      toast.success(`Lien copié ! Code : ${shareCode}`);
+    });
+  }, [shareCode]);
 
   const servingTeamId = useMatchStore.getState().getServingTeamId();
   const receivingTeamId = match && servingTeamId ? (servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id) : null;
