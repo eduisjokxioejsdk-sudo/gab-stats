@@ -35,6 +35,7 @@ const shortcutLabels: Record<keyof ShortcutMap, { label: string; group: string }
   faultB: { label: 'Faute Équipe B', group: 'Point' },
   openSubstitution: { label: 'Ouvrir changements', group: 'Navigation' },
   openStats: { label: 'Ouvrir stats', group: 'Navigation' },
+  openSettings: { label: 'Ouvrir paramètres', group: 'Navigation' },
 };
 
 const displayKey = (key: string | undefined | null) => {
