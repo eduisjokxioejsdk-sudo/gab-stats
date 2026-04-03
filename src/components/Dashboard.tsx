@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
     ...(showService ? [{ id: 'service' as StatsTab, label: '🏐 Service', enabled: true }] : []),
     ...(showReception ? [{ id: 'reception' as StatsTab, label: '🤲 Réception', enabled: true }] : []),
     ...(showAttack ? [{ id: 'attack' as StatsTab, label: '💥 Attaque', enabled: true }] : []),
-    ...(showCentraux ? [{ id: 'centraux' as StatsTab, label: '🔶 Centraux', enabled: true }] : []),
+    
     ...(showDistribution ? [{ id: 'distribution' as StatsTab, label: '📊 Distribution', enabled: true }] : []),
   ];
 
