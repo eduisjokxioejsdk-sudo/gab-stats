@@ -168,7 +168,7 @@ const LiveScoring: React.FC = () => {
         />
 
         <div className="flex gap-1">
-          <button onClick={handleShareLink} title={shareCode ? `Code: ${shareCode}` : 'Partage en cours…'} className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded font-semibold hover:bg-primary/30 transition-colors">📡</button>
+          <button onClick={() => setShowShareCode(v => !v)} title={shareCode ? `Code: ${shareCode}` : 'Partage en cours…'} className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded font-semibold hover:bg-primary/30 transition-colors">📡</button>
           <button onClick={() => setShowSub(true)} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">🔄</button>
           <button onClick={() => setView('dashboard')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">📊</button>
           <button onClick={() => setView('settings')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">⚙️</button>
