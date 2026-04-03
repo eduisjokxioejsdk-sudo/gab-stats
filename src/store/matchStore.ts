@@ -575,8 +575,8 @@ export const useMatchStore = create<MatchStore>((set, get) => ({
             if (recQuality === '/') {
               // Overpass: ball goes to serving team side, they attack
               set({ match: updatedMatch, inputState: { ...inputState, phase: 'set_call', pendingActions: [], buffer: '', rallyTeamId: servingTeamId } });
-            } else if (recQuality === '+' || recQuality === '0' || recQuality === '-') {
-              // Good/neutral/bad reception: setter can't play central, auto "none" set_call and skip to attack_position
+            } else if (recQuality === '+' || recQuality === '0' || recQuality === '-' || recQuality === '--') {
+              // Non-excellent reception: setter can't play central, auto "none" set_call and skip to attack_position
               const setCallAction: Action = {
                 id: generateId(), type: 'set', teamId: receivingTeamId, timestamp: Date.now(), setCall: 'none',
               };
