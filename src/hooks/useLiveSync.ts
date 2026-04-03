@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useMatchStore } from '@/store/matchStore';
+import { useTrackingStore } from '@/store/trackingStore';
 import type { Match } from '@/types/volleyball';
 
 function generateShareCode(): string {
