@@ -26,15 +26,8 @@ const LiveScoring: React.FC = () => {
   const currentSet = getCurrentSet();
   const { shortcuts } = useShortcutsStore();
   const [showSub, setShowSub] = useState(false);
+  const [showShareCode, setShowShareCode] = useState(false);
   const { shareCode } = useLiveSync();
-
-  const handleShareLink = useCallback(() => {
-    if (!shareCode) return;
-    const url = `${window.location.origin}/coach?code=${shareCode}`;
-    navigator.clipboard.writeText(url).then(() => {
-      toast.success(`Lien copié ! Code : ${shareCode}`);
-    });
-  }, [shareCode]);
 
   const servingTeamId = useMatchStore.getState().getServingTeamId();
   const receivingTeamId = match && servingTeamId ? (servingTeamId === match.teamA.id ? match.teamB.id : match.teamA.id) : null;
@@ -175,7 +168,7 @@ const LiveScoring: React.FC = () => {
         />
 
         <div className="flex gap-1">
-          <button onClick={handleShareLink} title={shareCode ? `Code: ${shareCode}` : 'Partage en cours…'} className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded font-semibold hover:bg-primary/30 transition-colors">📡</button>
+          <button onClick={() => setShowShareCode(v => !v)} title={shareCode ? `Code: ${shareCode}` : 'Partage en cours…'} className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded font-semibold hover:bg-primary/30 transition-colors">📡</button>
           <button onClick={() => setShowSub(true)} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">🔄</button>
           <button onClick={() => setView('dashboard')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">📊</button>
           <button onClick={() => setView('settings')} className="text-[10px] bg-secondary text-secondary-foreground px-2 py-1 rounded font-semibold hover:bg-secondary/80 transition-colors">⚙️</button>
@@ -262,6 +255,22 @@ const LiveScoring: React.FC = () => {
           <p className="text-muted-foreground text-xs mt-1">
             {match.setsWonA} - {match.setsWonB}
           </p>
+        </div>
+      )}
+
+      {/* Share code modal */}
+      {showShareCode && shareCode && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center" onClick={() => setShowShareCode(false)}>
+          <div className="bg-card border border-primary/30 rounded-xl p-8 animate-slide-in max-w-sm w-full mx-4 text-center" onClick={e => e.stopPropagation()}>
+            <h2 className="text-sm font-bold text-muted-foreground mb-2">Code pour le coach</h2>
+            <div className="text-4xl font-mono font-black tracking-[0.4em] text-primary py-4">
+              {shareCode}
+            </div>
+            <p className="text-muted-foreground text-xs font-mono mt-2">Le coach entre ce code dans "Mode Banc"</p>
+            <button onClick={() => setShowShareCode(false)} className="mt-4 bg-secondary text-secondary-foreground font-bold py-2 px-6 rounded-lg text-sm hover:bg-secondary/80 transition-colors">
+              Fermer
+            </button>
+          </div>
         </div>
       )}
 

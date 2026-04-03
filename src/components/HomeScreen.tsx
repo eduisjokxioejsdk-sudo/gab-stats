@@ -6,6 +6,8 @@ import type { Match } from '@/types/volleyball';
 const HomeScreen: React.FC = () => {
   const { setView, match, matchHistory, loadMatch } = useMatchStore();
   const [tab, setTab] = useState<'home' | 'matches'>('home');
+  const [showBench, setShowBench] = useState(false);
+  const [benchCode, setBenchCode] = useState('');
 
   const isMatchInProgress = match && !match.winnerTeamId && match.currentSetIndex >= 0;
 
@@ -74,6 +76,13 @@ const HomeScreen: React.FC = () => {
               className="w-full bg-card border border-border text-foreground font-bold py-4 rounded-lg hover:border-primary/50 transition-colors"
             >
               👥 Gérer les équipes
+            </button>
+
+            <button
+              onClick={() => setShowBench(true)}
+              className="w-full bg-card border border-border text-foreground font-bold py-4 rounded-lg hover:border-primary/50 transition-colors"
+            >
+              📺 Mode Banc
             </button>
 
             <div className="flex gap-3">
@@ -145,6 +154,46 @@ const HomeScreen: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Bench mode modal */}
+      {showBench && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+          <div className="bg-card border border-border rounded-xl p-6 max-w-sm w-full mx-4 animate-slide-in">
+            <h2 className="text-lg font-bold text-foreground text-center mb-4">📺 Mode Banc</h2>
+            <p className="text-muted-foreground text-xs text-center mb-4 font-mono">
+              Entrez le code affiché sur le PC du statisticien
+            </p>
+            <input
+              type="text"
+              maxLength={6}
+              value={benchCode}
+              onChange={(e) => setBenchCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+              placeholder="ABC123"
+              className="w-full text-center text-2xl font-mono font-bold tracking-[0.5em] bg-secondary border border-border rounded-lg py-3 text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-primary"
+              autoFocus
+            />
+            <div className="flex gap-3 mt-4">
+              <button
+                onClick={() => { setShowBench(false); setBenchCode(''); }}
+                className="flex-1 bg-secondary text-secondary-foreground font-bold py-3 rounded-lg text-sm hover:bg-secondary/80 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={() => {
+                  if (benchCode.length === 6) {
+                    window.location.href = `/coach?code=${benchCode}`;
+                  }
+                }}
+                disabled={benchCode.length !== 6}
+                className="flex-1 bg-primary text-primary-foreground font-bold py-3 rounded-lg text-sm hover:opacity-90 transition-opacity disabled:opacity-40"
+              >
+                Rejoindre
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
