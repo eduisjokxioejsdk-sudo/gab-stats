@@ -59,9 +59,11 @@ export function useLiveSync() {
     const id = liveIdRef.current;
 
     const sync = async () => {
+      const config = useTrackingStore.getState().config;
+      const matchWithConfig = { ...JSON.parse(JSON.stringify(match)), trackingConfig: config };
       await supabase
         .from('live_matches')
-        .update({ match_data: JSON.parse(JSON.stringify(match)) })
+        .update({ match_data: matchWithConfig })
         .eq('id', id);
       syncingRef.current = false;
     };
