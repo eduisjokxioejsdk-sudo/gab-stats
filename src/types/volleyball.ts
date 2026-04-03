@@ -96,6 +96,17 @@ export interface Match {
   setsWonB: number;
   currentSetIndex: number;
   winnerTeamId?: string;
+  trackingConfig?: {
+    serviceZone: boolean;
+    serviceType: boolean;
+    receiverNumber: boolean;
+    receptionQuality: boolean;
+    centralCall: boolean;
+    passDistribution: boolean;
+    attackTrajectory: boolean;
+    blockersCount: boolean;
+    attackQuality: boolean;
+  };
 }
 
 export type InputPhase =
