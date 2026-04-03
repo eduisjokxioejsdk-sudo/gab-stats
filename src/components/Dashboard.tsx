@@ -5,6 +5,7 @@ import ServiceTab from './stats/ServiceTab';
 import ReceptionTab from './stats/ReceptionTab';
 import AttackTab from './stats/AttackTab';
 import CentrauxTab from './stats/CentrauxTab';
+import DistributionTab from './stats/DistributionTab';
 
 type StatsTab = 'service' | 'reception' | 'attack' | 'centraux' | 'distribution';
 
@@ -29,7 +30,7 @@ const Dashboard: React.FC = () => {
     { id: 'reception', label: '🤲 Réception', enabled: true },
     { id: 'attack', label: '💥 Attaque', enabled: true },
     { id: 'centraux', label: '🔶 Centraux', enabled: true },
-    { id: 'distribution', label: '📊 Distribution', enabled: false },
+    { id: 'distribution', label: '📊 Distribution', enabled: true },
   ];
 
   return (
@@ -112,7 +113,7 @@ const Dashboard: React.FC = () => {
             {activeTab === 'reception' && <ReceptionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {activeTab === 'attack' && <AttackTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} />}
             {activeTab === 'centraux' && <CentrauxTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
-            {activeTab === 'distribution' && <div className="text-center text-muted-foreground text-sm py-12">À venir...</div>}
+            {activeTab === 'distribution' && <DistributionTab actions={allActions} allPoints={allPoints} teamId={selectedTeamId!} team={selectedTeam} match={match} />}
           </div>
         </>
       )}
